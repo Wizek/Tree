@@ -7,7 +7,7 @@ It should **handle async code** as good as NodeUnit, or even one bit better-- *W
 
 It's almost as **expressive** as Shouldjs, but doesn't extend the Object object, hence one tiny bit safer, and for those of you who like to be not that much expressive, there are mirror functions.
 
-**It's easy to get into,** whether you come from another framework your you just start with some flavor of TDD. Tree.js works with even just assertions, written sequentially. Tree doesn't force any kind of preset structure on you, but you'll want some organization sooner or later I'm sure. As your app gets more and more complex, you will want to organize your assertions into tests, and make some tests branch out of other tests, branching out of other tests! Did I mention hierarchical ordering capability?
+**It's easy to get into,** whether you come from another framework or you just start with some flavor of TDD. Tree.js works with even just assertions, written sequentially. Tree doesn't force any kind of preset structure on you, but you'll want some organization sooner or later I'm sure. As your app gets more and more complex, you will want to organize your assertions into tests, and make some tests branch out of other tests, branching out of other tests! Did I mention hierarchical ordering capability?
 To be continued...
 
 ### That's a little too much text for me
@@ -58,56 +58,56 @@ require(['tree'], function(tree) {
 ```
 #### A some assertion types
 ```javascript
-require(['tree'], function(tree) {
-  // Default syntax
-  tree(123).type('number')
-  // Negate with .not.
-  tree({"ob":"ject"}).not.type('string')
-  // `===` by default
-  tree(1).not.eql("1")
-  // `==` if you need it
-  tree(1).equal("1")
-})
+// Default syntax
+tree(123).type('number')
+// Negate with .not.
+tree({"ob":"ject"}).not.type('string')
+// `===` by default
+tree(1).not.eql("1")
+// `==` if you need it
+tree(1).equal("1")
+// Etc.. All the core and some convenience assert types
 ```
 #### Handles async well
 ```javascript
-require(['tree'], function(tree) {
-  tree.expect(1)
-  async(function(){
-    tree(x).eql(y)
-    tree.done()
-  })
+tree.expect(1) // to ensure all asserts are run
+async(function(){ // async() is an arbitrary async function
+  tree(x).eql(y)
+  tree.done() // to know when all callbacks are back
 })
 ```
 #### Some organising. As much levels as you want. It'll have neat output too!
 ```javascript
-require(['tree'], function(tree) {
+tree.branch(function(tree) {
   ...
+  tree.branch(function(tree) {
+    ...
+  })
   tree.branch(function(tree) {
     ...
     tree.branch(function(tree) {
       ...
     })
-    tree.branch(function(tree) {
-      ...
-      tree.branch(function(tree) {
-        ...
-      })
-    })
-  })  
+  })
 })
 ```
 #### Want even more control? Load test files on the go, to their appropriate location! They'll be executed as if you wrote them directly there, but this way they are more portable. (Only with AMD, or in Node)
 ```javascript
-require(['tree'], function(tree) {
+...
+tree.branch(function(tree) {
   ...
-  tree.branch(function(tree) {
-    ...
-    tree.branch('path/to/source.js')
-    ...
-  })
+  tree.branch('path/to/source.js')
   ...
 })
+...
+```
+#### Are you more conservative type? We have the mirror functions for the asserts for you too:
+```javascript
+// Standard,                oldschool
+tree(133).eql(133);         tree.eql(133, 133)
+tree(ary).deepEqual(ary);   tree.deepEqual(ary, ary)
+tree(foo).not.eql(bar);     tree.notEql(foo, bar)
+// I think you get the point.
 ```
 #### More code to come here soon!
 
