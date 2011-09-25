@@ -78,14 +78,14 @@ async(function(){ // async() is an arbitrary async function
 ```
 #### Some organising. As much levels as you want. It'll have neat output too!
 ```javascript
-tree.branch(function(tree) {
+tree.branch('Name these', function(tree) {
   ...
-  tree.branch(function(tree) {
+  tree.branch('whatever', function(tree) {
     ...
   })
-  tree.branch(function(tree) {
+  tree.branch('you', function(tree) {
     ...
-    tree.branch(function(tree) {
+    tree.branch('want!', function(tree) {
       ...
     })
   })
