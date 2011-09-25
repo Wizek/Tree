@@ -1,6 +1,6 @@
 require(['../tree', 'https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js']
 , function(tree, $) {
-  // Instance for testing the test framework.
+  // Super Tree instance for testing the test framework.
   stree = tree._debugInstance()
   stree.branch('STREE Top level', function(stree) {
     stree.expect(-1)
@@ -26,6 +26,53 @@ require(['../tree', 'https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.m
       })      
     })
 
+    stree.branch('STREE formateer', function(stree) {
+      tree.branch('formateer!', function(tree) {
+        stree(tree._formateer).type('function')
+        var frm = tree._formateer
+        /*\
+         *  short format
+        \*/
+        stree( frm(1) ).eql('1')
+        stree( frm('string') ).eql("'string'")
+        stree( frm("'string'") ).eql('"\'string\'"')
+        stree( frm('"string"') ).eql("'\"string\"'")
+        stree( frm('\'""') ).eql("'\\'\"\"'")
+        stree( frm("\"''") ).eql('"\\"\'\'"')
+        stree( frm('"\'"\'') ).eql("'\"\\'\"\\''")
+        stree( frm(true) ).eql('true')
+        stree( frm(false) ).eql('false')
+        stree( frm(function() {}) ).eql('fn(){…}')
+        stree( frm({a:1}) ).eql('{…}')
+        stree( frm([1,2,3]) ).eql('[…]')
+        /*\
+         *  Long format
+        \*/
+        // yet to come
+      })
+    })
+
+    stree.branch('STREE announcer-interception', function(stree) {
+      var stash = tree._announcer
+      tree.branch('announce!', function(tree) {
+        stree(tree._announcer).type('function')
+        tree._announcer = function(obj) {
+          stree(obj).type('object')
+          stree(obj.pass).eql(true)
+          stree(obj.msg).eql('announce!: 1 === 1')
+        }
+        tree(1).eql(1)
+        tree._announcer = function(obj) {
+          stree(obj).type('object')
+          stree(obj.pass).eql(false)
+          stree(obj.msg).eql('announce!: 1 !== 2')
+        }
+        tree(1).eql(2)
+
+      })
+      tree._announcer = stash
+    })
+
     stree.branch('STREE expectations', function(stree) {
       tree.branch('none', function(tree) {
         stree(tree._expect).eql(-1)
@@ -45,9 +92,9 @@ require(['../tree', 'https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.m
         stree(tree._done).eql(true)
       })
       tree.branch('fulfill', function(tree) {
-        tree._announcer = function(obj) {
-          stree(obj).deepEql({pass:false, msg:'fulfill: done called twice!'})
-        }
+        // tree._announcer = function(obj) {
+        //   stree(obj).deepEql({pass:false, msg:'fulfill: done called twice!'})
+        // }
         stree()
         tree.expect(1)
         tree('a').eql('a')

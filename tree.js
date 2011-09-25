@@ -12,37 +12,81 @@ define(function() {
     tree._children = []
     tree._done = false
 
-    tree.type = function(expected) {
-      var passed
-      if (expected === 'array') {
-        passed = Array.isArray(this._got)
-      }else{
-        passed = typeof this._got === expected
+    tree._formateer = function(input) {
+      var output = ''
+      var type = typeof input
+      if (type == 'number') {
+        output = input.toString()
+      } else if (type == 'string') {
+        var single = input.match(/'/g)
+        var double = input.match(/"/g)
+        var sgl = "'"
+        var dbl = '"'
+        var esc = '\\'
+        if (single && double) {
+          if (double.length < single.length) { // more single than doulbe
+            output = dbl+input.replace(/"/g, esc+dbl)+dbl
+          } else { // more or equal count of doulbe than count of single
+            output = sgl+input.replace(/'/g, esc+sgl)+sgl
+          }
+        } else if (single) {
+          output = dbl+input+dbl
+        } else {
+          output = sgl+input+sgl
+        }
+      } else if (type == 'function') {
+        output = 'fn(){…}'
+      } else if (Array.isArray(input)) {
+        output = '[…]'
+      } else if (type == 'object' && input.toString() === '[object Object]') {
+        output = '{…}'
+      } else if (type == 'boolean') {
+        output = input.toString()
+      } else {
+        output = '[unknown type: '+input+']'
       }
+      return output
+    }
 
-      if (typeof this._got === 'function') {
-        this._got = 'fn(){…}'
-      } else if (Array.isArray(this._got)) {
-        this._got = '[…]'
-      }
-
-      if (passed) {
-        console.log(tree._name+': typeof '+this._got+' === '+expected)
+    tree._announcer = function(obj) {
+      var str = obj.name+': '+obj.msg
+      if (obj.pass) {
+        console.log(str)
       }else{
-        console.error(
-          tree._name+': typeof '+this._got+' !== '+expected+" ("+getCallerLine()+")"
-        )
+        console.error(str)
       }
     }
-    tree.eql = function(expected) {
-      var passed = this._got === expected
-      if (passed) {
-        console.log(tree._name+': '+this._got+' === '+expected)
+
+    tree.type = function(exp) {
+      var frm = tree._formateer
+      var got = this._got
+      var pass
+      if (exp === 'array') {
+        pass = Array.isArray(got)
       }else{
-        console.error(
-          tree._name+': '+this._got+' !== '+expected+" ("+getCallerLine()+")"
-        )
+        pass = typeof got === exp
       }
+      got = frm(got)
+      exp = frm(exp)
+
+      tree._announcer({
+        pass: pass,
+        name: tree._name,
+        msg: ['typeof', got, (pass?'==':'!='), exp].join(' ')
+      })
+    }
+    tree.eql = function(exp) {
+      var frm = tree._formateer
+      var got = this._got
+      var pass = got === exp
+      got = frm(got)
+      exp = frm(exp)
+
+      tree._announcer({
+        pass: pass,
+        name: tree._name,
+        msg: [got, (pass?'===':'!=='), exp].join(' ')
+      })
     }
 
     tree.config = function(obj) {
@@ -79,7 +123,7 @@ define(function() {
         if (exp === -1) {
           console.error(tree._name+': expectation not set up properly')          
         }else{
-          console.error(tree._name+': expected %d assertons, but %d run!', exp, got)
+          console.error(tree._name+': exp %d assertons, but %d run!', exp, got)
         }
       }
       tree._done = true
