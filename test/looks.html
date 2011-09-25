@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<script src="lib/require/require.js"></script>
+<script>require({urlArgs: "bust=" + Date.now()}, ['test.js'])</script>
+<style>
+  .stamp{
+/*    font-family:monospace;
+*/    padding:3px;
+    border-radius:5px;
+/*    width:;
+    position:absolute;
+*/  }
+    .stamp.pass{
+      background-color: #9dde8a;
+    }
+    .stamp.fail{
+      background-color: #ff483c;
+    }
+</style>
+<div id="tree-panel">
+  <ul>
+    <li>
+      <span class="stamp fail">
+        <span class="failed">004</span>/<span class="run">132</span></span>
+      <span class="main-results">failed</span>
+      <ul>
+        <li>
+          <span class="stamp pass">all 32</span>
+          <span class="branch-name">Branch X</span>
+        </li>
+        <li>
+          <span class="stamp pass">27/31</span>
+          <span class="branch-name">Branch X</span>
+          <ul>
+            <li>fail 3===2 xyz.js:33</li>
+          </ul>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</div>
