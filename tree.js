@@ -52,7 +52,7 @@ define(function() {
       var str = obj.name+': '+obj.msg
       if (obj.pass) {
         console.log(str)
-      }else{
+      } else {
         console.error(str)
       }
     }
@@ -63,7 +63,7 @@ define(function() {
       var pass
       if (exp === 'array') {
         pass = Array.isArray(got)
-      }else{
+      } else  {
         pass = typeof got === exp
       }
       got = frm(got)
@@ -119,10 +119,10 @@ define(function() {
       }
       if (exp === got) {
         console.log(tree._name+' done.')
-      }else{
+      } else {
         if (exp === -1) {
           console.error(tree._name+': expectation not set up properly')          
-        }else{
+        } else {
           console.error(tree._name+': exp %d assertons, but %d run!', exp, got)
         }
       }
