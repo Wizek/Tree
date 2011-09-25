@@ -1,3 +1,6 @@
 [submodule "lib/jquery"]
 	path = lib/jquery
 	url = http://github.com/jquery/jquery.git
+[submodule "lib/requirejs"]
+	path = lib/requirejs
+	url = http://github.com/jrburke/requirejs.git
