@@ -1,9 +1,17 @@
-require(['../tree', 'https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js']
+require(['../tree', '../lib/jquery/dist/jquery.js']
 , function(tree, $) {
   // Super Tree instance for testing the test framework.
   stree = tree._debugInstance()
+  stree(tree._debugMode).eql(false)
+  stree(stree._debugMode).eql(true)
   stree.branch('STREE Top level', function(stree) {
     stree.expect(-1)
+    stree(tree._debugMode).eql(false)
+    stree(stree._debugMode).eql(true)
+    stree.branch('STREE debug', function(stree) {
+      stree(tree._debugMode).eql(false)
+      stree(stree._debugMode).eql(true)
+    })
 
     //tree._init()
     stree(tree).type('function')
@@ -54,18 +62,21 @@ require(['../tree', 'https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.m
 
     stree.branch('STREE announcer-interception', function(stree) {
       var stash = tree._announcer
-      tree.branch('announce!', function(tree) {
+      var name = 'announce!'
+      tree.branch(name, function(tree) {
         stree(tree._announcer).type('function')
         tree._announcer = function(obj) {
           stree(obj).type('object')
           stree(obj.pass).eql(true)
-          stree(obj.msg).eql('announce!: 1 === 1')
+          stree(obj.msg).eql('1 === 1')
+          stree(obj.name).eql(name)
         }
         tree(1).eql(1)
         tree._announcer = function(obj) {
           stree(obj).type('object')
           stree(obj.pass).eql(false)
-          stree(obj.msg).eql('announce!: 1 !== 2')
+          stree(obj.msg).eql('1 !== 2')
+          stree(obj.name).eql(name)
         }
         tree(1).eql(2)
 
@@ -86,23 +97,82 @@ require(['../tree', 'https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.m
         stree(tree._expect).eql(2)
         tree.expect(1)
         stree(tree._expect).eql(1)
-
+        tree(1).eql(1)
         stree(tree._done).eql(false)
         tree.done()
         stree(tree._done).eql(true)
       })
       tree.branch('fulfill', function(tree) {
-        // tree._announcer = function(obj) {
-        //   stree(obj).deepEql({pass:false, msg:'fulfill: done called twice!'})
-        // }
-        stree()
+        var stash = tree._announcer
         tree.expect(1)
         tree('a').eql('a')
+        tree._announcer = function(obj) {
+          stree(obj.pass).eql(true)
+          stree(obj.msg).eql('done.')
+        }
         tree.done()
+        tree._announcer = function(obj) {
+          stree(obj.pass).eql(false)
+          stree(obj.msg).eql('done called twice!')
+        }
+        tree._announcer = stash
         tree.done()
       })
+      stree.done()
     })
-
+    stree.branch('STREE testing asserts', function(stree) {
+      var stash = tree._announcer
+      stree.branch('STREE ok', function(stree) {
+        stree.expect(10)
+        stree(tree.ok).type('function')
+        tree._announcer = function(obj) {
+          stree(obj.pass).eql(true)
+        }
+        tree([]).ok()
+        tree({}).ok()
+        tree(function() {}).ok()
+        tree(1).ok()
+        tree('non-empty').ok()
+        tree._announcer = function(obj) {
+          stree(obj.pass).eql(false)
+        }
+        tree(null).ok()
+        tree(0).ok()
+        tree(undefined).ok()
+        tree('').ok()
+        stree.done()
+      })
+      stree.branch('STREE eql', function(stree) {
+        stree.expect(4)
+        stree(tree.eql).type('function')
+        tree._announcer = function(obj) {
+          stree(obj.pass).eql(true)
+        }
+        tree(1).eql(1)
+        tree._announcer = function(obj) {
+          stree(obj.pass).eql(false)
+        }
+        tree(1).eql(2)
+        tree(1).eql('1')
+        stree.done()
+      })
+      stree.branch('STREE equal', function(stree) {
+        stree.expect(4)
+        stree(tree.equal).type('function')
+        tree._announcer = function(obj) {
+          stree(obj.pass).eql(true)
+        }
+        tree(1).equal(1)
+        tree(1).equal('1')
+        tree._announcer = function(obj) {
+          stree(obj.pass).eql(false)
+        }
+        tree(1).equal(2)
+        stree.done()
+      })
+      tree._announcer = stash
+      tree.done()
+    })
     stree.done()
   })
 

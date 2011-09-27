@@ -6,6 +6,7 @@ define(function() {
       return tree
     }
 
+    tree._debugMode = false
     tree._expect = -1
     tree._name = ''
     tree._assertCount = 0
@@ -42,6 +43,8 @@ define(function() {
         output = '{…}'
       } else if (type == 'boolean') {
         output = input.toString()
+      } else if (type == 'undefined') {
+        output = 'undefined'
       } else {
         output = '[unknown type: '+input+']'
       }
@@ -53,7 +56,7 @@ define(function() {
       if (obj.pass) {
         console.log(str)
       } else {
-        console.error(str)
+        console.error(str+' ('+getCallerLine()+')')
       }
     }
 
@@ -75,6 +78,18 @@ define(function() {
         msg: ['typeof', got, (pass?'==':'!='), exp].join(' ')
       })
     }
+    tree.ok = function() {
+      var frm = tree._formateer
+      var got = this._got
+      var pass = !!got
+      got = frm(got)
+
+      tree._announcer({
+        pass: pass,
+        name: tree._name,
+        msg: ['!!'+got, (pass?'===':'!=='), 'true'].join(' ')
+      })
+    }
     tree.eql = function(exp) {
       var frm = tree._formateer
       var got = this._got
@@ -88,6 +103,19 @@ define(function() {
         msg: [got, (pass?'===':'!=='), exp].join(' ')
       })
     }
+    tree.equal = function(exp) {
+      var frm = tree._formateer
+      var got = this._got
+      var pass = got == exp
+      got = frm(got)
+      exp = frm(exp)
+
+      tree._announcer({
+        pass: pass,
+        name: tree._name,
+        msg: [got, (pass?'==':'!='), exp].join(' ')
+      })
+    }
 
     tree.config = function(obj) {
       var defaults = {
@@ -98,6 +126,7 @@ define(function() {
       var childTree = new _treeInstance()
       childTree._name = name
       childTree._parent = tree
+      childTree._debugMode = tree._debugMode
       tree._children.push(childTree)
       callback(childTree)
     }
@@ -114,26 +143,39 @@ define(function() {
       var got = tree._assertCount
       var exp = tree._expect
       if (tree._done) {
-        console.error(tree._name+': done called twice!')
+        tree._announcer({
+          pass: false,
+          name: tree._name,
+          msg: 'done called twice!'
+        })
         return
       }
       if (exp === got) {
-        console.log(tree._name+' done.')
+        tree._announcer({
+          pass: true,
+          name: tree._name,
+          msg: 'done.'
+        })
       } else {
-        if (exp === -1) {
-          console.error(tree._name+': expectation not set up properly')          
-        } else {
-          console.error(tree._name+': exp %d assertons, but %d run!', exp, got)
-        }
+        tree._announcer({
+          pass: false,
+          name: tree._name,
+          msg: exp === -1?
+              'expectation not set up properly'
+            : 'exp '+exp+' assertons, but '+got+' run!'
+        })
       }
       tree._done = true
     }
 
     tree._debugInstance = function(opts) {
-      return new _treeInstance()
+      var stree = new _treeInstance()
+      stree._debugMode = true
+      return stree
     }
     return tree
   }
+  document.title = "Tree.js"
   return new _treeInstance()
 })
 
@@ -141,7 +183,7 @@ function getCallerLine(moduleName, cCons) {
   // Make an error to get the line number
   var e = new Error()
   //  in case of custum console, the stack trace is one item longer
-  var splitNum = 3
+  var splitNum = 4
   var line = e.stack.split('\n')[splitNum]
   var parts = line.split('/')
   var last_part = parts[parts.length -1]
