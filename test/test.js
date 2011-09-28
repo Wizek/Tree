@@ -4,11 +4,11 @@ require(['../tree', '../lib/jquery/dist/jquery.js']
   stree = tree._debugInstance()
   stree(tree._debugMode).eql(false)
   stree(stree._debugMode).eql(true)
-  stree.branch('STREE Top level', function(stree) {
-    stree.expect(-1)
+  stree.branch('STREE 1 Top level', function(stree) {
+    stree.expect(7)
     stree(tree._debugMode).eql(false)
     stree(stree._debugMode).eql(true)
-    stree.branch('STREE debug', function(stree) {
+    stree.branch('STREE 1.1 debug', function(stree) {
       stree(tree._debugMode).eql(false)
       stree(stree._debugMode).eql(true)
     })
@@ -20,7 +20,7 @@ require(['../tree', '../lib/jquery/dist/jquery.js']
     stree(tree.expect).type('function')
     stree(tree.done).type('function')
 
-    stree.branch('STREE branching', function(stree) {
+    stree.branch('STREE 1.2 branching', function(stree) {
       tree.branch('Some name', function(tree) {
         stree(tree._name).eql('Some name')
         stree(tree._children).type('array')
@@ -34,7 +34,8 @@ require(['../tree', '../lib/jquery/dist/jquery.js']
       })      
     })
 
-    stree.branch('STREE formateer', function(stree) {
+    stree.branch('STREE 1.3 formateer', function(stree) {
+      stree.expect(20)
       tree.branch('formateer!', function(tree) {
         stree(tree._formateer).type('function')
         var frm = tree._formateer
@@ -42,25 +43,38 @@ require(['../tree', '../lib/jquery/dist/jquery.js']
          *  short format
         \*/
         stree( frm(1) ).eql('1')
+        stree( frm(-32) ).eql('-32')
+        stree( frm(99.9) ).eql('99.9')
+        stree( frm(1e+99) ).eql('1e+99')
+
+        stree( frm(NaN) ).eql('NaN')
+        stree( frm(Infinity) ).eql('Infinity')
+
         stree( frm('string') ).eql("'string'")
         stree( frm("'string'") ).eql('"\'string\'"')
         stree( frm('"string"') ).eql("'\"string\"'")
         stree( frm('\'""') ).eql("'\\'\"\"'")
         stree( frm("\"''") ).eql('"\\"\'\'"')
         stree( frm('"\'"\'') ).eql("'\"\\'\"\\''")
+
         stree( frm(true) ).eql('true')
         stree( frm(false) ).eql('false')
+
         stree( frm(function() {}) ).eql('fn(){…}')
         stree( frm({a:1}) ).eql('{…}')
         stree( frm([1,2,3]) ).eql('[…]')
+
+        stree( frm(null) ).eql('null')
+        stree( frm(undefined) ).eql('undefined')
         /*\
          *  Long format
         \*/
         // yet to come
       })
+      stree.done()
     })
 
-    stree.branch('STREE announcer-interception', function(stree) {
+    stree.branch('STREE 1.4 announcer-interception', function(stree) {
       var stash = tree._announcer
       var name = 'announce!'
       tree.branch(name, function(tree) {
@@ -84,7 +98,8 @@ require(['../tree', '../lib/jquery/dist/jquery.js']
       tree._announcer = stash
     })
 
-    stree.branch('STREE expectations', function(stree) {
+    stree.branch('STREE 1.5 expectations', function(stree) {
+      stree.expect(13)
       tree.branch('none', function(tree) {
         stree(tree._expect).eql(-1)
         tree.expect('string')
@@ -95,6 +110,8 @@ require(['../tree', '../lib/jquery/dist/jquery.js']
         stree(tree._expect).eql(-1)
         tree.expect(2)
         stree(tree._expect).eql(2)
+        tree.expect(0)
+        stree(tree._expect).eql(0)
         tree.expect(1)
         stree(tree._expect).eql(1)
         tree(1).eql(1)
@@ -115,19 +132,21 @@ require(['../tree', '../lib/jquery/dist/jquery.js']
           stree(obj.pass).eql(false)
           stree(obj.msg).eql('done called twice!')
         }
-        tree._announcer = stash
         tree.done()
+        tree._announcer = stash
       })
       stree.done()
     })
-    stree.branch('STREE testing asserts', function(stree) {
+    stree.branch('STREE 1.6 testing asserts', function(stree) {
+      stree.expect(0)
       var stash = tree._announcer
-      stree.branch('STREE ok', function(stree) {
+      stree.branch('STREE 1.6.1 ok', function(stree) {
         stree.expect(10)
         stree(tree.ok).type('function')
         tree._announcer = function(obj) {
           stree(obj.pass).eql(true)
         }
+        // These pass
         tree([]).ok()
         tree({}).ok()
         tree(function() {}).ok()
@@ -136,13 +155,14 @@ require(['../tree', '../lib/jquery/dist/jquery.js']
         tree._announcer = function(obj) {
           stree(obj.pass).eql(false)
         }
+        // These fail
         tree(null).ok()
         tree(0).ok()
         tree(undefined).ok()
         tree('').ok()
         stree.done()
       })
-      stree.branch('STREE eql', function(stree) {
+      stree.branch('STREE 1.6.2 eql', function(stree) {
         stree.expect(4)
         stree(tree.eql).type('function')
         tree._announcer = function(obj) {
@@ -156,7 +176,7 @@ require(['../tree', '../lib/jquery/dist/jquery.js']
         tree(1).eql('1')
         stree.done()
       })
-      stree.branch('STREE equal', function(stree) {
+      stree.branch('STREE 1.6.3 equal', function(stree) {
         stree.expect(4)
         stree(tree.equal).type('function')
         tree._announcer = function(obj) {
@@ -170,9 +190,25 @@ require(['../tree', '../lib/jquery/dist/jquery.js']
         tree(1).equal(2)
         stree.done()
       })
+      stree.branch('STREE 1.6.4 deepEql', function(stree) {})
+      stree.branch('STREE 1.6.5 deepEqual', function(stree) {})
+      stree.branch('STREE 1.6.6 instance', function(stree) {})
+      stree.branch('STREE 1.6.7 throws', function(stree) {})
+      stree.branch('STREE 1.6.8 exists', function(stree) {})
+      stree.branch('STREE 1.6.9 true', function(stree) {})
+      stree.branch('STREE 1.6.10 empty', function(stree) {})
+      stree.branch('STREE 1.6.11 above', function(stree) {})
+      stree.branch('STREE 1.6.12 below', function(stree) {})
+      stree.branch('STREE 1.6.13 between', function(stree) {})
       tree._announcer = stash
-      tree.done()
+      stree.done()
     })
+    stree.branch('STREE async handling', function(stree) {})
+    stree.branch('STREE console announcer', function(stree) {})
+    // Later
+    stree.branch('STREE graphical announcer', function(stree) {})
+    stree.branch('STREE dynamic test loading', function(stree) {})
+    stree.branch('STREE suport all 3 loading schemes', function(stree) {})
     stree.done()
   })
 

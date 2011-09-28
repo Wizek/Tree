@@ -30,21 +30,25 @@ define(function() {
           } else { // more or equal count of doulbe than count of single
             output = sgl+input.replace(/'/g, esc+sgl)+sgl
           }
-        } else if (single) {
+        } else if (single) { // if there are singles inside
           output = dbl+input+dbl
-        } else {
+        } else { // wheter there are doubles or not
           output = sgl+input+sgl
         }
       } else if (type == 'function') {
         output = 'fn(){…}'
       } else if (Array.isArray(input)) {
         output = '[…]'
-      } else if (type == 'object' && input.toString() === '[object Object]') {
+      } else if (type == 'object' &&
+                input &&
+                input.toString() === '[object Object]') {
         output = '{…}'
       } else if (type == 'boolean') {
         output = input.toString()
       } else if (type == 'undefined') {
         output = 'undefined'
+      } else if (input == null) {
+        output = 'null'
       } else {
         output = '[unknown type: '+input+']'
       }
@@ -119,7 +123,7 @@ define(function() {
 
     tree.config = function(obj) {
       var defaults = {
-        
+        //////////////////////////////////////////////////////////////////
       }
     }
     tree.branch = function(name, callback) {
@@ -131,7 +135,7 @@ define(function() {
       callback(childTree)
     }
     tree.expect = function(count) {
-      if (count > 0) {
+      if (count >= 0) {
         this._expect = count
         var self = this
       } else {
