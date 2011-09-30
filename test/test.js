@@ -203,7 +203,71 @@ require(['../tree', '../lib/jquery/dist/jquery.js']
       tree._announcer = stash
       stree.done()
     })
-    stree.branch('STREE async handling', function(stree) {})
+    stree.branch('STREE 1.7 async handling', function(stree) {
+      stree.branch('STREE 1.7.1 assert count', function(stree) {
+        var stash = tree._announcer
+        tree.branch('async1', function(tree) {
+          tree.expect(1)
+          setTimeout(function() {
+            tree('test 5191').eql('test 5191')
+            tree._announcer = function(obj) {
+              stree(obj.msg).eql('done.')
+            }
+            tree.done()
+          }, 100)
+        })
+        tree.branch('async2', function(tree) {
+          tree.expect(1)
+          setTimeout(function() {
+            tree('test 3219').eql('test 3219')
+          }, 100)
+          tree._announcer = function(obj) {
+            stree(obj.msg).eql('expexted 1 assertons, but 0 run.')
+            tree._announcer = stash
+          }
+          tree.done()
+          tree._announcer = new Function()
+        })
+        //stree.branch('STREE 1.7.2 waitForDone', function(stree) {
+        //  var count = 0
+        //  stree(tree.waitForDone).type('function')
+        //  tree.waitForDone()
+        //  tree.branch('wait', function(tree) {
+        //    tree.expect(0)
+        //    setTimeout(function() {
+        //      stree(++count).eql(1)
+        //      tree.done()
+        //    }, 100)
+        //  })
+        //  tree.branch('wait2', function(tree) {
+        //    tree.expect(0)
+        //    stree(++count).eql(2)
+        //    tree.done()
+        //  })
+        //})
+        //stree.branch('STREE 1.7.3 fireNextToo', function(stree) {
+        //  var count = 0
+        //  stree(tree.fireNextToo).type('function')
+        //  tree.fireNextToo()
+        //  tree.branch('fire', function(tree) {
+        //    tree.expect(0)
+        //    setTimeout(function() {
+        //      stree(++count).eql(2)
+        //      tree.done()
+        //    }, 100)
+        //  })
+        //  tree.branch('fire2', function(tree) {
+        //    tree.expect(0)
+        //    stree(++count).eql(1)
+        //    tree.done()
+        //  })
+        //})
+      })
+
+    })
+    stree.branch('STREE not', function(stree) {
+      ////////////////////////////////////////////////
+    })
     stree.branch('STREE console announcer', function(stree) {})
     // Later
     stree.branch('STREE graphical announcer', function(stree) {})

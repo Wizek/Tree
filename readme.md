@@ -39,13 +39,13 @@ Syntax is planned to be the following.
 #### Loading into Node.js
 ```javascript
 var tree = require('tree')
-...
+/* ... */
 ```
 #### Loading with AMD
 ```html
 <script>
 require(['tree'], function(tree) {
-  ...
+  /* ... */
 })
 </script>
 ```
@@ -53,7 +53,7 @@ require(['tree'], function(tree) {
 ```html
 <script src="path/to/tree.js"></script>
 <script>
-...
+/* ... */
 </script>
 ```
 #### A some assertion types
@@ -79,27 +79,27 @@ async(function(){ // async() is an arbitrary async function
 #### Some organising. As much levels as you want. It'll have neat output too!
 ```javascript
 tree.branch('Name these', function(tree) {
-  ...
+  /* ... */
   tree.branch('whatever', function(tree) {
-    ...
+    /* ... */
   })
   tree.branch('you', function(tree) {
-    ...
+    /* ... */
     tree.branch('want!', function(tree) {
-      ...
+      /* ... */
     })
   })
 })
 ```
 #### Want even more control? Load test files on the go, to their appropriate location! They'll be executed as if you wrote them directly there, but this way they are more portable. (Only with AMD, or in Node)
 ```javascript
-...
-tree.branch(function(tree) {
-  ...
+/* ... */
+tree.branch('name!', function(tree) {
+  /* ... */
   tree.branch('path/to/source.js')
-  ...
+  /* ... */
 })
-...
+/* ... */
 ```
 #### Are you more conservative type? We have the mirror functions for the asserts for you too:
 ```javascript

@@ -126,6 +126,12 @@ define(function() {
         //////////////////////////////////////////////////////////////////
       }
     }
+    // tree.waitForDone = function() {
+    //   this._waitForDone = true
+    // }
+    // tree.fireNextToo = function() {
+    //   this._waitForDone = false
+    // }
     tree.branch = function(name, callback) {
       var childTree = new _treeInstance()
       childTree._name = name
@@ -165,8 +171,8 @@ define(function() {
           pass: false,
           name: tree._name,
           msg: exp === -1?
-              'expectation not set up properly'
-            : 'exp '+exp+' assertons, but '+got+' run!'
+              'expect() not called properly! '+got+' run.'
+            : 'expexted '+exp+' assertons, but '+got+' run.'
         })
       }
       tree._done = true
