@@ -12,7 +12,43 @@ define(function() {
     tree._assertCount = 0
     tree._children = []
     tree._done = false
+    tree.not = {}
+    tree._asserts = {}
+    tree._helpers = {}
 
+    tree._templater = function(tplstr, vars) {
+      if (typeof vars != 'object') var vars = {}
+      var RE_ifTruthy = /{{\s*#\s*(.*?)\s*}}(.*?){{\s*\/\s*\1\s*}}/g
+      var RE_ifFalsy = /{{\s*\^\s*(.*?)\s*}}(.*?){{\s*\/\s*\1\s*}}/g
+      while (tplstr.match(RE_ifTruthy)) {
+        tplstr = tplstr.replace(RE_ifTruthy
+        , function(full, varName, content, pos, oStr) {
+          if (vars[varName]) {
+            return content
+          }else{
+            return ''
+          }
+        })
+      }
+      while (tplstr.match(RE_ifFalsy)) {
+        tplstr = tplstr.replace(RE_ifFalsy
+        , function(full, varName, content, pos, oStr) {
+          if (vars[varName]) {
+            return ''
+          }else{
+            return content
+          }
+        })
+      }
+      return tplstr.replace(/{{\s*([^}]*?)\s*}}/g
+      , function(match, group, pos, oStr) {
+        if (group in vars) {
+          return vars[group]
+        }else{
+          return '' 
+        }
+      })
+    }
     tree._formateer = function(input) {
       var output = ''
       var type = typeof input
@@ -54,7 +90,6 @@ define(function() {
       }
       return output
     }
-
     tree._announcer = function(obj) {
       var str = obj.name+': '+obj.msg
       if (obj.pass) {
@@ -63,62 +98,115 @@ define(function() {
         console.error(str+' ('+getCallerLine()+')')
       }
     }
-
-    tree.type = function(exp) {
-      var frm = tree._formateer
-      var got = this._got
-      var pass
-      if (exp === 'array') {
-        pass = Array.isArray(got)
+    //tree.note = function(str) {
+    //  this._note = str
+    //}
+    tree._assertsLook = {
+      ok: '{{act}} {{#not}}not {{/not}}ok'
+      , truthy: '{{act}} {{#not}}not {{/not}}truthy'
+      , falsy: '{{act}} {{#not}}not {{/not}}falsy'
+      , eql: '{{act}} {{#not}}not {{/not}}eql {{exp}}'
+      , equal: '{{act}} {{#not}}not {{/not}}equal {{exp}}'
+      , deepEql: '{{act}} {{#not}}not {{/not}}deepEql {{exp}}'
+      , type: '{{act}} {{#not}}not {{/not}}type {{exp}}'
+      , throws: '{{act}} {{#not}}not {{/not}}throws'
+    }
+    tree._asserts.type = function(obj) {
+      if (obj.exp === 'array') {
+        obj.pass = Array.isArray(obj.act)
       } else  {
-        pass = typeof got === exp
+        obj.pass = typeof obj.act === obj.exp
       }
-      got = frm(got)
-      exp = frm(exp)
-
-      tree._announcer({
-        pass: pass,
-        name: tree._name,
-        msg: ['typeof', got, (pass?'==':'!='), exp].join(' ')
-      })
+      return obj
     }
-    tree.ok = function() {
-      var frm = tree._formateer
-      var got = this._got
-      var pass = !!got
-      got = frm(got)
-
-      tree._announcer({
-        pass: pass,
-        name: tree._name,
-        msg: ['!!'+got, (pass?'===':'!=='), 'true'].join(' ')
-      })
+    tree._asserts.ok = function(obj) {
+      obj.pass = !!obj.act
+      return obj
     }
-    tree.eql = function(exp) {
-      var frm = tree._formateer
-      var got = this._got
-      var pass = got === exp
-      got = frm(got)
-      exp = frm(exp)
-
-      tree._announcer({
-        pass: pass,
-        name: tree._name,
-        msg: [got, (pass?'===':'!=='), exp].join(' ')
-      })
+    tree._asserts.eql = function(obj) {
+      obj.pass = (obj.act === obj.exp)
+      return obj
     }
-    tree.equal = function(exp) {
-      var frm = tree._formateer
-      var got = this._got
-      var pass = got == exp
-      got = frm(got)
-      exp = frm(exp)
-
-      tree._announcer({
-        pass: pass,
-        name: tree._name,
-        msg: [got, (pass?'==':'!='), exp].join(' ')
-      })
+    tree._asserts.equal = function(obj) {
+      obj.pass = (obj.act == obj.exp)
+      return obj
+    }
+    tree._asserts.deepEql = function(obj) {
+      obj.pass = tree._helpers.deepEql(obj.exp, obj.act)
+      return obj
+    }
+    tree._helpers.deepEql = function (x1, x2) {
+      var t1 = typeof x1
+      var t2 = typeof x2
+      if (t1 !== t2) {
+        return false
+      } else if (
+        t1 == 'string' ||
+        (t1 == 'number' && !isNaN(x1)) ||
+        t1 == 'boolean' ||
+        t1 == 'undefined' ||
+        x1 === null
+      ) {
+        if (x1 === x2) {
+          return true
+        }else{
+          return false
+        }
+      } else if (isNaN(x1) && x1 !== x1) {
+        if (isNaN(x2) && x2 !== x2) {
+          return true
+        }else{
+          return false
+        }
+      } else if (Array.isArray(x1) && Array.isArray(x2)) {
+        if (x1.length === x2.length) {
+          for (var i = 0; i < x1.length; i++) {
+            if (!tree._helpers.deepEql(x1[i], x2[i])) {
+              // one turns out to be not equal
+              return false
+            }
+          }
+          // Every bit was deepEqual
+          return true
+        }else{
+          // Not the same length, no chance for being deepEql
+          return false
+        }
+      } else if (t1 == 'object') {
+        if (Object.keys(x1).length === Object.keys(x2).length) {
+          for (key in x1) if (x1.hasOwnProperty(key)) {
+            if (!tree._helpers.deepEql(x1[key], x2[key])) {
+              // one turns out to be not equal
+              return false
+            }
+          }
+          return true
+        }else{
+          // Not the same length, no chance for being deepEql
+          return false
+        }
+      } else if (t1 == 'function') {
+        if (x1.toString() === x2.toString()) {
+          console.log('asd')
+          if (Object.keys(x1).length === Object.keys(x2).length) {
+            for (key in x1) if (x1.hasOwnProperty(key)) {
+              if (!tree._helpers.deepEql(x1[key], x2[key])) {
+                // one turns out to be not equal
+                return false
+              }
+            }
+            return true
+          }else{
+            // Not the same length, no chance for being deepEql
+            return false
+          }
+        }else{
+          return false
+        }
+      } else {
+        console.error('shouldn\'t get here')
+        return false
+      }
     }
 
     tree.config = function(obj) {
@@ -146,7 +234,6 @@ define(function() {
         var self = this
       } else {
         this._expect = -1
-        //console.error('Not valid expectation')
       }
     }
     tree.done = function() {
@@ -182,6 +269,9 @@ define(function() {
       var stree = new _treeInstance()
       stree._debugMode = true
       return stree
+    }
+    for (key in tree._asserts) if (tree._asserts.hasOwnProperty(key)) {
+      tree[key] = tree._asserts[key]
     }
     return tree
   }
