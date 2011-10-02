@@ -68,12 +68,40 @@ tree(1).not.eql("1")
 tree(1).equal("1")
 // Etc.. All the core and some convenience assert types
 ```
-#### Handles async well
+### Handles async well
+#### Assert count
 ```javascript
 tree.expect(1) // to ensure all asserts are run
 async(function(){ // async() is an arbitrary async function
   tree(x).eql(y)
   tree.done() // to know when all callbacks are back
+})
+```
+#### Run some branches paralell, some in series
+```javascript
+// gets to be run 1st
+tree.branch('waiter', function(tree) {
+  tree.waitForDone()
+  // gets to be run 2nd
+  setTimeout(function() {
+    // gets to be run 4th
+    tree.done()
+  }, 100)
+  // gets to be run 3rd
+})
+tree.branch('rusher', function(tree) {
+  tree.fireNextToo()
+  // gets to be run 5th
+  setTimeout(function() {
+    // gets to be run 8th
+    tree.done()
+  }, 100)
+  // gets to be run 6th
+})
+tree.branch('rusher 2', function(tree) {
+  tree.fireNextToo()
+  // gets to be run 7th
+  tree.done()
 })
 ```
 #### Some organising. As much levels as you want. It'll have neat output too!

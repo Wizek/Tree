@@ -173,6 +173,7 @@ require([
     })
 
     stree.branch('STREE 1.2 branching', function(stree) {
+      stree.expect(8)
       tree.branch('Some name', function(tree) {
         stree(tree._name).eql('Some name')
         stree(tree._children).type('array')
@@ -180,10 +181,14 @@ require([
         tree.branch('Some other name', function(tree) {
           stree(tree._name).eql('Some other name')
           stree(tree._parent._name).eql('Some name')
+          tree.branch(function(tree) {
+            stree(tree._name).eql('')
+          })
         })
         stree(tree._children.length).eql(1)
         stree(tree._children[0]._name).eql('Some other name')
       })
+      stree.done()
     })
 
     stree.branch('STREE 1.3 formateer', function(stree) {
@@ -317,63 +322,70 @@ require([
             tree('test 3219').eql('test 3219')
           }, 100)
           tree._announcer = function(obj) {
-            stree(obj.msg).eql('expexted 1 assertons, but 0 run.')
+            stree(obj.msg).eql('expexted 1 asserton(s), but 0 run.')
             tree._announcer = stash
           }
           tree.done()
           tree._announcer = new Function()
         })
-        // stree.branch('STREE 1.7.2 waitForDone', function(stree) {
-        //   stree.branch('STREE 1.7.2.1 queue array', function(stree) {
-        //     tree.branch(function(tree) {
-        //       tree.waitForDone()
-        //       tree.branch(function(tree) {})
-        //       tree.branch(function(tree) {})
-        //       tree.branch(function(tree) {})
-        //       stree(tree._children.length).eql(3)
-        //       for (var i = 0; i < tree._children.length; i++) {
-        //         if (i == 0) {
-        //           stree(tree._children._done).eql()
-        //           stree(tree._children._done).eql()
-        //         }else{
-        //           stree(tree._children.length).eql(3)
-        //         }
-        //       }
-        //     })
-        //   })
-        //   var count = 0
-        //   stree(tree.waitForDone).type('function')
-        //   tree.waitForDone()
-        //   tree.branch('wait', function(tree) {
-        //     tree.expect(0)
-        //     setTimeout(function() {
-        //       stree(++count).eql(1)
-        //       tree.done()
-        //     }, 100)
-        //   })
-        //   tree.branch('wait2', function(tree) {
-        //     tree.expect(0)
-        //     stree(++count).eql(2)
-        //     tree.done()
-        //   })
-        // })
-        // stree.branch('STREE 1.7.3 fireNextToo', function(stree) {
-        //   var count = 0
-        //   stree(tree.fireNextToo).type('function')
-        //   tree.fireNextToo()
-        //   tree.branch('fire', function(tree) {
-        //     tree.expect(0)
-        //     setTimeout(function() {
-        //       stree(++count).eql(2)
-        //       tree.done()
-        //     }, 100)
-        //   })
-        //   tree.branch('fire2', function(tree) {
-        //     tree.expect(0)
-        //     stree(++count).eql(1)
-        //     tree.done()
-        //   })
-        // })
+        stree.branch('STREE 1.7.2 waitForDone', function(stree) {
+          stree.branch('STREE 1.7.2.1 queue array', function(stree) {
+            tree.branch(function(tree) {
+
+              tree.branch(function(tree) {
+                tree.waitForDone()
+                tree.expect(0)
+                tree.done()
+              })
+              tree.branch(function(tree) {
+                tree.expect(1)
+              })
+              tree.branch(function(tree) {
+                tree.expect(0)
+              })
+
+              stree(tree._children.length).eql(3)
+              stree(tree._children[0]._run).eql(true)
+              stree(tree._children[0]._done).eql(true)
+              stree(tree._children[1]._run).eql(true)
+              stree(tree._children[1]._done).eql(false)
+              stree(tree._children[2]._run).eql(false)
+              stree(tree._children[2]._done).eql(false)
+            })
+          })
+          //var count = 0
+          //stree(tree.waitForDone).type('function')
+          //tree.waitForDone()
+          //tree.branch('wait', function(tree) {
+          //  tree.expect(0)
+          //  setTimeout(function() {
+          //    stree(++count).eql(1)
+          //    tree.done()
+          //  }, 100)
+          //})
+          //tree.branch('wait2', function(tree) {
+          //  tree.expect(0)
+          //  stree(++count).eql(2)
+          //  tree.done()
+          //})
+        })
+        stree.branch('STREE 1.7.3 fireNextToo', function(stree) {
+          var count = 0
+          stree(tree.fireNextToo).type('function')
+          tree.fireNextToo()
+          tree.branch('fire', function(tree) {
+            tree.expect(0)
+            setTimeout(function() {
+              stree(++count).eql(2)
+              tree.done()
+            }, 100)
+          })
+          tree.branch('fire2', function(tree) {
+            tree.expect(0)
+            stree(++count).eql(1)
+            tree.done()
+          })
+        })
       })
 
     })

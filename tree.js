@@ -195,7 +195,6 @@ define(function() {
         }
       } else if (t1 == 'function') {
         if (x1.toString() === x2.toString()) {
-          console.log('asd')
           if (Object.keys(x1).length === Object.keys(x2).length) {
             for (key in x1) if (x1.hasOwnProperty(key)) {
               if (!tree._helpers.deepEql(x1[key], x2[key])) {
@@ -229,6 +228,8 @@ define(function() {
     //   this._waitForDone = false
     // }
     tree.branch = function(name, callback) {
+      if (typeof name == 'function') callback = name
+      if (typeof name != 'string') name = ''
       var childTree = new _treeInstance()
       childTree._name = name
       childTree._parent = tree
@@ -245,7 +246,7 @@ define(function() {
       }
     }
     tree.done = function() {
-      var got = tree._assertCount
+      var run = tree._assertCount
       var exp = tree._expect
       if (tree._done) {
         tree._announcer({
@@ -255,7 +256,7 @@ define(function() {
         })
         return
       }
-      if (exp === got) {
+      if (exp === run) {
         tree._announcer({
           pass: true,
           name: tree._name,
@@ -266,8 +267,8 @@ define(function() {
           pass: false,
           name: tree._name,
           msg: exp === -1?
-              'expect() not called properly! '+got+' run.'
-            : 'expexted '+exp+' assertons, but '+got+' run.'
+              'expect() not called properly! '+run+' assertion(s) run.'
+            : 'expexted '+exp+' asserton(s), but '+run+' run.'
         })
       }
       tree._done = true
