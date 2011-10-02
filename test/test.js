@@ -16,7 +16,7 @@ require([
       stree(stree._debugMode).eql(true)
     })
     stree.branch('STREE templating', function(stree) {
-      var tpl = tree._templater
+      var tpl = tree._helpers._templater
       stree(tpl).type('function')
 
       // Malformatted input
@@ -58,9 +58,9 @@ require([
     // stree(tree.note).type('function')
 
     stree.branch('STREE 1.6 testing asserts', function(stree) {
-      stree.expect(0)
+      stree.expect(1)
 
-      var stash = tree._announcer
+      stree(tree._asserts).type('object')
       stree.branch('STREE 1.6.1 ok', function(stree) {
         stree.expect(16)
         stree(tree._asserts.ok).type('function')
@@ -169,7 +169,6 @@ require([
       stree.branch('STREE 1.6.11 above', function(stree) {})
       stree.branch('STREE 1.6.12 below', function(stree) {})
       stree.branch('STREE 1.6.13 between', function(stree) {})
-      tree._announcer = stash
       stree.done()
     })
 
@@ -190,8 +189,8 @@ require([
     stree.branch('STREE 1.3 formateer', function(stree) {
       stree.expect(20)
       tree.branch('formateer!', function(tree) {
-        stree(tree._formateer).type('function')
-        var frm = tree._formateer
+        var frm = tree._helpers._formateer
+        stree(frm).type('function')
         /*\
          *  short format
         \*/
@@ -235,18 +234,27 @@ require([
         tree._announcer = function(obj) {
           stree(obj).type('object')
           stree(obj.pass).eql(true)
-          stree(obj.msg).eql('1 === 1')
+          stree(obj.msg).eql('1 eql 1')
           stree(obj.name).eql(name)
+          //stree(obj.not).falsy()
         }
         tree(1).eql(1)
         tree._announcer = function(obj) {
           stree(obj).type('object')
           stree(obj.pass).eql(false)
-          stree(obj.msg).eql('1 !== 2')
+          stree(obj.msg).eql("1 eql '1'")
           stree(obj.name).eql(name)
+          //stree(obj.not).falsy()
         }
-        tree(1).eql(2)
-
+        tree(1).eql('1')
+        tree._announcer = function(obj) {
+          stree(obj).type('object')
+          stree(obj.pass).eql(true)
+          stree(obj.msg).eql("1 not eql '1'")
+          stree(obj.name).eql(name)
+          //stree(obj.not).truthy()
+        }
+        tree(1).not.eql('1')
       })
       tree._announcer = stash
     })
@@ -369,22 +377,22 @@ require([
       })
 
     })
-    // stree.branch('STREE not', function(stree) {
-    //   
-    //   stree(tree._asserts).type('object')
-    //   stree(tree.not).type('object')
-    //   tree._announcer = function(obj) {
-    //     stree(obj.pass).eql(true)
-    //   }
-    //   tree(1).not.eql(2)
-    //   tree(1).not.equal('1')
-    //   tree._announcer = function(obj) {
-    //     stree(obj.pass).eql(false)
-    //   }
-    //   tree(1).not.eql(1)
-    //   tree(1).not.equal('1')
-    //   ////////////////////////////////////////////////
-    // })
+    stree.branch('STREE not', function(stree) {
+      stree.expect(5)
+      stree(tree.not).type('object')
+      tree._announcer = function(obj) {
+        stree(obj.pass).eql(true)
+      }
+      tree(1).not.eql(2)
+      tree(1).not.eql('1')
+      tree._announcer = function(obj) {
+        stree(obj.pass).eql(false)
+      }
+      tree(1).not.eql(1)
+      tree(1).not.equal('1')
+      ////////////////////////////////////////////////
+      stree.done()
+    })
     stree.branch('STREE console announcer', function(stree) {})
     // Later
     stree.branch('STREE graphical announcer', function(stree) {})
@@ -392,40 +400,4 @@ require([
     stree.branch('STREE suport all 3 loading schemes', function(stree) {})
     stree.done()
   })
-
-  
-  /*stree.branch('Branching', function(stree) {
-    stree.expect(-1)
-    stree.done()
-  })
-
-  stree(tree._assertCount).typeOf('number')
-
-  // Functionality type tests
-  stree(tree).typeOf('function')
-  stree(tree.ok).typeOf('function')
-  stree(tree.eql).typeOf('function')
-  stree(tree.equal).typeOf('function')
-
-  // Simple type tests
-  stree( tree(123).typeOf('number') ).ok()
-  stree( tree(0).typeOf('number') ).ok()
-  stree( tree(NaN).typeOf('number') ).ok()
-
-  stree( tree('string').typeOf('string') ).ok()
-  stree( tree('').typeOf('string') ).ok()
-
-  stree( tree(function(){}).typeOf('function') ).ok()
-
-  stree( tree({}).typeOf('object') ).ok()
-  stree( tree([]).typeOf('object') ).ok()
-  stree( tree(null).typeOf('object') ).ok()
-
-  stree( tree(true).typeOf('boolean') ).ok()
-  stree( tree(false).typeOf('boolean') ).ok()
-
-  stree( tree(undefined).typeOf('undefined') ).ok()
-
-  stree(tree.isDone).eql(false)
-  tree.done()*/
 })
