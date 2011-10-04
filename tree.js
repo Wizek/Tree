@@ -111,16 +111,24 @@ define(function() {
       , type: '{{actS}} {{#not}}not {{/not}}type {{expS}}'
       , throws: '{{actS}} {{#not}}not {{/not}}throws'
     }
+    tree._asserts.ok = function(obj) {
+      obj.pass = !!obj.act
+      return obj
+    }
+    tree._asserts.pass = function(obj) {
+      obj.pass = true
+      return obj
+    }
+    tree._asserts.fail = function(obj) {
+      obj.pass = false
+      return obj
+    }
     tree._asserts.type = function(obj) {
       if (obj.exp === 'array') {
         obj.pass = Array.isArray(obj.act)
       } else  {
         obj.pass = typeof obj.act === obj.exp
       }
-      return obj
-    }
-    tree._asserts.ok = function(obj) {
-      obj.pass = !!obj.act
       return obj
     }
     tree._asserts.eql = function(obj) {
