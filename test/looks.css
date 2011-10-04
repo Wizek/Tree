@@ -1,0 +1,127 @@
+body {
+  background: #fff;
+  color: #201f1d;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+}
+#tree-panel {
+  position: absolute;
+  top: 0px;
+  background: #eee;
+  margin: -50px 6% 20px;
+  padding: 60px 0px 10px;
+  box-shadow: 0px 2px 10px 0px rgba(0,0,0,0.50);
+  font: medium Consolas, monospace;
+  border-bottom-right-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+#tree-panel a.tree-homepage:link {
+  text-decoration: none;
+}
+#tree-panel .tree-logo {
+  border-radius: 9px;
+  float: right;
+  margin-right: 10px;
+  color: #fff;
+  width: 60px;
+  height: 30px;
+  background: #555;
+  text-align: center;
+}
+#tree-panel .tree-logo .t {
+  position: relative;
+  top: 8px;
+}
+#tree-panel .tree-logo .t .e {
+  font-size: xx-small;
+}
+#tree-panel li {
+  list-style: none;
+}
+#tree-panel > ul.branch-children {
+  padding-left: 20px;
+}
+#tree-panel ul.branch-children {
+  margin: 0;
+}
+#tree-panel ul.branch-children > li {
+  padding-top: 8px;
+}
+#tree-panel ul.branch-children > li span {
+  cursor: pointer;
+}
+#tree-panel ul.branch-children > li .stamp {
+  color: #000;
+  border: #ddd 3px solid;
+  border-radius: 5px;
+  padding: 0px 2px;
+}
+#tree-panel ul.branch-children > li .stamp.fail {
+  border-color: #ff483c;
+}
+#tree-panel ul.branch-children > li .stamp.pass {
+  border-color: #9dde8a;
+}
+#tree-panel ul.branch-children > li span.handle {
+  color: #808080;
+  font: bold large "Lucidia Console", monospace;
+}
+#tree-panel ul.branch-children > li.branch {
+  text-indent: -75px;
+  padding-left: 75px;
+}
+#tree-panel ul.branch-children > li.branch ul.branch-children {
+  text-indent: 0;
+  margin-left: -40px;
+  padding-left: 0px;
+}
+#tree-panel ul.branch-children > li>.stamp {
+  background: transparent;
+}
+#tree-panel ul.branch-children > li>.main-results.top {
+  font-weight: bold;
+}
+#tree-panel ul.branch-children > li.assert span.stamp.pass {
+  background-color: #9dde8a;
+}
+#tree-panel ul.branch-children > li.assert span.stamp.fail {
+  background-color: #ff483c;
+}
+#tree-panel ul.branch-children > li.assert span.type.comment {
+  color: #808080;
+}
+#tree-panel ul.branch-children > li.assert span.type.string {
+  color: #667bef;
+}
+#tree-panel ul.branch-children > li.assert span.type.number {
+  color: #667bef;
+}
+#tree-panel ul.branch-children > li.assert span.type.op {
+  color: #000;
+}
+#tree-panel ul.branch-children > li.assert.pass > ul.details > table {
+  padding-left: $indnt;
+  border-left-color: #9dde8a;
+}
+#tree-panel ul.branch-children > li.assert ul.details {
+  font-size: small;
+  margin-top: 6px;
+}
+#tree-panel ul.branch-children > li.assert ul.details table {
+  border-left: 4px #ff483c solid;
+}
+#tree-panel ul.branch-children > li.assert ul.details table tr {
+  margin-top: 2px;
+}
+#tree-panel ul.branch-children > li.assert ul.details table th {
+  border-right: 2px rgba(0,0,0,0.12) solid;
+  vertical-align: top;
+  font-weight: 400;
+  text-align: right;
+  padding-right: 5px;
+}
+#tree-panel ul.branch-children > li.assert ul.details table td li {
+  white-space: pre;
+}

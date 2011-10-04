@@ -1,40 +1,112 @@
 <!DOCTYPE html>
-<script src="lib/require/require.js"></script>
-<script>require({urlArgs: "bust=" + Date.now()}, ['test.js'])</script>
-<style>
-  .stamp{
-/*    font-family:monospace;
-*/    padding:3px;
-    border-radius:5px;
-/*    width:;
-    position:absolute;
-*/  }
-    .stamp.pass{
-      background-color: #9dde8a;
-    }
-    .stamp.fail{
-      background-color: #ff483c;
-    }
-</style>
+<!--<script src="lib/require/require.js"></script>
+<script>require({urlArgs: "bust=" + Date.now()}, ['test.js'])</script>-->
+<link rel="stylesheet" type="text/css" href="looks.css">
 <div id="tree-panel">
-  <ul>
-    <li>
-      <span class="stamp fail">
-        <span class="failed">004</span>/<span class="run">132</span></span>
-      <span class="main-results">failed</span>
-      <ul>
-        <li>
-          <span class="stamp pass">all 32</span>
-          <span class="branch-name">Branch X</span>
+  <ul class="branch-children">
+    <li class="branch waiting">
+      <span class="handle expanded">-</span>
+      <span class="stamp waiting">....</span>
+        <!-- <span class="failed">4</span>/<span class="run">132</span>
+Momentarily: 4 failed, 128 passed, 132 run; 2 more branches encountered -- waiting for them...
+        -->
+      <span class="main-results top">Running 2 more branches... So far (asserts): 132 total, 4 failed, 128 passed</span>
+      <ul class="branch-children">
+        <li class="branch">
+          <span class="handle collapsed">+</span>
+          <span class="stamp pass">pass</span> (0, 20, 20)
+          <span class="branch-name">This is a branch, and it fully passed</span>
         </li>
-        <li>
-          <span class="stamp pass">27/31</span>
-          <span class="branch-name">Branch X</span>
-          <ul>
-            <li>fail 3===2 xyz.js:33</li>
+        <li class="branch">
+          <span class="handle expanded">-</span>
+          <span class="stamp fail"><span class="white">fail</span></span>
+          <span class="branch-name">This branch has some issues</span>
+          <ul class="branch-children">
+            <li class="assert">
+              <span class="handle collapsed">+</span>
+              <span class="stamp pass">pass</span>
+              <span class="type number">1</span>
+              <span class="type op">eql</span>
+              <span class="type number">1</span>
+              <span class="type comment">// This assert passes
+                <!-- <span class="path">(xyz.js:33)</span> -->
+              </span>
+            </li>
+            <li class="branch passed">
+              <span class="handle expanded">+</span>
+              <span class="stamp pass">pass</span>
+              <span class="branch-name">Notice how this branch is in another? Also, it remains collapsed since it doesn't require your attention.</span>
+            </li>
+            <li class="assert">
+              <span class="handle collapsed">+</span>
+              <span class="stamp pass">pass</span>
+              <span class="type number">1</span>
+              <span class="type op">not eql</span>
+              <span class="type number">2</span>
+              <span class="type comment">// This assert passes too
+                <!-- <span class="path">(xyz.js:33)</span> -->
+              </span>
+            </li>
+            <li class="assert">
+              <span class="handle expanded">-</span>
+              <span class="stamp fail">fail</span>
+              <span class="type number">321</span>
+              <span class="type op">eql</span>
+              <span class="type string">
+                <span class="type qt">'</span>3<span class="type qt">'</span>
+              </span>
+              <span class="type comment">// This assert fails
+                <span class="path">(/path/to/script.js:123)</span>
+              </span>
+              <ul class="details">
+                <table>
+                  <tr> <th>Note</th> <td>This assert fails</td> </tr>
+                  <tr> <th>Result</th> <td>31</td> </tr>
+                  <tr> <th>Expected</th> <td>'3'</td> </tr>
+                  <tr> <th>Path</th> <td>http://domain.com/path/to/script.js:123</td> </tr>
+                </table>
+              </ul>
+            </li>
+            <li class="assert pass">
+              <span class="handle expanded">-</span>
+              <span class="stamp pass">pass</span>
+              <span class="type number">{...}</span>
+              <span class="type op">deepEql</span>
+              <span class="type number">{...}</span>
+              <ul class="details">
+                <table>
+                  <tr> <th>Note</th> <td></td> </tr>
+                  <tr> <th>Result</th> <td>
+                    <li>{</li>
+                    <li>    a: 1</li>
+                    <li>  , b: 2</li>
+                    <li>}</li>
+                  </td> </tr>
+                  <tr> <th>Expected</th> <td>
+                    <li>{</li>
+                    <li>    a: 1</li>
+                    <li>  , b: 2</li>
+                    <li>}</li>
+                  </td> </tr>
+                  <tr> <th>Path</th> <td>http://domain.com/path/to/script.js:124</td> </tr>
+                </table>
+              </ul>
+            </li>
           </ul>
+        </li>
+        <li class="branch running">
+          <span class="handle expanded">+</span>
+          <span class="stamp waiting">....</span>
+          <span class="branch-name">Waiting for this branch to call tree.done(). Also, this is a very long title for a branch, you should definitely try to name yours a little shorter. But long names are welcome too.</span>
+        </li>
+        <li class="branch running">
+          <span class="handle expanded">+</span>
+          <span class="stamp waiting">....</span>
+          <span class="branch-name">This one is not run yet, because the previous one asked us kindly to wait till it's .done() (it must be doing some pretty serious stuff to make us wait, but anyways)</span>
         </li>
       </ul>
     </li>
   </ul>
+  <a class="tree-homepage" href="https://github.com/Wizek/Tree"><div class="tree-logo"><span class="t"><span class="m">Tree</span><span class="e">js</span></span></div></a>
 </div>
+<iframe src="http://www.wikipedia.org" frameborder="0" border="0" cellspacing="0" style="width:100%; height:100%"></iframe>
