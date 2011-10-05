@@ -3,7 +3,7 @@
 # Hey, you!
 Yes, *you*! Nice to meet you! Wonderful things are in the works here. Don't go just yet! Because I mean it when I say truly wonderful. Make yourself comfortable, I'll take care of the rest.
 
-Have you thought about what the bestest JavaScript unit testing framework should be like? I have, and I came up with tons of ideas in the process. For example it should look at least as **pleasant** as QUnit, or better.
+Have you thought about what the bestest JavaScript unit testing framework should be like? I have, and I came up with tons of ideas in the process. For example it should look at least as [**pleasant**](http://content.screencast.com/users/W1z3k/folders/Jing/media/d4729fb0-bbcd-4e85-bf14-75ea12f5861c/2011-10-04_1159.png) as QUnit, or better.
 It should **handle async code** as good as NodeUnit, or even one bit better-- *Wait a minute! I know those two, but the first is built for testing client side JS, and the latter is for the server side Node.js code!*
 --That's exactly my third point my good Sir! How about **unified syntax for both sides**, or even (partially) shared testing suits for all your JS source code? Did I mention it's going to be wonderful?
 
