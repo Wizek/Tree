@@ -47,6 +47,9 @@ require([
       stree( tpl('1{{^a}}2{{/a}}3', {}) ).eql('123')
       stree( tpl('1{{^a}}2{{/a}}3', {a:false}) ).eql('123')
       stree( tpl('1{{^a}}2{{/a}}3', {a:true}) ).eql('13')
+
+      stree(tpl).throws()
+      stree(function() {tpl('a')}).not.throws()
     })
     
     //tree._init()
@@ -119,6 +122,13 @@ require([
         stree(tree._asserts.equal({act:1,exp:2}).pass).eql(false)
         stree.done()
       })
+      stree.branch('STREE throws', function(stree) {
+        stree(tree._asserts.throws).type('function')
+        stree(tree.throws).type('function')
+        stree(tree._asserts.throws({act:function(){}}).pass).eql(false)
+        stree(tree._asserts.throws({act:function(){a()}}).pass).eql(true)
+        stree(tree._asserts.throws({act:'non-fn'}).pass).eql(true)
+      })
       stree.branch('STREE 1.6.4 deepEql', function(stree) {
         window.tree = tree
         stree.expect(7)
@@ -169,6 +179,11 @@ require([
       stree.branch('STREE 1.6.11 above', function(stree) {})
       stree.branch('STREE 1.6.12 below', function(stree) {})
       stree.branch('STREE 1.6.13 between', function(stree) {})
+      stree.branch('STREE template check', function(stree) {
+        for (key in tree._asserts) if (tree._asserts.hasOwnProperty(key)) {
+          stree(tree._assertTpl[key]).type('string')
+        }
+      })
       stree.done()
     })
 
@@ -328,64 +343,64 @@ require([
           tree.done()
           tree._announcer = new Function()
         })
-        stree.branch('STREE 1.7.2 waitForDone', function(stree) {
-          stree.branch('STREE 1.7.2.1 queue array', function(stree) {
-            tree.branch(function(tree) {
+        // stree.branch('STREE 1.7.2 waitForDone', function(stree) {
+        //   stree.branch('STREE 1.7.2.1 queue array', function(stree) {
+        //     tree.branch(function(tree) {
 
-              tree.branch(function(tree) {
-                tree.waitForDone()
-                tree.expect(0)
-                tree.done()
-              })
-              tree.branch(function(tree) {
-                tree.expect(1)
-              })
-              tree.branch(function(tree) {
-                tree.expect(0)
-              })
+        //       tree.branch(function(tree) {
+        //         tree.waitForDone()
+        //         tree.expect(0)
+        //         tree.done()
+        //       })
+        //       tree.branch(function(tree) {
+        //         tree.expect(1)
+        //       })
+        //       tree.branch(function(tree) {
+        //         tree.expect(0)
+        //       })
 
-              stree(tree._children.length).eql(3)
-              stree(tree._children[0]._run).eql(true)
-              stree(tree._children[0]._done).eql(true)
-              stree(tree._children[1]._run).eql(true)
-              stree(tree._children[1]._done).eql(false)
-              stree(tree._children[2]._run).eql(false)
-              stree(tree._children[2]._done).eql(false)
-            })
-          })
-          //var count = 0
-          //stree(tree.waitForDone).type('function')
-          //tree.waitForDone()
-          //tree.branch('wait', function(tree) {
-          //  tree.expect(0)
-          //  setTimeout(function() {
-          //    stree(++count).eql(1)
-          //    tree.done()
-          //  }, 100)
-          //})
-          //tree.branch('wait2', function(tree) {
-          //  tree.expect(0)
-          //  stree(++count).eql(2)
-          //  tree.done()
-          //})
-        })
-        stree.branch('STREE 1.7.3 fireNextToo', function(stree) {
-          var count = 0
-          stree(tree.fireNextToo).type('function')
-          tree.fireNextToo()
-          tree.branch('fire', function(tree) {
-            tree.expect(0)
-            setTimeout(function() {
-              stree(++count).eql(2)
-              tree.done()
-            }, 100)
-          })
-          tree.branch('fire2', function(tree) {
-            tree.expect(0)
-            stree(++count).eql(1)
-            tree.done()
-          })
-        })
+        //       stree(tree._children.length).eql(3)
+        //       stree(tree._children[0]._run).eql(true)
+        //       stree(tree._children[0]._done).eql(true)
+        //       stree(tree._children[1]._run).eql(true)
+        //       stree(tree._children[1]._done).eql(false)
+        //       stree(tree._children[2]._run).eql(false)
+        //       stree(tree._children[2]._done).eql(false)
+        //     })
+        //   })
+        //   //var count = 0
+        //   //stree(tree.waitForDone).type('function')
+        //   //tree.waitForDone()
+        //   //tree.branch('wait', function(tree) {
+        //   //  tree.expect(0)
+        //   //  setTimeout(function() {
+        //   //    stree(++count).eql(1)
+        //   //    tree.done()
+        //   //  }, 100)
+        //   //})
+        //   //tree.branch('wait2', function(tree) {
+        //   //  tree.expect(0)
+        //   //  stree(++count).eql(2)
+        //   //  tree.done()
+        //   //})
+        // })
+        // stree.branch('STREE 1.7.3 fireNextToo', function(stree) {
+        //   var count = 0
+        //   stree(tree.fireNextToo).type('function')
+        //   tree.fireNextToo()
+        //   tree.branch('fire', function(tree) {
+        //     tree.expect(0)
+        //     setTimeout(function() {
+        //       stree(++count).eql(2)
+        //       tree.done()
+        //     }, 100)
+        //   })
+        //   tree.branch('fire2', function(tree) {
+        //     tree.expect(0)
+        //     stree(++count).eql(1)
+        //     tree.done()
+        //   })
+        // })
       })
 
     })

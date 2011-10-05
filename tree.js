@@ -18,6 +18,8 @@ define(function() {
 
     tree._helpers._templater = function(tplstr, vars) {
       if (typeof vars != 'object') var vars = {}
+      if (typeof tplstr != 'string')
+        throw new Error('Template string is not a string!')
       var RE_ifTruthy = /{{\s*#\s*(.*?)\s*}}(.*?){{\s*\/\s*\1\s*}}/g
       var RE_ifFalsy = /{{\s*\^\s*(.*?)\s*}}(.*?){{\s*\/\s*\1\s*}}/g
       while (tplstr.match(RE_ifTruthy)) {
@@ -103,6 +105,8 @@ define(function() {
     //}
     tree._assertTpl = {
       ok: '{{actS}} {{#not}}not {{/not}}ok'
+      , pass: 'pass'
+      , fail: 'fail'
       , truthy: '{{actS}} {{#not}}not {{/not}}truthy'
       , falsy: '{{actS}} {{#not}}not {{/not}}falsy'
       , eql: '{{actS}} {{#not}}not {{/not}}eql {{expS}}'
@@ -117,6 +121,16 @@ define(function() {
     }
     tree._asserts.pass = function(obj) {
       obj.pass = true
+      return obj
+    }
+    tree._asserts.throws = function(obj) {
+      obj.pass = null
+      try {
+        obj.act()
+      } catch (e) {
+        obj.pass = true
+      }
+      obj.pass = obj.pass? obj.pass : false
       return obj
     }
     tree._asserts.fail = function(obj) {
@@ -287,9 +301,10 @@ define(function() {
     //  stree._debugMode = true
     //  return stree
     //}
-
     for (key in tree._asserts) if (tree._asserts.hasOwnProperty(key)) {
-      (function(key) {
+      if (!tree._assertTpl[key])
+        throw new Error('Missing template string for assert: '+key)
+      ;(function(key) {
         tree[key] = tree.not[key] = function(exp) {
           var obj = {
               name: tree._name
