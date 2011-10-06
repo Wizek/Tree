@@ -249,15 +249,17 @@ define(function() {
     // tree.fireNextToo = function() {
     //   this._waitForDone = false
     // }
-    tree.branch = function(name, callback) {
-      if (typeof name == 'function') callback = name
+    tree.branch = function(name, newBranchCode) {
+      if (typeof name == 'function') newBranchCode = name
       if (typeof name != 'string') name = ''
-      var childTree = new _treeInstance()
-      childTree._name = name
-      childTree._parent = tree
-      childTree._debugMode = tree._debugMode
-      tree._children.push(childTree)
-      callback(childTree)
+      var currentTree = tree
+      var newBranchTree = new _treeInstance()
+      newBranchTree._code = newBranchCode
+      newBranchTree._name = name
+      newBranchTree._parent = currentTree
+      newBranchTree._debugMode = currentTree._debugMode
+      currentTree._children.push(newBranchTree)
+      //newBranchCode(newBranchTree)
     }
     tree.expect = function(count) {
       if (count >= 0) {
@@ -294,6 +296,28 @@ define(function() {
         })
       }
       tree._done = true
+      //while (ourChildren.length && i) {
+      //  
+      //}
+      ourChildren = tree._children
+      var found = false
+      debugger
+      while (!found) {
+        for (var i = 0; i < tree._children.length; i++) {
+          var c = tree._children[i]
+          if (!c._run) {
+            found = true
+            c._run = true
+            c._code(c)
+            break
+          }
+        }
+        if (found) {
+          break
+        } else {
+          ourChildren = tree._parent._children
+        }
+      }
     }
     //tree._debugInstance = function(opts) {
     //  console.warn('tree._debugInstance is depracated')
