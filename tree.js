@@ -8,10 +8,12 @@ define(function() {
 
     tree._debugMode = false
     tree._expect = -1
-    tree._name = ''
+    tree._name = 'trunk'
     tree._assertCount = 0
     tree._children = []
+    tree._run = false
     tree._done = false
+    tree._timedOut = false
     tree.not = {_not:true}
     tree._asserts = {}
     tree._helpers = {}
@@ -252,14 +254,59 @@ define(function() {
     tree.branch = function(name, newBranchCode) {
       if (typeof name == 'function') newBranchCode = name
       if (typeof name != 'string') name = ''
+      if (tree._done) return console.error(name+' after .done()!')
       var currentTree = tree
       var newBranchTree = new _treeInstance()
-      newBranchTree._code = newBranchCode
+      newBranchTree._code = newBranchCode   
       newBranchTree._name = name
       newBranchTree._parent = currentTree
       newBranchTree._debugMode = currentTree._debugMode
       currentTree._children.push(newBranchTree)
       //newBranchCode(newBranchTree)
+      // if (!newBranchTree._done) {
+      //   newBranchTree._timerId = setTimeout(function() {
+      //     console.error(name, 'timed out!')
+      //   }, 1000)
+      // }
+    }
+    tree._next = function() {
+      var found = false
+      var c
+      for (var i = 0; i < tree._children.length; i++) {
+        c = tree._children[i]
+        if (!c._run /*&& !c._timedOut*/) {
+          found = true
+          break
+        }
+      }
+      if (found) {
+        ;(function(c) {
+          setTimeout(function() {
+            console.log('TIMEOUT BACK')
+            if (!c._done) {
+              c._timedOut = true
+              console.warn(c._name+' timed out. Carrying on.')
+              tree._next()
+            }
+          },1000)
+        })(c)
+        c._run = true
+        c._code(c)
+      } else {
+        if (tree._parent) {
+          tree._parent._next()
+        } else {    
+          // fullyDone event
+          console.warn('no more parents')
+        }
+      }
+    }
+    tree._helpers._display = function(fn) {
+      var obj = {}
+      for (key in fn) if (fn.hasOwnProperty(key)) {
+        obj[key] = fn[key]
+      }
+      return obj
     }
     tree.expect = function(count) {
       if (count >= 0) {
@@ -272,6 +319,7 @@ define(function() {
     tree.done = function() {
       var run = tree._assertCount
       var exp = tree._expect
+      clearTimeout(tree._timerId)
       if (tree._done) {
         tree._announcer({
           pass: false,
@@ -292,32 +340,11 @@ define(function() {
           name: tree._name,
           msg: exp === -1?
               'expect() not called properly! '+run+' assertion(s) run.'
-            : 'expexted '+exp+' asserton(s), but '+run+' run.'
+            : 'expected '+exp+' asserton(s), but '+run+' run.'
         })
       }
       tree._done = true
-      //while (ourChildren.length && i) {
-      //  
-      //}
-      ourChildren = tree._children
-      var found = false
-      debugger
-      while (!found) {
-        for (var i = 0; i < tree._children.length; i++) {
-          var c = tree._children[i]
-          if (!c._run) {
-            found = true
-            c._run = true
-            c._code(c)
-            break
-          }
-        }
-        if (found) {
-          break
-        } else {
-          ourChildren = tree._parent._children
-        }
-      }
+      tree._next()
     }
     //tree._debugInstance = function(opts) {
     //  console.warn('tree._debugInstance is depracated')

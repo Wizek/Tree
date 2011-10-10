@@ -16,6 +16,175 @@ require([
       stree(tree._debugMode).eql(false)
       stree(stree._debugMode).eql(true)
     })
+    stree.branch('STREE 1.7 async handling', function(stree) {
+      stree.expect(-1)
+      stree.branch('STREE 1.7.1 assert count', function(stree) {
+        stree.expect(-1)
+        var stash = tree._announcer
+        tree.branch('async1', function(tree) {
+          tree.expect(1)
+          setTimeout(function() {
+            tree('test 5191').eql('test 5191')
+            tree._announcer = function(obj) {
+              console.log('ASDASDASD_-----------')
+              stree(obj.msg).eql('done.')
+            }
+            tree._announcer = stash
+            tree.done()
+          }, 100)
+        })
+        tree.branch('async2', function(tree) {
+          tree.expect(1)
+          setTimeout(function() {
+            tree('test 3219').eql('test 3219')
+          }, 100)
+          tree._announcer = function(obj) {
+            stree(obj.msg).eql('expexted 1 asserton(s), but 0 run.')
+            tree._announcer = stash
+          }
+          tree.done()
+          tree._announcer = new Function()
+        })
+        stree.branch('STREE 1.7.2 serial', function(stree) {
+          // stree.branch('STREE 1.7.2.1 queue array', function(stree) {
+          //   tree.branch(function(tree) {
+
+          //     tree.branch(function(tree) {
+          //       tree.expect(0)
+          //       tree.done()
+          //     })
+          //     tree.branch(function(tree) {
+          //       tree.expect(1)
+          //     })
+          //     tree.branch(function(tree) {
+          //       tree.expect(0)
+          //     })
+
+          //     stree(tree._children.length).eql(3)
+          //     stree(tree._children[0]._run).eql(true)
+          //     stree(tree._children[0]._done).eql(true)
+          //     stree(tree._children[1]._run).eql(true)
+          //     stree(tree._children[1]._done).eql(false)
+          //     stree(tree._children[2]._run).eql(false)
+          //     stree(tree._children[2]._done).eql(false)
+          //   })
+          // })
+          stree.branch('STREE truly serial?', function(stree) {
+            stree.expect(-1)
+            var branchOrderCount = -1
+            var trulyAsyncCount = 0
+            var trulyTrulyAsyncCount = 0
+            stree(++trulyTrulyAsyncCount).eql(1)
+            tree.branch('async 0', function(tree) {
+                stree(++trulyTrulyAsyncCount).eql(3)
+                stree(++branchOrderCount).eql(0)
+                tree.expect(0)
+                tree.branch('async 1', function(tree) {
+                    stree(++branchOrderCount).eql(1)
+                    tree.expect(0)
+                    tree.branch('async 2', function(tree) {
+                        stree(++branchOrderCount).eql(2)
+                        tree.expect(0)
+                        setTimeout(function() {tree.done()}, 100)
+                    })
+                    setTimeout(function() {tree.done()}, 100)
+                })
+                tree.branch('async 3', function(tree) {
+                    stree(++branchOrderCount).eql(3)
+                    tree.expect(0)
+                    tree.branch('async 4', function(tree) {
+                        stree(++branchOrderCount).eql(4)
+                        tree.expect(0)
+                        tree.branch('async 5', function(tree) {
+                            stree(++branchOrderCount).eql(5)
+                            tree.expect(0)
+                            tree.branch('async 6', function(tree) {
+                                stree(++branchOrderCount).eql(6)
+                                tree.expect(0)
+                                tree.branch('async 7', function(tree) {
+                                    stree(++branchOrderCount).eql(7)
+                                    tree.expect(0)
+                                    setTimeout(function() {tree.done()}, 100)
+                                })
+                                setTimeout(function() {tree.done()}, 100)
+                            })
+                            setTimeout(function() {tree.done()}, 100)
+                        })
+                        setTimeout(function() {tree.done()}, 100)
+                    })
+                    setTimeout(function() {tree.done()}, 100)
+                })
+                tree.branch('async 8', function(tree) {
+                    stree(++branchOrderCount).eql(8)
+                    tree.expect(0)
+                    tree.branch('async 9', function(tree) {
+                        stree(++branchOrderCount).eql(9)
+                        tree.expect(0)
+                        tree.branch('async 10', function(tree) {
+                            stree(++branchOrderCount).eql(10)
+                            tree.expect(0)
+                            setTimeout(function() {tree.done()}, 100)
+                        })
+                        tree.branch('async 11', function(tree) {
+                            stree(++branchOrderCount).eql(11)
+                            tree.expect(0)
+                            setTimeout(function() {tree.done()}, 100)
+                        })
+                        setTimeout(function() {tree.done()}, 100)
+                    })
+                    tree.branch('async 12', function(tree) {
+                        stree(++branchOrderCount).eql(12)
+                        tree.expect(0)
+                        setTimeout(function() {tree.done()}, 100)
+                    })
+                    setTimeout(function() {tree.done()}, 100)
+                })
+                stree(++trulyTrulyAsyncCount).eql(2)
+                stree(++trulyAsyncCount).eql(1)
+                setTimeout(function() {
+                  stree(++trulyAsyncCount).eql(3)
+                  tree.done()
+                  stree(++trulyAsyncCount).eql(4)
+                }, 100)
+                stree(++trulyAsyncCount).eql(2)
+            })
+          })
+          // var count = 0
+          //stree(tree.waitForDone).type('function')
+          //tree.waitForDone()
+          //tree.branch('wait', function(tree) {
+          //  tree.expect(0)
+          //  setTimeout(function() {
+          //    stree(++count).eql(1)
+          //    tree.done()
+          //  }, 100)
+          //})
+          //tree.branch('wait2', function(tree) {
+          //  tree.expect(0)
+          //  stree(++count).eql(2)
+          //  tree.done()
+          //})
+        })
+        // stree.branch('STREE 1.7.3 fireNextToo', function(stree) {
+        //   var count = 0
+        //   stree(tree.fireNextToo).type('function')
+        //   tree.fireNextToo()
+        //   tree.branch('fire', function(tree) {
+        //     tree.expect(0)
+        //     setTimeout(function() {
+        //       stree(++count).eql(2)
+        //       tree.done()
+        //     }, 100)
+        //   })
+        //   tree.branch('fire2', function(tree) {
+        //     tree.expect(0)
+        //     stree(++count).eql(1)
+        //     tree.done()
+        //   })
+        // })
+      })
+
+    })
     stree.branch('STREE templating', function(stree) {
       var tpl = tree._helpers._templater
       stree(tpl).type('function')
@@ -191,25 +360,35 @@ require([
     stree.branch('STREE 1.2 branching', function(stree) {
       stree.expect(8)
       tree.branch('Some name', function(tree) {
+        tree.expect(0)
         stree(tree._name).eql('Some name')
         stree(tree._children).type('array')
         stree(tree._children.length).eql(0)
         tree.branch('Some other name', function(tree) {
+          tree.expect(0)
           stree(tree._name).eql('Some other name')
           stree(tree._parent._name).eql('Some name')
           tree.branch(function(tree) {
+            tree.expect(0)
             stree(tree._name).eql('')
+            tree.done()
+            __done()
           })
+          tree.done()
         })
         stree(tree._children.length).eql(1)
         stree(tree._children[0]._name).eql('Some other name')
+        tree.done()
       })
-      stree.done()
+      function __done () {
+        stree.done()
+      }
     })
 
     stree.branch('STREE 1.3 formateer', function(stree) {
       stree.expect(20)
       tree.branch('formateer!', function(tree) {
+        tree.expect(0)
         var frm = tree._helpers._formateer
         stree(frm).type('function')
         /*\
@@ -243,8 +422,9 @@ require([
          *  Long format
         \*/
         // yet to come
+        tree.done()
+        stree.done()
       })
-      stree.done()
     })
 
     stree.branch('STREE 1.4 announcer-interception', function(stree) {
@@ -276,6 +456,8 @@ require([
           //stree(obj.not).truthy()
         }
         tree(1).not.eql('1')
+        tree._announcer = stash
+        tree.done()
       })
       tree._announcer = stash
     })
@@ -316,174 +498,10 @@ require([
         }
         tree.done()
         tree._announcer = stash
+        stree.done()
       })
-      stree.done()
     })
-    stree.branch('STREE 1.7 async handling', function(stree) {
-      stree.branch('STREE 1.7.1 assert count', function(stree) {
-        var stash = tree._announcer
-        tree.branch('async1', function(tree) {
-          tree.expect(1)
-          setTimeout(function() {
-            tree('test 5191').eql('test 5191')
-            tree._announcer = function(obj) {
-              stree(obj.msg).eql('done.')
-            }
-            tree.done()
-          }, 100)
-        })
-        tree.branch('async2', function(tree) {
-          tree.expect(1)
-          setTimeout(function() {
-            tree('test 3219').eql('test 3219')
-          }, 100)
-          tree._announcer = function(obj) {
-            stree(obj.msg).eql('expexted 1 asserton(s), but 0 run.')
-            tree._announcer = stash
-          }
-          tree.done()
-          tree._announcer = new Function()
-        })
-        stree.branch('STREE 1.7.2 serial', function(stree) {
-          // stree.branch('STREE 1.7.2.1 queue array', function(stree) {
-          //   tree.branch(function(tree) {
-
-          //     tree.branch(function(tree) {
-          //       tree.expect(0)
-          //       tree.done()
-          //     })
-          //     tree.branch(function(tree) {
-          //       tree.expect(1)
-          //     })
-          //     tree.branch(function(tree) {
-          //       tree.expect(0)
-          //     })
-
-          //     stree(tree._children.length).eql(3)
-          //     stree(tree._children[0]._run).eql(true)
-          //     stree(tree._children[0]._done).eql(true)
-          //     stree(tree._children[1]._run).eql(true)
-          //     stree(tree._children[1]._done).eql(false)
-          //     stree(tree._children[2]._run).eql(false)
-          //     stree(tree._children[2]._done).eql(false)
-          //   })
-          // })
-          stree.branch('STREE truly serial?', function(stree) {
-            stree.expect(-1)
-            var branchOrderCount = -1
-            var trulyAsyncCount = 0
-            var trulyTrulyAsyncCount = 0
-            stree(++trulyTrulyAsyncCount).eql(1)
-            tree.branch('async 0', function(tree) {
-                stree(++trulyTrulyAsyncCount).eql(3)
-                stree(++branchOrderCount).eql(0)
-                tree.expect(0)
-                tree.branch('async 1', function(tree) {
-                    stree(++branchOrderCount).eql(1)
-                    tree.expect(0)
-                    tree.branch('async 2', function(tree) {
-                        stree(++branchOrderCount).eql(2)
-                        tree.expect(0)
-                        setTimeout(function() {tree.done()}, 100)
-                    })
-                    setTimeout(function() {tree.done()}, 100)
-                })
-                tree.branch('async 3', function(tree) {
-                    stree(++branchOrderCount).eql(3)
-                    tree.expect(0)
-                    tree.branch('async 4', function(tree) {
-                        stree(++branchOrderCount).eql(4)
-                        tree.expect(0)
-                        tree.branch('async 5', function(tree) {
-                            stree(++branchOrderCount).eql(5)
-                            tree.expect(0)
-                            tree.branch('async 6', function(tree) {
-                                stree(++branchOrderCount).eql(6)
-                                tree.expect(0)
-                                tree.branch('async 7', function(tree) {
-                                    stree(++branchOrderCount).eql(7)
-                                    tree.expect(0)
-                                    setTimeout(function() {tree.done()}, 100)
-                                })
-                                setTimeout(function() {tree.done()}, 100)
-                            })
-                            setTimeout(function() {tree.done()}, 100)
-                        })
-                        setTimeout(function() {tree.done()}, 100)
-                    })
-                    setTimeout(function() {tree.done()}, 100)
-                })
-                tree.branch('async 8', function(tree) {
-                    stree(++branchOrderCount).eql(8)
-                    tree.expect(0)
-                    tree.branch('async 9', function(tree) {
-                        stree(++branchOrderCount).eql(9)
-                        tree.expect(0)
-                        tree.branch('async 10', function(tree) {
-                            stree(++branchOrderCount).eql(10)
-                            tree.expect(0)
-                            setTimeout(function() {tree.done()}, 100)
-                        })
-                        tree.branch('async 11', function(tree) {
-                            stree(++branchOrderCount).eql(11)
-                            tree.expect(0)
-                            setTimeout(function() {tree.done()}, 100)
-                        })
-                        setTimeout(function() {tree.done()}, 100)
-                    })
-                    tree.branch('async 12', function(tree) {
-                        stree(++branchOrderCount).eql(12)
-                        tree.expect(0)
-                        setTimeout(function() {tree.done()}, 100)
-                    })
-                    setTimeout(function() {tree.done()}, 100)
-                })
-                stree(++trulyTrulyAsyncCount).eql(2)
-                stree(++trulyAsyncCount).eql(1)
-                setTimeout(function() {
-                  stree(++trulyAsyncCount).eql(3)
-                  tree.done()
-                  stree(++trulyAsyncCount).eql(4)
-                }, 100)
-                stree(++trulyAsyncCount).eql(2)
-            })
-          })
-          // var count = 0
-          //stree(tree.waitForDone).type('function')
-          //tree.waitForDone()
-          //tree.branch('wait', function(tree) {
-          //  tree.expect(0)
-          //  setTimeout(function() {
-          //    stree(++count).eql(1)
-          //    tree.done()
-          //  }, 100)
-          //})
-          //tree.branch('wait2', function(tree) {
-          //  tree.expect(0)
-          //  stree(++count).eql(2)
-          //  tree.done()
-          //})
-        })
-        // stree.branch('STREE 1.7.3 fireNextToo', function(stree) {
-        //   var count = 0
-        //   stree(tree.fireNextToo).type('function')
-        //   tree.fireNextToo()
-        //   tree.branch('fire', function(tree) {
-        //     tree.expect(0)
-        //     setTimeout(function() {
-        //       stree(++count).eql(2)
-        //       tree.done()
-        //     }, 100)
-        //   })
-        //   tree.branch('fire2', function(tree) {
-        //     tree.expect(0)
-        //     stree(++count).eql(1)
-        //     tree.done()
-        //   })
-        // })
-      })
-
-    })
+    
     stree.branch('STREE not', function(stree) {
       stree.expect(5)
       stree(tree.not).type('object')
@@ -506,6 +524,7 @@ require([
     stree.branch('STREE dynamic test loading', function(stree) {})
     stree.branch('STREE suport all 3 loading schemes', function(stree) {})
     stree.done()
+    tree.done()
   })
   tree.done()
   stree.done()
