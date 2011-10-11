@@ -2,6 +2,24 @@ require([
   '../tree' // In development, latest version
   , 'stree' // More stable one, proven to be working
 ], function(tree, stree) {
+  setTimeout(function() {
+    console.log(disp(stree))
+  },3000)
+  function disp (stree) {
+    if (Array.isArray(stree)) {
+      var arr = []
+      for (var i = 0; i < stree.length; i++) {
+        arr[i] = disp(stree[i])
+      }
+      return arr
+    } else {
+      var obj = {}
+      console.group(stree._name)
+      obj[stree._name] = disp(stree._children)
+      console.groupEnd()
+      return obj
+    }
+  }
   stree._name = 'STREE top lev'
   stree.expect(0)
   tree.expect(0)
@@ -36,7 +54,7 @@ require([
     })
     stree.branch('STREE async handling', function(stree) {
       stree.expect(0)
-      stree.branch('STREE unnamed', function(stree) {
+      stree.branch('STREE queue check', function(stree) {
         stree.expect(12)
         tree.branch('b capsule', function(tree) {
           tree.expect(0)
@@ -170,7 +188,7 @@ require([
           tree.done()
         })
       })
-      stree.branch('STREE tomeout', function(stree) {
+      stree.branch('STREE timeout', function(stree) {
         stree.expect(12)
         tree.branch('timing out', function(tree) {
           tree.expect(0)
@@ -200,12 +218,12 @@ require([
             stree(tree._children[1]._timedOut).eql(true)
             //tree._next()
             stree.done()
-          }, 1200)
+          }, 1100)
           tree.done()
         })
-        stree.branch('STREE variable timeout', function(stree) {
-          stree.done()
-        })
+        //stree.branch('STREE variable timeout', function(stree) {
+        //  stree.done()
+        //})
       })
       stree.done()
     })
