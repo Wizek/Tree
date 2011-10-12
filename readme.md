@@ -14,7 +14,7 @@ It's almost as **expressive** as Shouldjs, but doesn't extend the Object object,
 To be continued...
 
 ## That's a little too much text for me
-Okay then, have this list of some of the best features:
+Okay then, here are some highlights:
 
 - Works with Node.js
 - Works in the browser
@@ -38,7 +38,23 @@ Okay then, have this list of some of the best features:
 We are building the best JS unit testing framework. Wanna join? Or, you can just use it too.
 
 ## When?
-Are you as excited as I am? Unfortunately, it's not done yet. But do not despair as you can speed up that process if you contribute in some way! See Help down below.
+Are you as excited as I am? Unfortunately, it's not fully done yet. But do not despair as you can speed up that process if you contribute in some way! See Help down below.
+
+### Now
+Latest stable version is v0.2 as of 2011.10.12.
+This version has all the core functionality, and is stable at performing those in the browser with AMD loading (tested with RequireJS) as you can see as the included test coverage passes.
+#### highlights for what is included
+
+- Organise into branches
+- core asserts (deepEql, eql, equal, fail, ok, pass, throws, type)
+- async handling with serial branch execution only
+	- assert count
+	- 1000ms timeout for each, continues with next in case of timeout
+- linear output to console
+
+#### yet to be included
+
+- See visionary feature list above (*That's a little too much text for me*)
 
 ## Help
 Do you mean that you help me, or that I help you? (Whatever those pronouns may refer to.)
