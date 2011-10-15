@@ -1,22 +1,118 @@
 define(function() {
   function _treeInstance() {
+
+    // Hart of the framework
     var tree = function(act) {
       tree._assertCount++
       tree._act = act
       return tree
     }
 
-    tree._debugMode = false
-    tree._expect = -1
-    tree._name = 'trunk'
-    tree._assertCount = 0
-    tree._children = []
-    tree._run = false
-    tree._done = false
-    tree._timedOut = false
+    // Host objects
     tree.not = {_not:true}
     tree._asserts = {}
     tree._helpers = {}
+
+    tree.config = tree.cfg = function (obj, val) {
+      // might be needed later
+      var defaults = {}
+      // if it is called on the .heritable. path, this._heritable is true
+      // otherwise false or undefined
+      var heritable = this._heritable
+      // spec(ific) is false if called simply by tree.config, true if taking other path
+      var spec = this._spec
+      // taming the input
+      var obj = tree.cfg._morph(obj, val)
+      if (obj == null || typeof obj == 'string') {
+        return read(obj)
+      } else if (typeof obj == 'object') {
+        return write(obj)
+      }
+      function write (obj) {
+        if (heritable) {
+          for (key in obj) if (obj.hasOwnProperty(key)) {
+            tree.config.heritable[key] = obj[key]
+          }
+        } else {    
+          for (key in obj) if (obj.hasOwnProperty(key)) {
+            tree.config.oneLevel[key] = obj[key]
+          }
+        }
+        return read()
+      }
+      function read (str) {
+        if (!spec) {
+          return getMixed(str)
+        } else {
+          if (str) {
+            return getProper()[str]
+          } else {
+            return getProper()
+          }
+        }
+        function getProper () {
+          if (heritable) {
+            return tree.config.heritable
+          } else {
+            return tree.config.oneLevel
+          }
+        }
+        // combine HER and ONE, in case of conflict the latter wins
+        function getMixed (str) {
+          var her = tree.config.heritable
+          var one = tree.config.oneLevel
+          if (str) { // single query
+            return (typeof one[str] !== 'undefined' ?
+                one[str]
+              : her[str])
+          } else { // general query
+            var out = {}
+            for (key in her) if (her.hasOwnProperty(key)) {
+              out[key] = her[key]
+            }
+            for (key in one) if (one.hasOwnProperty(key)) {
+              out[key] = one[key]
+            }
+            return out
+          }
+        }
+      }
+    }
+    // tame the input
+    tree.config._morph = function(obj, val) {
+      if (typeof obj == 'object' && obj) {
+        // we do not care about val, obj alone does it
+        return obj
+      } else if (typeof obj == 'string') {
+        // we can either have a read request
+        if (typeof val == 'undefined') {
+          // all exact read calls are in string form 
+          return obj
+        } else { // or a write request
+          // all write calls are in object form
+          var o = {}
+          o[obj] = val
+          return o
+        }
+      } else {
+        // general read is null
+        return null
+      }
+    }
+    tree.config.oneLevel = {}
+    tree.config.heritable = {}
+    tree.oneLevel = {
+      _heritable: false
+      , _spec: true
+      , config: tree.cfg
+      , cfg: tree.cfg
+    }
+    tree.heritable = {
+      _heritable: true
+      , _spec: true
+      , cfg: tree.cfg
+      , config: tree.cfg
+    }
 
     tree._helpers._templater = function(tplstr, vars) {
       if (typeof vars != 'object') var vars = {}
@@ -240,17 +336,6 @@ define(function() {
       }
     }
 
-    tree.config = function(obj) {
-      var defaults = {
-        //////////////////////////////////////////////////////////////////
-      }
-    }
-    // tree.waitForDone = function() {
-    //   this._waitForDone = true
-    // }
-    // tree.fireNextToo = function() {
-    //   this._waitForDone = false
-    // }
     tree.branch = function(name, newBranchCode) {
       if (typeof name == 'function') newBranchCode = name
       if (typeof name != 'string') name = ''
@@ -261,6 +346,10 @@ define(function() {
       newBranchTree._name = name
       newBranchTree._parent = currentTree
       newBranchTree._debugMode = currentTree._debugMode
+      newBranchTree.heritable.config(currentTree.heritable.config())
+      newBranchTree.oneLevel.config({
+        name:name
+      })
       currentTree._children.push(newBranchTree)
       //newBranchCode(newBranchTree)
       // if (!newBranchTree._done) {
@@ -268,57 +357,81 @@ define(function() {
       //     console.error(name, 'timed out!')
       //   }, 1000)
       // }
+      return newBranchTree
     }
     tree._next = function() {
       var found = false
       var c
       for (var i = 0; i < tree._children.length; i++) {
         c = tree._children[i]
-        if (!c._run /*&& !c._timedOut*/) {
+        if (!c._run && !c._timedOut) {
           found = true
           break
         }
       }
       if (found) {
-        ;(function(c) {
+        c._run = true
+        c._code(c)
+        if (!c._done) {
           setTimeout(function() {
             console.log('TIMEOUT BACK')
             if (!c._done) {
               c._timedOut = true
               console.warn(c._name+' timed out. Carrying on.')
               tree._next()
-            }
-          },1000)
-        })(c)
-        c._run = true
-        c._code(c)
+            } /*else {
+              c._timedOut = false
+            }*/
+          }, c.config('timeout'))
+        }
       } else {
         if (tree._parent) {
           tree._parent._next()
         } else {    
           // fullyDone event
           console.warn('no more parents')
+          //tree._helpers._display()
+          //tree.allDone()
         }
       }
     }
-    tree._helpers._display = function(fn) {
-      var obj = {}
-      for (key in fn) if (fn.hasOwnProperty(key)) {
-        obj[key] = fn[key]
+    tree._helpers._display = function(c) {
+      c = c || tree
+      while (c._parent) {
+        c = c._parent
       }
-      return obj
+      ;(function disp (stree) {
+        if (Array.isArray(stree)) {
+          var arr = []
+          for (var i = 0; i < stree.length; i++) {
+            arr[i] = disp(stree[i])
+          }
+          return arr
+        } else {
+          var obj = {}
+          if (stree._children.length) {
+            console.group(stree._name)
+            obj[stree._name] = disp(stree._children)
+            console.groupEnd()
+          } else {    
+            console.log(stree._name)        
+          }
+          return obj
+        }
+      })(c)
     }
     tree.expect = function(count) {
-      if (count >= 0) {
-        this._expect = count
-        var self = this
-      } else {
-        this._expect = -1
-      }
+      tree.cfg('expect', count >= 0 ? count : -1)
     }
-    tree.done = function() {
+    tree.timeout = function(ms) {
+      tree.cfg('timeout', ms)
+    }
+    tree.done = function(n) {
+      if (typeof n == 'number') {
+        tree.cfg('expect',n)
+      }
       var run = tree._assertCount
-      var exp = tree._expect
+      var exp = tree.cfg('expect')
       clearTimeout(tree._timerId)
       if (tree._done) {
         tree._announcer({
@@ -346,12 +459,25 @@ define(function() {
       tree._done = true
       tree._next()
     }
-    //tree._debugInstance = function(opts) {
-    //  console.warn('tree._debugInstance is depracated')
-    //  var stree = new _treeInstance()
-    //  stree._debugMode = true
-    //  return stree
-    //}
+
+    // Inheritable config
+    tree.heritable.cfg({
+      name:'No Name Specified',
+      expect:-1,
+      parallel:false,
+      timeout:1000
+    })
+    // Only for top level
+    tree.oneLevel.cfg({
+      name:'trunk',
+    })
+    // Other non-configurable properties
+    tree._assertCount = 0
+    tree._children = []
+    tree._run = false
+    tree._done = false
+    tree._timedOut = false
+
     for (key in tree._asserts) if (tree._asserts.hasOwnProperty(key)) {
       if (!tree._assertTpl[key])
         throw new Error('Missing template string for assert: '+key)
@@ -377,6 +503,7 @@ define(function() {
         }
       })(key)
     }
+
     return tree
   }
   document.title = "Tree.js"

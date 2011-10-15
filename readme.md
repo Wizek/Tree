@@ -23,7 +23,7 @@ Okay then, here are some highlights:
 - Handles async code as never before
 	- Assert count
 	- Easily go back and forth between
-		- Paralell execution
+		- Parallel execution
 		- Serial execution
 - Expressive syntax
 - Looks wonderful in the browser

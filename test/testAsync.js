@@ -3,23 +3,9 @@ require([
   , 'stree' // More stable one, proven to be working
 ], function(tree, stree) {
   setTimeout(function() {
-    console.log(disp(stree))
+    tree._helpers._display(stree)
   },3000)
-  function disp (stree) {
-    if (Array.isArray(stree)) {
-      var arr = []
-      for (var i = 0; i < stree.length; i++) {
-        arr[i] = disp(stree[i])
-      }
-      return arr
-    } else {
-      var obj = {}
-      console.group(stree._name)
-      obj[stree._name] = disp(stree._children)
-      console.groupEnd()
-      return obj
-    }
-  }
+  
   stree._name = 'STREE top lev'
   stree.expect(0)
   tree.expect(0)
@@ -218,7 +204,7 @@ require([
             stree(tree._children[1]._timedOut).eql(true)
             //tree._next()
             stree.done()
-          }, 1100)
+          }, 1200)
           tree.done()
         })
         //stree.branch('STREE variable timeout', function(stree) {

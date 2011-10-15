@@ -1,42 +1,15 @@
 require([
   '../tree' // In development, latest version
   , 'stree' // More stable one, proven to be working
-], function(tree, stree) {
-  // Super Tree instance for testing the test framework.
-  //stree = tree._debugInstance()
-  // setTimeout(function() {
-  //   console.log(JSON.stringify(disp(stree),null,2))
-  //   console.log(disp(stree))
-  // },3000)
-  // function disp (stree) {
-  //   if (Array.isArray(stree)) {
-  //     var arr = []
-  //     for (var i = 0; i < stree.length; i++) {
-  //       arr[i] = disp(stree[i])
-  //     }
-  //     return arr
-  //   } else {
-  //     var obj = {}
-  //     console.group(stree._name)
-  //     obj[stree._name] = disp(stree._children)
-  //     console.groupEnd()
-  //     return obj
-  //   }
-  // }
+  , '../lib/jquery/dist/jquery.min'
+], function(tree, stree, $) {
   window.stree = stree
-  stree.expect(2)
-  stree._debugMode = true
-  stree(tree._debugMode).eql(false)
-  stree(stree._debugMode).eql(true)
+  stree.expect(0)
+  tree.expect(0)
   stree.branch('STREE 1 Top level', function(stree) {
-    stree.expect(7)
-    stree(tree._debugMode).eql(false)
-    stree(stree._debugMode).eql(true)
-    stree.branch('STREE 1.1 debug', function(stree) {
-      stree(tree._debugMode).eql(false)
-      stree(stree._debugMode).eql(true)
-    })
+    stree.expect(5)
     stree.branch('STREE templating', function(stree) {
+      stree.expect(26)
       var tpl = tree._helpers._templater
       stree(tpl).type('function')
 
@@ -71,6 +44,7 @@ require([
 
       stree(tpl).throws()
       stree(function() {tpl('a')}).not.throws()
+      stree.done()
     })
     
     //tree._init()
@@ -144,15 +118,16 @@ require([
         stree.done()
       })
       stree.branch('STREE throws', function(stree) {
+        stree.expect(5)
         stree(tree._asserts.throws).type('function')
         stree(tree.throws).type('function')
         stree(tree._asserts.throws({act:function(){}}).pass).eql(false)
         stree(tree._asserts.throws({act:function(){a()}}).pass).eql(true)
         stree(tree._asserts.throws({act:'non-fn'}).pass).eql(true)
+        stree.done()
       })
       stree.branch('STREE 1.6.4 deepEql', function(stree) {
-        window.tree = tree
-        stree.expect(7)
+        stree.expect(22)
         stree(tree._asserts.deepEql).type('function')
         stree(tree.deepEql).type('function')
         var x1 = {
@@ -190,20 +165,21 @@ require([
         }
         x2.fn._method = function() {}
         stree(tree._asserts.deepEql({act:x1,exp:x2}).pass).eql(false)
+        stree.done()
       })
-      //stree.branch('STREE 1.6.5 deepEqual', function(stree) {})
-      stree.branch('STREE 1.6.6 instance', function(stree) {})
-      stree.branch('STREE 1.6.7 throws', function(stree) {})
-      stree.branch('STREE 1.6.8 exists', function(stree) {})
-      stree.branch('STREE 1.6.9 truthy', function(stree) {})
-      stree.branch('STREE 1.6.10 empty', function(stree) {})
-      stree.branch('STREE 1.6.11 above', function(stree) {})
-      stree.branch('STREE 1.6.12 below', function(stree) {})
-      stree.branch('STREE 1.6.13 between', function(stree) {})
+      //stree.branch('STREE 1.6.6 instance', function(stree) {})
+      //stree.branch('STREE 1.6.8 exists', function(stree) {})
+      //stree.branch('STREE 1.6.9 truthy', function(stree) {})
+      //stree.branch('STREE 1.6.10 empty', function(stree) {})
+      //stree.branch('STREE 1.6.11 above', function(stree) {})
+      //stree.branch('STREE 1.6.12 below', function(stree) {})
+      //stree.branch('STREE 1.6.13 between', function(stree) {})
       stree.branch('STREE template check', function(stree) {
+        stree.expect(8)
         for (key in tree._asserts) if (tree._asserts.hasOwnProperty(key)) {
           stree(tree._assertTpl[key]).type('string')
         }
+        stree.done()
       })
       stree.done()
     })
@@ -222,8 +198,8 @@ require([
           tree.branch(function(tree) {
             tree.expect(0)
             stree(tree._name).eql('')
-            tree.done()
             __done()
+            tree.done()
           })
           tree.done()
         })
@@ -238,13 +214,14 @@ require([
     stree.branch('STREE branches', function(stree) {
       stree.expect(0)
       stree.branch('STREE run only once', function(stree) {
+        stree.expect(0)
         var onceCount = 0
         stree.expect(1)
         tree.branch('once', function(tree) {
           tree.expect(0)
           stree(++onceCount).eql(1)
-          tree.done()
           stree.done()
+          tree.done()
         })
       })
       stree.branch('STREE parents', function(stree) {
@@ -254,8 +231,8 @@ require([
           tree.expect(0)
           stree(tree._parent).type('function')
           stree(tree._parent._parent).type('undefined')
-          tree.done()
           stree.done()
+          tree.done()
         })
       })
       stree.branch('STREE async handling', function(stree) {
@@ -375,8 +352,8 @@ require([
                   tree.expect(0)
                   setTimeout(function() {
                     stree(++counter).eql(25)
-                    tree.done()
                     stree.done()
+                    tree.done()
                   }, asyncWaitTime)
                 })
                 setTimeout(function() {
@@ -397,9 +374,7 @@ require([
         stree.branch('STREE timeout', function(stree) {
           stree.expect(12)
           tree.branch('timing out', function(tree) {
-            tree.expect(0)
             tree.branch('I time in', function(tree) {
-              tree.expect(0)
               setTimeout(function() {
                 tree.done(0)
               }, 100)
@@ -422,14 +397,79 @@ require([
               stree(tree._children[1]._run).eql(true)
               stree(tree._children[1]._done).eql(false)
               stree(tree._children[1]._timedOut).eql(true)
-              //tree._next()
               stree.done()
             }, 1200)
-            tree.done()
+            tree.done(0)
           })
-          //stree.branch('STREE variable timeout', function(stree) {
-          //  stree.done()
-          //})
+          stree.branch('STREE variable timeout', function(stree) {
+            stree.expect(26)
+            stree(tree.timeout).type('function')
+            tree.branch('mark one', function(tree) {
+              var ms = 100
+              tree.branch('I time in', function(tree) {
+                tree.timeout(ms)
+                stree(tree.config('timeout')).eql(ms)
+                setTimeout(function() {
+                  tree.done(0)
+                }, ms/2)
+              })
+              stree(tree._children[0]._run).eql(false)
+              stree(tree._children[0]._done).eql(false)
+              stree(tree._children[0]._timedOut).eql(false)
+              setTimeout(function() {
+                stree(tree._children[0]._run).eql(true)
+                stree(tree._children[0]._done).eql(false)
+                stree(tree._children[0]._timedOut).eql(false)
+              }, ms/2-ms/5)
+              setTimeout(function() {
+                stree(tree._children[0]._run).eql(true)
+                stree(tree._children[0]._done).eql(true)
+                stree(tree._children[0]._timedOut).eql(false)
+              }, ms/2+ms/5)
+              tree.branch('I time out', function(tree) {
+                //console.dir(tree)
+                tree.timeout(ms)
+              })
+              setTimeout(function() {
+                stree(tree._children[1]._run).eql(true)
+                stree(tree._children[1]._done).eql(false)
+                stree(tree._children[1]._timedOut).eql(true)
+              }, ms+100)
+              tree.done(0)
+            })
+            tree.branch('mark two', function(tree) {
+              var ms = 2500
+              tree.branch('I time in', function(tree) {
+                tree.timeout(ms)
+                setTimeout(function() {
+                  tree.done(0)
+                }, ms/2)
+              })
+              stree(tree._children[0]._run).eql(false)
+              stree(tree._children[0]._done).eql(false)
+              stree(tree._children[0]._timedOut).eql(false)
+              setTimeout(function() {
+                stree(tree._children[0]._run).eql(true)
+                stree(tree._children[0]._done).eql(false)
+                stree(tree._children[0]._timedOut).eql(false)
+              }, ms/2-ms/4)
+              setTimeout(function() {
+                stree(tree._children[0]._run).eql(true)
+                stree(tree._children[0]._done).eql(true)
+                stree(tree._children[0]._timedOut).eql(false)
+              }, ms/2+ms/4)
+              tree.branch('I time out', function(tree) {
+                //tree.timeout(ms)
+              })
+              setTimeout(function() {
+                stree(tree._children[1]._run).eql(true)
+                stree(tree._children[1]._done).eql(false)
+                stree(tree._children[1]._timedOut).eql(true)
+                stree.done(26)
+              }, ms+100)
+              tree.done(0)
+            })
+          })
         })
         stree.done()
       })
@@ -472,12 +512,13 @@ require([
          *  Long format
         \*/
         // yet to come
-        tree.done()
         stree.done()
+        tree.done()
       })
     })
 
     stree.branch('STREE 1.4 announcer-interception', function(stree) {
+      stree.expect(0)
       var stash = tree._announcer
       var name = 'announce!'
       tree.branch(name, function(tree) {
@@ -511,28 +552,29 @@ require([
         tree.done()
       })
       tree._announcer = stash
+      stree.done()
     })
 
     stree.branch('STREE 1.5 expectations', function(stree) {
-      stree.expect(12)
+      stree.expect(13)
       tree.branch('none', function(tree) {
-        stree(tree._expect).eql(-1)
+        stree(tree.config('expect')).eql(-1)
         tree.expect('string')
-        stree(tree._expect).eql(-1)
+        stree(tree.config('expect')).eql(-1)
         tree.expect(3.34)
-        stree(tree._expect).eql(3.34)
+        stree(tree.config('expect')).eql(3.34)
         tree.expect(-422)
-        stree(tree._expect).eql(-1)
+        stree(tree.config('expect')).eql(-1)
         tree.expect(2)
-        stree(tree._expect).eql(2)
+        stree(tree.config('expect')).eql(2)
         tree.expect(0)
-        stree(tree._expect).eql(0)
-        tree.expect(1)
-        stree(tree._expect).eql(1)
+        stree(tree.config('expect')).eql(0)
         tree(1).eql(1)
         stree(tree._done).eql(false)
-        tree.done()
+        tree.done(1)
+        stree(tree.config('expect')).eql(1)
         stree(tree._done).eql(true)
+        stree.done()  
       })
       tree.branch('fulfill', function(tree) {
         var stash = tree._announcer
@@ -548,7 +590,6 @@ require([
           stree(obj.msg).eql('done called twice!')
         }
         tree.done()
-        stree.done()
         tree._announcer = stash
       })
     })
@@ -571,12 +612,131 @@ require([
     })
     stree.branch('STREE console announcer', function(stree) {})
     // Later
-    stree.branch('STREE graphical announcer', function(stree) {})
-    stree.branch('STREE dynamic test loading', function(stree) {})
-    stree.branch('STREE suport all 3 loading schemes', function(stree) {})
+    // stree.branch('STREE graphical announcer', function(stree) {})
+    // stree.branch('STREE dynamic test loading', function(stree) {})
+    // stree.branch('STREE suport all 3 loading schemes', function(stree) {})
     stree.done()
-    tree.done()
   })
-  tree.done()
+  // stree.branch('announcer', function(stree) {
+  //   stree.expect(0)
+  //   stree.branch('DOM', function(stree) {
+  //     stree.expect(0)
+  //     
+  //     stree.done()
+  //   })
+  //   stree.done()
+  // })
+  stree.branch('STREE config', function(stree) {
+    stree.expect(0)
+    /*\
+     *  Usecases:
+     *         _heritable___oneLevel___!spec_
+     *  read  |___________|__________|_______|
+     *  write |___________|__________|_______|
+     *  
+     *  tree.config('prop')
+     *  tree.config({prop:'value'})
+     *  tree.config('prop','value')
+     *  tree.heritable.config('prop')
+     *  tree.oneLevel.config('prop')
+     *  tree.heritalbe.config().prop
+     *  tree.oneLevel.config().prop
+     *  tree.heritalbe.config({prop:'value'})
+     *  tree.oneLevel.config({prop:'value'})
+     *  tree.heritalbe.config('prop','value')
+     *  tree.oneLevel.config('prop','value')
+    \*/
+    stree.branch('STREE morph', function(stree) {
+      stree.expect(6)
+      stree(tree.config._morph).type('function')
+      stree(tree.config._morph()).eql(null)
+      stree(tree.config._morph(1)).eql(null)
+      stree(tree.config._morph('a')).eql('a')
+      stree(tree.config._morph('a','b')).deepEql({a:'b'})
+      stree(tree.config._morph({c:'d'})).deepEql({c:'d'})
+      stree.done()
+    })
+    stree.branch('STREE config engine', function(stree) {
+      stree.expect(44)
+      tree.branch('config container', function(tree) {
+        tree.expect(0)
+        // engine
+        stree(tree.config).type('function')
+        stree(tree.heritable.config).type('function')
+        stree(tree.oneLevel.config).type('function')
+        stree(tree.config()).type('object')
+        stree(tree.config().a).eql(undefined)
+        stree(tree.config({a:1}).a).eql(1)
+        stree(tree.config().a).eql(1)
+        stree(tree.config({a:2}).a).eql(2)
+        stree(tree.config().a).eql(2)
+        stree(tree.heritable.config({b:35}).a).eql(undefined)
+        stree(tree.config({x:1}).a).eql(2)
+        stree(tree.oneLevel.config({y:2}).a).eql(2)
+        stree(tree.config().b).eql(35)
+        stree(tree.config({z:1}).z).eql(1)
+        stree(tree.config('z')).eql(1)
+        
+        stree(tree.config({z:0}).z).eql(0)
+        stree(tree.config('z')).eql(0)
+        stree(tree.config({z:null}).z).eql(null)
+        stree(tree.config('z')).eql(null)
+        stree(tree.config({z:undefined}).z).eql(undefined)
+        stree(tree.config('z')).eql(undefined)
+        stree(tree.config({z:NaN}).z).eql(NaN)
+        stree(tree.config('z')).eql(NaN)
+        
+        tree.oneLevel.config({c:'only this'})
+        tree.heritable.config({c:'inherited'})
+        stree(tree.config('c')).eql('only this')
+        stree(tree.heritable.config('c')).eql('inherited')
+        stree(tree.oneLevel.config('c')).eql('only this')
+        stree(tree.heritable.config().c).eql('inherited')
+        stree(tree.oneLevel.config().c).eql('only this')
+        tree.branch('inherited?', function(tree) {
+          tree.expect(0)
+          stree(tree.config('a')).eql(undefined)
+          stree(tree.config('b')).eql(35)
+          stree(tree.config('c')).eql('inherited')
+          stree(tree.heritable.config('c')).eql('inherited')
+          stree(tree.oneLevel.config('c')).eql(undefined)
+          stree(tree.heritable.config().c).eql('inherited')
+          stree(tree.oneLevel.config().c).eql(undefined)
+          tree.config({d:1})
+          tree.heritable.config({e:1})
+          tree.branch('and here?', function(tree) {
+            tree.expect(0)
+            stree(tree.config('a')).eql(undefined)
+            stree(tree.config('b')).eql(35)
+            stree(tree.config('c')).eql('inherited')
+            stree(tree.heritable.config('c')).eql('inherited')
+            stree(tree.oneLevel.config('c')).eql(undefined)
+            stree(tree.heritable.config().c).eql('inherited')
+            stree(tree.oneLevel.config().c).eql(undefined)
+            stree(tree.config('d')).eql(undefined)
+            stree(tree.config('e')).eql(1)
+            tree.done()
+            stree.done()
+          })
+          tree.done()
+        })
+        tree.done()
+      })
+    })
+    stree.branch('STREE trunk config', function(stree) {
+      stree.expect(1)
+      console.log(tree.config())
+      stree(tree.config()).deepEql({
+        name:'trunk'
+        , expect:0
+        , parallel:false
+        , timeout:1000
+      })
+      stree.done()
+    })
+    // default trunk
+    stree.done()
+  })
   stree.done()
+  tree.done()
 })
