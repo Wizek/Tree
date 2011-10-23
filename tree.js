@@ -464,7 +464,7 @@ define(function() {
     tree.heritable.cfg({
       name:'No Name Specified',
       expect:-1,
-      parallel:false,
+      parallel:null,
       timeout:1000
     })
     // Only for top level
@@ -484,7 +484,7 @@ define(function() {
       ;(function(key) {
         tree[key] = tree.not[key] = function(exp) {
           var obj = {
-              name: tree._name
+            name: tree._name
             , exp: exp
             , act: tree._act
             , expS: tree._helpers._formateer(exp)

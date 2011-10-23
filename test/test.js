@@ -3,6 +3,7 @@ require([
   , 'stree' // More stable one, proven to be working
   , '../lib/jquery/dist/jquery.min'
 ], function(tree, stree, $) {
+  console.time('FullMinden')
   window.stree = stree
   stree.expect(0)
   tree.expect(0)
@@ -238,36 +239,62 @@ require([
       stree.branch('STREE async handling', function(stree) {
         stree.expect(0)
         stree.branch('STREE queue check', function(stree) {
-          stree.expect(12)
-          tree.branch('b capsule', function(tree) {
-            tree.expect(0)
-            tree.branch('b1', function(tree) {
+          stree('STREE backwards', function(stree) {
+            stree.expect(12)
+            tree.branch('b capsule', function(tree) {
               tree.expect(0)
+              tree.branch('b1', function(tree) {
+                tree.expect(0)
+                tree.done()
+              })
+              tree.branch('b2', function(tree) {
+              })
+              tree.branch('b3', function(tree) {
+              })
+              stree(tree._children[0]._run).eql(false)
+              stree(tree._children[0]._done).eql(false)
+              stree(tree._children[1]._run).eql(false)
+              stree(tree._children[1]._done).eql(false)
+              stree(tree._children[2]._run).eql(false)
+              stree(tree._children[2]._done).eql(false)
+              tree.done() // this gets to run them
+              stree(tree._children[0]._run).eql(true)
+              stree(tree._children[0]._done).eql(true)
+              stree(tree._children[1]._run).eql(true)
+              stree(tree._children[1]._done).eql(false)
+              stree(tree._children[2]._run).eql(false)
+              stree(tree._children[2]._done).eql(false)
+              // do some manual cleanup
+              tree._children[1]._done = true
+              tree._children[2]._run = true
+              tree._children[2]._done = true
+              tree._next()
+              stree.done()
+            })
+          })
+          stree.branch('STREE branch objects', function(stree) {
+            tree.branch('container', function(tree) {
+              tree.branch('1', function(tree) {
+                stree(tree._run).eql(true)
+                stree(tree.cfg('parallel')).eql(null)
+                stree(tree._done).eql(false)
+                stree(tree._timeout).eql(false)
+                tree.done(0)
+                stree(tree._run).eql(true)
+                stree(tree.cfg('parallel')).eql(false)
+                stree(tree._done).eql(true)
+                stree(tree._timeout).eql(false)
+              })
+              stree(tree._children[0]._run).eql(false)
+              stree(tree._children[0].cfg('parallel')).eql(null)
+              stree(tree._children[0]._done).eql(false)
+              stree(tree._children[0]._timeout).eql(false)
               tree.done()
+              stree(tree._children[0]._run).eql(true)
+              stree(tree._children[0].cfg('parallel')).eql(false)
+              stree(tree._children[0]._done).eql(true)
+              stree(tree._children[0]._timeout).eql(false)
             })
-            tree.branch('b2', function(tree) {
-            })
-            tree.branch('b3', function(tree) {
-            })
-            stree(tree._children[0]._run).eql(false)
-            stree(tree._children[0]._done).eql(false)
-            stree(tree._children[1]._run).eql(false)
-            stree(tree._children[1]._done).eql(false)
-            stree(tree._children[2]._run).eql(false)
-            stree(tree._children[2]._done).eql(false)
-            tree.done() // this gets to run them
-            stree(tree._children[0]._run).eql(true)
-            stree(tree._children[0]._done).eql(true)
-            stree(tree._children[1]._run).eql(true)
-            stree(tree._children[1]._done).eql(false)
-            stree(tree._children[2]._run).eql(false)
-            stree(tree._children[2]._done).eql(false)
-            // do some manual cleanup
-            tree._children[1]._done = true
-            tree._children[2]._run = true
-            tree._children[2]._done = true
-            tree._next()
-            stree.done()
           })
         })
         stree.branch('STREE varsity order', function(stree) {
@@ -465,6 +492,7 @@ require([
                 stree(tree._children[1]._run).eql(true)
                 stree(tree._children[1]._done).eql(false)
                 stree(tree._children[1]._timedOut).eql(true)
+                console.timeEnd('FullMinden')
                 stree.done(26)
               }, ms+100)
               tree.done(0)
