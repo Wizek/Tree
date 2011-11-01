@@ -83,7 +83,7 @@ require([
         stree.done()
       })
       stree.branch('STREE 1.6.2 type', function(stree) {
-        stree.expect(8)
+        stree.expect(10)
         stree(tree._asserts.type).type('function')
         stree(tree.type).type('function')
         // passes
@@ -91,20 +91,25 @@ require([
         stree(tree._asserts.type({act:null,exp:'object'}).pass).eql(true)
         stree(tree._asserts.type({act:[],exp:'array'}).pass).eql(true)
         stree(tree._asserts.type({act:[],exp:'object'}).pass).eql(true)
+        stree(tree._asserts.type({act:NaN,exp:'NaN'}).pass).eql(true)
+        stree(tree._asserts.type({act:NaN,exp:'number'}).pass).eql(true)
         // fails
         stree(tree._asserts.type({act:1,exp:'string'}).pass).eql(false)
         stree(tree._asserts.type({act:{},exp:'array'}).pass).eql(false)
-        stree.done()
+        stree.done(10)
       })
       stree.branch('STREE 1.6.2 eql', function(stree) {
-        stree.expect(5)
+        stree.expect(8)
         stree(tree._asserts.eql).type('function')
         stree(tree.eql).type('function')
         // passes
         stree(tree._asserts.eql({act:1,exp:1}).pass).eql(true)
+        stree(tree._asserts.eql({act:NaN,exp:NaN}).pass).eql(true)
         // fails
         stree(tree._asserts.eql({act:1,exp:'1'}).pass).eql(false)
         stree(tree._asserts.eql({act:1,exp:2}).pass).eql(false)
+        stree(tree._asserts.eql({act:NaN,exp:'NaN'}).pass).eql(false)
+        stree(tree._asserts.eql({act:'NaN',exp:NaN}).pass).eql(false)
         stree.done()
       })
       stree.branch('STREE 1.6.3 equal', function(stree) {
@@ -278,22 +283,22 @@ require([
                 stree(tree._run).eql(true)
                 stree(tree.cfg('parallel')).eql(null)
                 stree(tree._done).eql(false)
-                stree(tree._timeout).eql(false)
+                stree(tree._timedOut).eql(false)
                 tree.done(0)
                 stree(tree._run).eql(true)
                 stree(tree.cfg('parallel')).eql(false)
                 stree(tree._done).eql(true)
-                stree(tree._timeout).eql(false)
+                stree(tree._timedOut).eql(false)
               })
               stree(tree._children[0]._run).eql(false)
               stree(tree._children[0].cfg('parallel')).eql(null)
               stree(tree._children[0]._done).eql(false)
-              stree(tree._children[0]._timeout).eql(false)
-              tree.done()
+              stree(tree._children[0]._timedOut).eql(false)
+              tree.done(0)
               stree(tree._children[0]._run).eql(true)
               stree(tree._children[0].cfg('parallel')).eql(false)
               stree(tree._children[0]._done).eql(true)
-              stree(tree._children[0]._timeout).eql(false)
+              stree(tree._children[0]._timedOut).eql(false)
             })
           })
         })
@@ -712,7 +717,7 @@ require([
         stree(tree.config({z:undefined}).z).eql(undefined)
         stree(tree.config('z')).eql(undefined)
         stree(tree.config({z:NaN}).z).eql(NaN)
-        stree(tree.config('z')).eql(NaN)
+        stree(tree.config('z')).type('NaN')
         
         tree.oneLevel.config({c:'only this'})
         tree.heritable.config({c:'inherited'})
@@ -757,7 +762,7 @@ require([
       stree(tree.config()).deepEql({
         name:'trunk'
         , expect:0
-        , parallel:false
+        , parallel:null
         , timeout:1000
       })
       stree.done()

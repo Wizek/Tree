@@ -236,15 +236,26 @@ define(function() {
       return obj
     }
     tree._asserts.type = function(obj) {
-      if (obj.exp === 'array') {
-        obj.pass = Array.isArray(obj.act)
-      } else  {
-        obj.pass = typeof obj.act === obj.exp
+      switch (obj.exp.toLowerCase()) {
+        case 'array':
+          obj.pass = Array.isArray(obj.act)
+          break
+        case 'nan':
+          obj.pass = !(obj.act === obj.act)
+          break
+        default:
+          obj.pass = typeof obj.act === obj.exp
+          break
       }
       return obj
     }
     tree._asserts.eql = function(obj) {
-      obj.pass = (obj.act === obj.exp)
+      if (obj.exp === obj.exp) {
+        obj.pass = (obj.act === obj.exp)
+      } else {
+        // NaN
+        obj.pass = obj.act !== obj.act
+      }
       return obj
     }
     tree._asserts.equal = function(obj) {
@@ -343,7 +354,7 @@ define(function() {
       var currentTree = tree
       var newBranchTree = new _treeInstance()
       newBranchTree._code = newBranchCode   
-      newBranchTree._name = name
+      newBranchTree._name = name // deprecated line
       newBranchTree._parent = currentTree
       newBranchTree._debugMode = currentTree._debugMode
       newBranchTree.heritable.config(currentTree.heritable.config())
@@ -360,16 +371,10 @@ define(function() {
       return newBranchTree
     }
     tree._next = function() {
-      var found = false
-      var c
-      for (var i = 0; i < tree._children.length; i++) {
-        c = tree._children[i]
-        if (!c._run && !c._timedOut) {
-          found = true
-          break
-        }
-      }
-      if (found) {
+      var whatDo = tree._next._pick(tree._children)
+      
+      if (typeof whatDo == 'number') {
+        var c = tree._children[whatDo]
         c._run = true
         c._code(c)
         if (!c._done) {
@@ -379,21 +384,62 @@ define(function() {
               c._timedOut = true
               console.warn(c._name+' timed out. Carrying on.')
               tree._next()
-            } /*else {
-              c._timedOut = false
-            }*/
+            }
           }, c.config('timeout'))
-        }
+        } /*else {
+          c._timedOut = false
+        }*/
       } else {
-        if (tree._parent) {
-          tree._parent._next()
-        } else {    
-          // fullyDone event
-          console.warn('no more parents')
-          //tree._helpers._display()
-          //tree.allDone()
+        if (whatDo == 'wait') {
+          // Do nothimng literally
+        } else if (whatDo == 'up') {
+          if (tree._parent) {
+            tree._parent._next()
+          } else {
+            console.log('Everything fully done!')
+          }
         }
+      }      
+    }
+    tree._next._pick = function(cn) {
+      var up = 'up'
+      var wait = 'wait'
+
+      var run = '_run'
+      var parallel = '_parallel'
+      var done = '_done'
+      var timedOut = '_timedOut'
+
+      var running
+      var prevParal = false
+      if (cn.length == 0) {
+        return up
       }
+
+      for (var i = 0; i < cn.length; i++) {
+        var c = cn[i]
+        if (c[run] && !c[done] && !c[timedOut]) {
+          running = true
+          if (c.cfg('parallel')) {
+            continue
+          } else {
+            return wait
+          }
+        }
+        if (!c[run] && !c[done] && !c[timedOut]) {
+          if (prevParal) {
+            return i
+          } else {
+            if (running) {
+              return wait
+            } else {
+              return i
+            }
+          }
+        }
+        prevParal = c.cfg('parallel')
+      }
+      return up
     }
     tree._helpers._display = function(c) {
       c = c || tree
@@ -426,6 +472,9 @@ define(function() {
     tree.timeout = function(ms) {
       tree.cfg('timeout', ms)
     }
+    tree.fireNextToo = function(a) {
+      tree.cfg('parallel', !a)
+    }
     tree.done = function(n) {
       if (typeof n == 'number') {
         tree.cfg('expect',n)
@@ -455,6 +504,9 @@ define(function() {
               'expect() not called properly! '+run+' assertion(s) run.'
             : 'expected '+exp+' asserton(s), but '+run+' run.'
         })
+      }
+      if (!tree.cfg('parallel')) {
+        tree.cfg('parallel',false)
       }
       tree._done = true
       tree._next()
@@ -514,7 +566,7 @@ function getCallerLine(moduleName, cCons) {
   // Make an error to get the line number
   var e = new Error()
   //  in case of custum console, the stack trace is one item longer
-  var splitNum = 4
+  var splitNum = 0
   var line = e.stack.split('\n')[splitNum]
   var parts = line.split('/')
   var last_part = parts[parts.length -1]
