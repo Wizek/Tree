@@ -83,7 +83,7 @@ require([
         stree.done()
       })
       stree.branch('STREE 1.6.2 type', function(stree) {
-        stree.expect(10)
+        stree.expect(8)
         stree(tree._asserts.type).type('function')
         stree(tree.type).type('function')
         // passes
@@ -91,26 +91,28 @@ require([
         stree(tree._asserts.type({act:null,exp:'object'}).pass).eql(true)
         stree(tree._asserts.type({act:[],exp:'array'}).pass).eql(true)
         stree(tree._asserts.type({act:[],exp:'object'}).pass).eql(true)
-        stree(tree._asserts.type({act:NaN,exp:'NaN'}).pass).eql(true)
-        stree(tree._asserts.type({act:NaN,exp:'number'}).pass).eql(true)
         // fails
         stree(tree._asserts.type({act:1,exp:'string'}).pass).eql(false)
         stree(tree._asserts.type({act:{},exp:'array'}).pass).eql(false)
-        stree.done(10)
+        stree.done()
       })
       stree.branch('STREE 1.6.2 eql', function(stree) {
-        stree.expect(8)
+        stree.expect(10)
         stree(tree._asserts.eql).type('function')
         stree(tree.eql).type('function')
+        // standard
         // passes
         stree(tree._asserts.eql({act:1,exp:1}).pass).eql(true)
-        stree(tree._asserts.eql({act:NaN,exp:NaN}).pass).eql(true)
         // fails
         stree(tree._asserts.eql({act:1,exp:'1'}).pass).eql(false)
         stree(tree._asserts.eql({act:1,exp:2}).pass).eql(false)
+        // extended
+        stree(tree._asserts.eql({act:NaN,exp:NaN}).pass).eql(true)
+        stree(tree._asserts.eql({act:NaN,exp:1}).pass).eql(false)
         stree(tree._asserts.eql({act:NaN,exp:'NaN'}).pass).eql(false)
+        stree(tree._asserts.eql({act:1,exp:NaN}).pass).eql(false)
         stree(tree._asserts.eql({act:'NaN',exp:NaN}).pass).eql(false)
-        stree.done()
+        stree.done(10)
       })
       stree.branch('STREE 1.6.3 equal', function(stree) {
         stree.expect(5)
@@ -277,9 +279,149 @@ require([
               stree.done()
             })
           })
+          stree.branch('STREE Next picking', function(stree) {
+            var pick = tree._next._pick
+            stree(pick).type('function')
+
+            var childrenCont = [
+              {
+                name: 'childrenEmpty'
+                , children: [
+                ], expect: 'up'
+              }, {
+                name: 'childrenNoneRun'
+                , children: [
+                  {_run:false, _parallel:null, _done:false, _timedOut:false}
+                  , {_run:false, _parallel:null, _done:false, _timedOut:false}
+                ], expect: 0
+              }, {
+                name: 'childrenOneRun'
+                , children: [
+                  {_run:true, _parallel:false, _done:true, _timedOut:false}
+                  , {_run:false, _parallel:null, _done:false, _timedOut:false}
+                ], expect: 1
+              }, {
+                name: 'childrenAllRunNoneDone'
+                , children: [
+                  {_run:true, _parallel:null, _done:false, _timedOut:false}
+                  , {_run:true, _parallel:null, _done:false, _timedOut:false}
+                ], expect: 'wait'
+              }, {
+                name: 'childrenSerialLast'
+                , children: [
+                  {_run:true, _parallel:false, _done:true, _timedOut:false}
+                  , {_run:true, _parallel:false, _done:false, _timedOut:true}
+                  , {_run:true, _parallel:false, _done:true, _timedOut:false}
+                  , {_run:false, _parallel:null, _done:false, _timedOut:false}
+                ], expect: 3
+              }, {
+                name: 'childrenSerialUp'
+                , children: [
+                  {_run:true, _parallel:false, _done:true, _timedOut:false}
+                  , {_run:true, _parallel:false, _done:false, _timedOut:true}
+                  , {_run:true, _parallel:false, _done:true, _timedOut:false}
+                  , {_run:true, _parallel:false, _done:true, _timedOut:false}
+                ], expect: 'up'
+              }, {
+                name: 'childrenParallel'
+                , children: [
+                  {_run:true, _parallel:true, _done:true, _timedOut:false}
+                  , {_run:true, _parallel:true, _done:false, _timedOut:true}
+                  , {_run:false, _parallel:null, _done:false, _timedOut:false}
+                  , {_run:false, _parallel:null, _done:false, _timedOut:false}
+                ], expect: 2
+              }, {
+                name: 'childrenParallelWaitForEveryone'
+                , children: [
+                  {_run:true, _parallel:true, _done:false, _timedOut:true}
+                  , {_run:true, _parallel:true, _done:false, _timedOut:false}
+                  , {_run:true, _parallel:false, _done:false, _timedOut:false}
+                  , {_run:false, _parallel:null, _done:false, _timedOut:false}
+                ], expect: 'wait'
+              }, {
+                name: 'childrenParallelWaitForEveryone2'
+                , children: [
+                  {_run:true, _parallel:true, _done:false, _timedOut:true}
+                  , {_run:true, _parallel:true, _done:false, _timedOut:false}
+                  , {_run:true, _parallel:false, _done:true, _timedOut:false}
+                  , {_run:false, _parallel:null, _done:false, _timedOut:false}
+                ], expect: 'wait'
+              }, {
+                name: 'childrenParallelNeedlessToWait'
+                , children: [
+                  {_run:true, _parallel:true, _done:false, _timedOut:true}
+                  , {_run:true, _parallel:true, _done:false, _timedOut:false}
+                  , {_run:false, _parallel:null, _done:false, _timedOut:false}
+                ], expect: 2
+              }, {
+                name: 'childrenParallelNeedlessToWait_2'
+                , children: [
+                  {_run:true, _parallel:true, _done:false, _timedOut:true}
+                  , {_run:true, _parallel:true, _done:true, _timedOut:false}
+                  , {_run:false, _parallel:null, _done:false, _timedOut:false}
+                ], expect: 2
+              }, {
+                name: 'childrenParallelDontUp'
+                , children: [
+                  {_run:true, _parallel:true, _done:false, _timedOut:true}
+                  , {_run:true, _parallel:true, _done:false, _timedOut:false}
+                  , {_run:true, _parallel:true, _done:true, _timedOut:false}
+                  , {_run:true, _parallel:false, _done:false, _timedOut:false}
+                ], expect: 'wait'
+              }, {
+                name: 'childrenParallelUp'
+                , children: [
+                  {_run:true, _parallel:true, _done:false, _timedOut:true}
+                  , {_run:true, _parallel:true, _done:false, _timedOut:false}
+                  , {_run:true, _parallel:true, _done:true, _timedOut:false}
+                  , {_run:true, _parallel:true, _done:false, _timedOut:false}
+                ], expect: 'up'
+              }
+            ]
+            // run these tests!
+            for (var i = 0; i < childrenCont.length; i++) {
+              var c = childrenCont[i]
+              // fake complete tree object!
+              for (var i2 = 0; i2 < c.children.length; i2++) {
+                c.children[i2].cfg = function(str) {
+                  if (str == 'parallel') {
+                    return this._parallel
+                  }else{
+                    return undefined
+                  }
+                }
+              }
+              console.log('running', c.name)
+              stree(pick(c.children)).eql(c.expect)
+            }
+
+
+            stree.expect(i+1)
+            stree.done(i+1)
+          })
+          // stree.branch('integr', function(stree) {
+          //   stree.expect(4)
+          //   var count = 0
+          //   //tree.heritable.cfg('parallel', true)
+          //   tree.branch('1', function(tree) {
+          //     stree(++count).eql(2)
+          //     setTimeout(function() {
+          //       tree.done(0)
+          //       stree.done(4)
+          //     },100)
+          //   })
+          //   tree.branch('2', function(tree) {
+          //     stree(++count).eql(3)
+          //     tree.done(0)
+          //   })
+          //   stree(++count).eql(1)
+          //   tree.done(0)
+          //   stree(++count).eql(4)
+          // })
           stree.branch('STREE branch objects', function(stree) {
-            tree.branch('container', function(tree) {
+            tree.branch('simple', function(tree) {
               tree.branch('1', function(tree) {
+                stree(tree._children.length).eql(0)
                 stree(tree._run).eql(true)
                 stree(tree.cfg('parallel')).eql(null)
                 stree(tree._done).eql(false)
@@ -299,6 +441,71 @@ require([
               stree(tree._children[0].cfg('parallel')).eql(false)
               stree(tree._children[0]._done).eql(true)
               stree(tree._children[0]._timedOut).eql(false)
+            })
+            tree.branch('Parallel', function(tree) {
+              stree(tree.fireNextToo).type('function')
+              tree.branch('1', function(tree) {
+                stree(tree._parent._children[0]._run).eql(true)
+                stree(tree._parent._children[0].cfg('parallel')).eql(null)
+                stree(tree._parent._children[0]._done).eql(false)
+                stree(tree._parent._children[0]._timedOut).eql(false)
+                stree(tree._parent._children[1]._run).eql(false)
+                stree(tree._parent._children[1].cfg('parallel')).eql(null)
+                stree(tree._parent._children[1]._done).eql(false)
+                stree(tree._parent._children[1]._timedOut).eql(false)
+                stree(tree._parent._children[2]._run).eql(false)
+                stree(tree._parent._children[2].cfg('parallel')).eql(null)
+                stree(tree._parent._children[2]._done).eql(false)
+                stree(tree._parent._children[2]._timedOut).eql(false)
+                tree.fireNextToo()
+                stree(tree._parent._children[0]._run).eql(true)
+                stree(tree._parent._children[0].cfg('parallel')).eql(true)
+                stree(tree._parent._children[0]._done).eql(false)
+                stree(tree._parent._children[0]._timedOut).eql(false)
+                stree(tree._parent._children[1]._run).eql(true)
+                stree(tree._parent._children[1].cfg('parallel')).eql(true)
+                stree(tree._parent._children[1]._done).eql(false)
+                stree(tree._parent._children[1]._timedOut).eql(false)
+                stree(tree._parent._children[2]._run).eql(true)
+                stree(tree._parent._children[2].cfg('parallel')).eql(false)
+                stree(tree._parent._children[2]._done).eql(true)
+                stree(tree._parent._children[2]._timedOut).eql(false)
+                tree.done(0)
+              })
+              tree.branch('2', function(tree) {
+                tree.fireNextToo()
+                setTimeout(function() {
+                  tree.done(0)
+                },200)
+              })
+              tree.branch('3', function(tree) {
+                tree.done(0)
+              })
+              stree(tree._children[0]._run).eql(false)
+              stree(tree._children[0].cfg('parallel')).eql(null)
+              stree(tree._children[0]._done).eql(false)
+              stree(tree._children[0]._timedOut).eql(false)
+              stree(tree._children[1]._run).eql(false)
+              stree(tree._children[1].cfg('parallel')).eql(null)
+              stree(tree._children[1]._done).eql(false)
+              stree(tree._children[1]._timedOut).eql(false)
+              stree(tree._children[2]._run).eql(false)
+              stree(tree._children[2].cfg('parallel')).eql(null)
+              stree(tree._children[2]._done).eql(false)
+              stree(tree._children[2]._timedOut).eql(false)
+              tree.done(0)
+              stree(tree._children[0]._run).eql(true)
+              stree(tree._children[0].cfg('parallel')).eql(true)
+              stree(tree._children[0]._done).eql(true)
+              stree(tree._children[0]._timedOut).eql(false)
+              stree(tree._children[1]._run).eql(true)
+              stree(tree._children[1].cfg('parallel')).eql(true)
+              stree(tree._children[1]._done).eql(true)
+              stree(tree._children[1]._timedOut).eql(false)
+              stree(tree._children[2]._run).eql(true)
+              stree(tree._children[2].cfg('parallel')).eql(false)
+              stree(tree._children[2]._done).eql(true)
+              stree(tree._children[2]._timedOut).eql(false)
             })
           })
         })
@@ -424,7 +631,7 @@ require([
               stree(tree._children[0]._done).eql(true)
               stree(tree._children[0]._timedOut).eql(false)
             }, 150)
-            tree.branch('I time out', function(tree) {})
+            tree.branch('<OK if timeout>', function(tree) {})
             setTimeout(function() {
               stree(tree._children[1]._run).eql(true)
               stree(tree._children[1]._done).eql(false)
@@ -458,7 +665,7 @@ require([
                 stree(tree._children[0]._done).eql(true)
                 stree(tree._children[0]._timedOut).eql(false)
               }, ms/2+ms/5)
-              tree.branch('I time out', function(tree) {
+              tree.branch('<OK if timeout>', function(tree) {
                 //console.dir(tree)
                 tree.timeout(ms)
               })
@@ -490,7 +697,7 @@ require([
                 stree(tree._children[0]._done).eql(true)
                 stree(tree._children[0]._timedOut).eql(false)
               }, ms/2+ms/4)
-              tree.branch('I time out', function(tree) {
+              tree.branch('<OK if timeout>', function(tree) {
                 //tree.timeout(ms)
               })
               setTimeout(function() {
@@ -717,7 +924,7 @@ require([
         stree(tree.config({z:undefined}).z).eql(undefined)
         stree(tree.config('z')).eql(undefined)
         stree(tree.config({z:NaN}).z).eql(NaN)
-        stree(tree.config('z')).type('NaN')
+        stree(tree.config('z')).eql(NaN)
         
         tree.oneLevel.config({c:'only this'})
         tree.heritable.config({c:'inherited'})
@@ -758,7 +965,6 @@ require([
     })
     stree.branch('STREE trunk config', function(stree) {
       stree.expect(1)
-      console.log(tree.config())
       stree(tree.config()).deepEql({
         name:'trunk'
         , expect:0
