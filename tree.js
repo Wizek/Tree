@@ -372,7 +372,7 @@ define(function() {
     }
     tree._next = function() {
       var whatDo = tree._next._pick(tree._children)
-      
+
       if (typeof whatDo == 'number') {
         var c = tree._children[whatDo]
         c._run = true
@@ -389,6 +389,7 @@ define(function() {
         } /*else {
           c._timedOut = false
         }*/
+        tree._next()
       } else {
         if (whatDo == 'wait') {
           // Do nothimng literally
@@ -421,7 +422,7 @@ define(function() {
         if (c[run] && !c[done] && !c[timedOut]) {
           running = true
           if (c.cfg('parallel')) {
-            continue
+            // Do nothing!!!!!!!
           } else {
             return wait
           }
@@ -439,7 +440,11 @@ define(function() {
         }
         prevParal = c.cfg('parallel')
       }
-      return up
+      if (running) {
+        return wait
+      } else {
+        return up
+      }
     }
     tree._helpers._display = function(c) {
       c = c || tree
@@ -473,7 +478,12 @@ define(function() {
       tree.cfg('timeout', ms)
     }
     tree.fireNextToo = function(a) {
-      tree.cfg('parallel', !a)
+      if (tree._parent) {
+        tree.cfg('parallel', a === undefined? true : !!a)
+        tree._parent._next()
+      } else {
+        console.warn('.fireNextToo() is invalid at top level!')
+      }
     }
     tree.done = function(n) {
       if (typeof n == 'number') {
@@ -566,7 +576,7 @@ function getCallerLine(moduleName, cCons) {
   // Make an error to get the line number
   var e = new Error()
   //  in case of custum console, the stack trace is one item longer
-  var splitNum = 0
+  var splitNum = 4
   var line = e.stack.split('\n')[splitNum]
   var parts = line.split('/')
   var last_part = parts[parts.length -1]
