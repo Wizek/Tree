@@ -1,4 +1,5 @@
 define(function() {
+  var TREE_START = Date.now()
   function _treeInstance() {
 
     // Hart of the framework
@@ -347,12 +348,18 @@ define(function() {
       }
     }
 
+    tree.sync = {_sync:true}
     tree.branch = function(name, newBranchCode) {
       if (typeof name == 'function') newBranchCode = name
       if (typeof name != 'string') name = ''
-      if (tree._done) return console.error(name+' after .done()!')
+      if (tree._done) {
+        return console.error('"'+name+'" wanted to get registered after'
+          +' it\'s would be parent: "'+tree._name+'"\'s .done()!')
+      }
       var currentTree = tree
       var newBranchTree = new _treeInstance()
+      newBranchTree._doneCounter = tree._doneCounter
+      tree._doneCounter.branchCount++
       newBranchTree._code = newBranchCode   
       newBranchTree._name = name // deprecated line
       newBranchTree._parent = currentTree
@@ -361,7 +368,18 @@ define(function() {
       newBranchTree.oneLevel.config({
         name:name
       })
-      currentTree._children.push(newBranchTree)
+      if (this._sync) {
+        newBranchTree.oneLevel.cfg('sync',true)
+        newBranchCode(newBranchTree)
+        if (!newBranchTree._done) {
+          newBranchTree._timedOut = true
+          console.error(newBranchTree._name+' didn\'t call done(). Carrying on.')
+          tree._next()
+        }
+        //if (newBranchTree) {}
+      } else {
+        currentTree._children.push(newBranchTree)
+      }
       //newBranchCode(newBranchTree)
       // if (!newBranchTree._done) {
       //   newBranchTree._timerId = setTimeout(function() {
@@ -370,6 +388,7 @@ define(function() {
       // }
       return newBranchTree
     }
+    tree.sync.branch = tree.branch
     tree._next = function() {
       var whatDo = tree._next._pick(tree._children)
 
@@ -377,9 +396,10 @@ define(function() {
         var c = tree._children[whatDo]
         c._run = true
         c._code(c)
+        // debugger
         if (!c._done) {
           setTimeout(function() {
-            console.log('TIMEOUT BACK')
+            //console.log('TIMEOUT BACK')
             if (!c._done) {
               c._timedOut = true
               console.warn(c._name+' timed out. Carrying on.')
@@ -389,34 +409,22 @@ define(function() {
         } /*else {
           c._timedOut = false
         }*/
-        tree._next()
+        if (c.cfg('parallel') && !c._done && !c._timedOut) {
+          tree._next()
+        }
       } else {
         if (whatDo == 'wait') {
-          // Do nothing literally
+          // Do nothimng literally
         } else if (whatDo == 'up') {
+          tree._upped = true
+          // Traverse til top
           if (tree._parent) {
             tree._parent._next()
-          } else {
-            console.log('Everything fully done! ('+tree.cfg('name')+')')
           }
         }
-      }      
+      }
     }
     tree._next._pick = function(cn) {
-      console.log(tree.cfg('name'), extract(cn))
-      function extract (cl) {
-        var newCl = []
-        for (var i = 0; i < cl.length; i++) {
-          var t = cl[i]
-          newCl[i] = {run: t._run
-            , parallel: t.cfg('parallel')
-            , done: t._done
-            , timedOut: t._timedOut
-            , name: t.cfg('name')
-          }
-        }
-        return newCl
-      }
       var up = 'up'
       var wait = 'wait'
 
@@ -428,40 +436,43 @@ define(function() {
       var running
       var prevParal = false
       if (cn.length == 0) {
-        //console.log('7 up')
         return up
       }
 
       for (var i = 0; i < cn.length; i++) {
         var c = cn[i]
-        if (c[run] && !c[done] && !c[timedOut]) {
-          running = true
-          if (c.cfg('parallel')) {
-            // Do nothing!!!!!!!
-          } else {
-            return wait
-          }
-        }
-        if (!c[run] && !c[done] && !c[timedOut]) {
-          if (prevParal) {
-            return i
-          } else {
-            if (running) {
-              return wait
+        if (!c[done] && !c[timedOut]) {
+          if (c[run]) {
+            running = true
+            if (c.cfg('parallel')) {
+              // Do nothing here...
             } else {
+              return wait
+            }
+          } else {
+            if (prevParal) {
               return i
+            } else {
+              //return i
+              // WTF Should we check for running??!!??!
+              if (running) {
+                return wait
+              } else {
+                return i
+              }
             }
           }
+        } else {
+          // do what? I guess nothing...
         }
         prevParal = c.cfg('parallel')
       }
-      //console.log('8 up')
-      console.log(running, 'running')
-      if (running) {
+      return up
+      /*if (running) {
         return wait
       } else {
         return up
-      }
+      }*/
     }
     tree._helpers._display = function(c) {
       c = c || tree
@@ -536,7 +547,16 @@ define(function() {
         tree.cfg('parallel',false)
       }
       tree._done = true
-      tree._next()
+      if (tree._timedOut) {
+        // sth, I guess nothing
+      } else {
+        tree._next()
+        tree._doneCounter.doneCount++
+        //console.warn(tree._doneCounter.doneCount, tree._doneCounter.branchCount)
+        if (tree._doneCounter.doneCount == tree._doneCounter.branchCount) {
+          console.warn('Everything fully done! (took '+(Date.now()-TREE_START)+'ms)')
+        }
+      }
     }
 
     // Inheritable config
@@ -586,7 +606,9 @@ define(function() {
     return tree
   }
   document.title = "Tree.js"
-  return new _treeInstance()
+  var initialTree = new _treeInstance()
+  initialTree._doneCounter = {doneCount:0, branchCount:1}
+  return initialTree
 })
 
 function getCallerLine(moduleName, cCons) {

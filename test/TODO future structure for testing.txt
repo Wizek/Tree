@@ -1,25 +1,25 @@
-STREE top lev
-  STREE tree trunk-specific
-  STREE helpers
-    STREE templater
-    STREE formateer
-    STREE deep extend
-  STREE asserts
-    STREE ponated
-      STREE eql
-      STREE deepEql
-      ...
-    STREE not
-  STREE branches
-    STREE run only once
-    STREE parents
-    STREE expectations
-    STREE async handling
-      STREE queue check
-      STREE varsity order
-      STREE timeout
-  STREE announcers
-    STREE linear console
-      STREE announcer interception
-    STREE group console
-    STREE dom
+trunk specific
+helpers
+  templater
+  formateer
+  deep extend
+  config
+asserts
+  ponated
+    eql
+    deepEql
+    ...
+  not
+branches
+  run only once
+  parents
+  expectations
+  async handling
+    queue check
+    varsity order
+    timeout
+announcers
+  linear console
+    announcer interception
+  group console
+  dom
