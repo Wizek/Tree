@@ -41,20 +41,23 @@ We are building the best JS unit testing framework. Wanna join? Or, you can just
 Are you as excited as I am? Unfortunately, it's not fully done yet. But do not despair as you can speed up that process if you contribute in some way! See Help down below.
 
 ### Now
-Latest stable version is v0.2 as of 2011.10.12.
-This version has all the core functionality, and is stable at performing those in the browser with AMD loading (tested with RequireJS) as you can see as the included test coverage passes.
+Latest stable version is v0.2.1 as of 2011.12.09.
+I consider this to be a complete end-to-end version with a console announcer, so the only major thing it misses is the nice DOM structure yet.
+This version has all the core functionality, and is stable at performing those in the browser with AMD loading (tested with RequireJS) as you can see as the included test coverage passes. And yep, it's true: we have almost double the lines of code for thesting the test framework than the framework itself. This way we can be sure everything is fully functional, and you can rely on the tool to always assist you well.
 #### highlights for what is included
 
-- Organise into branches
+- Organise asserts into nested branches
 - core asserts (deepEql, eql, equal, fail, ok, pass, throws, type)
 - async handling with serial branch execution only
 	- assert count
-	- 1000ms timeout for each, continues with next in case of timeout
+	- 1000ms default timeout for each, continues with next in case of timeout
+	- .cfg() function helps you set different timeout value
+	- Parallel and Serial execution of branches fully supported
 - linear output to console
 
 #### yet to be included
 
-- See visionary feature list above (*That's a little too much text for me*)
+- See visionary feature list above (*titled: "That's a little too much text for me"*)
 
 ## Help
 Do you mean that you help me, or that I help you? (Whatever those pronouns may refer to.)

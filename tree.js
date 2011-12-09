@@ -1,13 +1,14 @@
-define(function() {
-  var TREE_START = Date.now()
-  function _treeInstance() {
+define(['./lib/jquery/dist/jquery.min'], function() {
+  function _virgoTreeInstance() {
 
-    // Hart of the framework
+    // Heart of the framework
     var tree = function(act) {
       tree._assertCount++
       tree._act = act
       return tree
     }
+
+    tree._virgoTreeInstance = oneTimeSetUp
 
     // Host objects
     tree.not = {_not:true}
@@ -115,7 +116,7 @@ define(function() {
       , config: tree.cfg
     }
 
-    tree._helpers._templater = function(tplstr, vars) {
+    var tpl = tree._helpers._templater = function(tplstr, vars) {
       if (typeof vars != 'object') var vars = {}
       if (typeof tplstr != 'string')
         throw new Error('Template string is not a string!')
@@ -199,9 +200,53 @@ define(function() {
         console.error(str+' ('+getCallerLine()+')')
       }
     }
+    tree._announcer.registerBranch = function(newBranch) {
+      var html = tree._htmlTpl
+      newBranch._domElem = $(tpl(html.branch,{summary:newBranch.cfg('name')})).get(0)
+      $(newBranch._parent._domElem).children('ul').append(newBranch._domElem)
+    }
+    tree._initDom = function(id) {
+      var cssFilePath = 'looks2.css'
+      var html = tree._htmlTpl
+      var tpl = tree._helpers._templater
+      id = id || 'tree-top'
+      if ($('link[href$="'+cssFilePath+'"]').length == 0) {
+        $('<link rel="stylesheet" type="text/css" href="'+cssFilePath+'"></link>').appendTo('head')
+      }
+      var $treeTop = $(tpl(html.init, {id:id})).get(0)
+      tree._global.$treeTop = $treeTop
+      tree._domElem = $treeTop
+      $('body').append($treeTop)
+    }
     //tree.note = function(str) {
     //  this._note = str
     //}
+    tree._htmlTpl = {
+      init: 
+        '<div id="{{ id }}" class="tree-top waiting collapsed">'
+        + '  <span class="handle"></span>'
+        + '  <span class="stamp">....</span>'
+        + '  <span class="summary"></span>'
+        + '  <ul>'
+        + '  </ul>'
+        + '  <a class="tree-home" href="https://github.com/Wizek/Tree">'
+        + '    <div class="tree-logo">'
+        + '      <span class="t">'
+        + '        <span class="m">Tree</span>'
+        + '        <span class="e">js</span>'
+        + '      </span>'
+        + '    </div>'
+        + '  </a>'
+        + '</div>'
+      , branch:
+        '<li class="branch done failed expanded">'
+        + '  <span class="handle"></span>'
+        + '  <span class="stamp">....</span>'
+        + '  <span class="summary">{{summary}}</span>'
+        + '  <ul>'
+        + '  </ul>'
+        + '</li>'
+    }
     tree._assertTpl = {
       ok: '{{actS}} {{#not}}not {{/not}}ok'
       , pass: 'pass'
@@ -357,9 +402,9 @@ define(function() {
           +' it\'s would be parent: "'+tree._name+'"\'s .done()!')
       }
       var currentTree = tree
-      var newBranchTree = new _treeInstance()
-      newBranchTree._doneCounter = tree._doneCounter
-      tree._doneCounter.branchCount++
+      var newBranchTree = new _virgoTreeInstance()
+      newBranchTree._global = tree._global
+      tree._global.branchCount++
       newBranchTree._code = newBranchCode   
       newBranchTree._name = name // deprecated line
       newBranchTree._parent = currentTree
@@ -368,24 +413,15 @@ define(function() {
       newBranchTree.oneLevel.config({
         name:name
       })
-      if (this._sync) {
-        newBranchTree.oneLevel.cfg('sync',true)
-        newBranchCode(newBranchTree)
-        if (!newBranchTree._done) {
-          newBranchTree._timedOut = true
-          console.error(newBranchTree._name+' didn\'t call done(). Carrying on.')
-          tree._next()
-        }
-        //if (newBranchTree) {}
-      } else {
-        currentTree._children.push(newBranchTree)
-      }
+      //newBranchTree._domElem = $('<li>')
+      currentTree._children.push(newBranchTree)
       //newBranchCode(newBranchTree)
       // if (!newBranchTree._done) {
       //   newBranchTree._timerId = setTimeout(function() {
       //     console.error(name, 'timed out!')
-      //   }, 1000)
+      //   }, 1000)x
       // }
+      tree._announcer.registerBranch(newBranchTree)
       return newBranchTree
     }
     tree.sync.branch = tree.branch
@@ -551,10 +587,10 @@ define(function() {
         // sth, I guess nothing
       } else {
         tree._next()
-        tree._doneCounter.doneCount++
-        //console.warn(tree._doneCounter.doneCount, tree._doneCounter.branchCount)
-        if (tree._doneCounter.doneCount == tree._doneCounter.branchCount) {
-          console.warn('Everything fully done! (took '+(Date.now()-TREE_START)+'ms)')
+        tree._global.doneCount++
+        //console.warn(tree._global.doneCount, tree._global.branchCount)
+        if (tree._global.doneCount == tree._global.branchCount) {
+          console.warn('Everything fully done! (took '+(Date.now()-tree._global.tree_start)+'ms)')
         }
       }
     }
@@ -605,10 +641,23 @@ define(function() {
 
     return tree
   }
-  document.title = "Tree.js"
-  var initialTree = new _treeInstance()
-  initialTree._doneCounter = {doneCount:0, branchCount:1}
-  return initialTree
+  function oneTimeSetUp () {
+    var initialTree = new _virgoTreeInstance()
+
+    // Global properties that should be accessible down the hierarchy too
+    initialTree._global = {
+      doneCount:0
+      , branchCount:1
+      , tree_start: Date.now()
+    }
+
+    // Set document title
+    document.title = "Tree.js"
+    
+    // Return brand new instance
+    return initialTree
+  }
+  return oneTimeSetUp()
 })
 
 function getCallerLine(moduleName, cCons) {

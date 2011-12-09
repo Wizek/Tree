@@ -2,7 +2,7 @@ require([
   '../tree' // In development, latest warmest and crispiest version
   , 'stree' // More stable one, proven to be working correctly
   , '../lib/jquery/dist/jquery.min'
-], function(tree, stree, $) {
+], function(tree, stree) {
 
   // For debug purposes y'know
   window.stree = stree
@@ -17,6 +17,19 @@ require([
     stree(tree.expect).type('function')
     stree(tree.done).type('function')
     // stree(tree.note).type('function')
+    stree.done(5)
+  })
+
+  stree.branch('virgo', function(stree) {
+    tree.branch('empty', function(tree) {tree.done(0)})
+    stree(tree._children.length).not.eql(0)
+    var tree2 = tree._virgoTreeInstance()
+    var tree3 = tree._virgoTreeInstance()
+    stree(tree3._children.length).eql(0)
+    tree3.branch('empty', function(tree) {tree.done(0)})
+    stree(tree._children.length).not.eql(0)
+    stree(tree3._children.length).eql(1)
+    stree(tree2._children.length).eql(0)
     stree.done(5)
   })
 
@@ -825,7 +838,7 @@ require([
               stree(tree._children[0]._done).eql(true)
               stree(tree._children[0]._timedOut).eql(false)
             }, 150)
-            tree.branch('<OK if times out> (1)', function(tree) {})
+            tree.branch('<OK if times out>', function(tree) {})
             setTimeout(function() {
               stree(tree._children[1]._run).eql(true)
               stree(tree._children[1]._done).eql(false)
@@ -950,6 +963,138 @@ require([
         })
         tree._announcer = stash
         stree.done(0)
+      })
+      stree.done(0)
+    })
+    stree.branch('DOM', function(stree) {
+      stree.branch('css inject', function(stree) {
+        //$('link[href$="looks2.css"]').remove()
+        var tree2 = tree._virgoTreeInstance()
+        var tree3 = tree._virgoTreeInstance()
+        stree($('link[href$="looks2.css"]').length).eql(0)
+        tree2._initDom('foobar123')
+        stree($('link[href$="looks2.css"]').length).eql(1)
+        tree3._initDom('foobar321')
+        stree($('link[href$="looks2.css"]').length).eql(1)
+        $('.tree-top').hide()
+        stree.done(3)
+      })
+      stree.branch('initing', function(stree) {
+        stree(tree._initDom).type('function')
+        stree($('#tree-top').length).eql(0)
+        var tree1 = tree._virgoTreeInstance()
+        tree1._initDom()
+        stree($('body > div#tree-top.tree-top > span.handle').length).eql(1)
+        stree($('body > div#tree-top.tree-top > span.stamp').length).eql(1)
+        stree($('body > div#tree-top.tree-top > span.summary').length).eql(1)
+
+        var tree2 = tree._virgoTreeInstance()
+        stree($('#foobar').length).eql(0)
+        tree2._initDom('foobar')
+        stree($('body > div#foobar.tree-top').length).eql(1)
+        stree($('body > div#foobar.tree-top > span.handle').length).eql(1)
+        stree($('body > div#foobar.tree-top > span.stamp').length).eql(1)
+        stree($('body > div#foobar.tree-top > span.summary').length).eql(1)
+
+        var tree3 = tree._virgoTreeInstance()
+        stree(tree3._global.$treeTop).eql(undefined)
+        tree3._initDom('foobar22223')
+        stree(tree3._global.$treeTop).eql($('#foobar22223').get(0))
+
+        $('.tree-top').hide()
+        stree.done(12)
+      })
+      // stree.branch('implicit init', function(stree) {
+      //   $('body > div.tree-top').remove()
+      //   stree($('body > div.tree-top').length).eql(0)
+      //   var tree1 = tree._virgoTreeInstance()
+      //   stree($('body > div.tree-top').length).eql(0)
+      //   tree1('a').eql('b')
+      //   stree($('body > div.tree-top').length).eql(1)
+
+      //   $('body > div.tree-top').remove()
+      //   stree($('body > div.tree-top').length).eql(0)
+      //   var tree2 = tree._virgoTreeInstance()
+      //   stree($('body > div.tree-top').length).eql(0)
+      //   tree2.branch('a', function() {
+      //   })
+      //   stree($('body > div.tree-top').length).eql(1)
+
+      //   stree.done(6)
+      // })
+
+      //stree.branch('branching', function(stree) {
+      //  var tree2 = tree._virgoTreeInstance()
+
+      //  tree2._initDom('asdbar')
+      //  var spec = 'body > div.tree-top#asdbar'
+      //  stree($('#asdbar li.branch').length).eql(0)
+      //  tree2.branch('abc', function(tree2) {
+      //    tree2(1).eql(1)
+      //    tree2.done(0)
+      //  })
+      //  stree($(spec+' ul li.branch').length).eql(1)
+      //  stree.done(2)
+      //})
+      stree.branch('branching 101', function(stree) {
+        var tree2 = tree._virgoTreeInstance()
+        tree2._initDom('asdbar')
+        var spec = 'body > div.tree-top#asdbar'
+        stree(tree2._announcer.registerBranch).type('function')
+        console.dir(tree2._domElem)
+        stree(tree2._domElem.toString()).eql('[object HTMLDivElement]')
+ 
+        var tree3 = tree._virgoTreeInstance()
+        tree3.cfg('name', 'trololololooo')
+        tree3._parent = tree2
+        stree($('#asdbar li.branch').length).eql(0)
+        tree2._announcer.registerBranch(tree3)
+        stree($(spec+' ul li.branch').length).eql(1)
+        //var tree4 = tree._virgoTreeInstance()
+        //tree4.cfg('name', 'trololololooo 2')
+        //tree4._parent = tree3
+        //stree($(spec+' ul li.branch li.branch').length).eql(0)
+        //tree3._announcer.registerBranch(tree4)
+        //stree($(spec+' ul li.branch li.branch').length).eql(1)
+        $('.tree-top').hide()
+        stree.done(4)
+      })
+      stree.branch('branching 202', function(stree) {
+        var tree2 = tree._virgoTreeInstance()
+        var randName = 'test8956'
+        tree2._initDom(randName)
+        stree($('#'+randName+' li.branch').length).eql(0)
+        tree2.branch('name 1', function(tree2) {
+          stree($('#'+randName+' li.branch li.branch').length).eql(0)
+          tree2.branch('name 1.1', function(tree2) {
+            tree2.done(0)
+          })
+          stree($('#'+randName+' li.branch li.branch').length).eql(1)
+          tree2.branch('name 1.2', function(tree2) {
+            tree2.done(0)
+          })
+          stree($('#'+randName+' li.branch li.branch').length).eql(2)
+          tree2.done(0)
+        })
+        stree($('#'+randName+' li.branch').length).eql(1)
+        tree2.branch('name 2', function(tree2) {
+          stree($('#'+randName+' li.branch li.branch').length).eql(2)
+          tree2.branch('name 2.1', function(tree2) {
+            tree2.done(0)
+          })
+          stree($('#'+randName+' li.branch li.branch').length).eql(3)
+          tree2.branch('name 2.2', function(tree2) {
+            tree2.done(0)
+          })
+          stree($('#'+randName+' li.branch li.branch').length).eql(4)
+          tree2.done(0)
+          stree.done(9)
+        })
+        stree($('#'+randName+' li.branch').length).eql(2)
+        //console.error('t._domElem')
+        //console.dir(t._domElem)
+        //stree(t._domElem.toString()).type()
+        tree2.done(0)
       })
       stree.done(0)
     })
