@@ -205,6 +205,18 @@ define(['./lib/jquery/dist/jquery.min'], function() {
       newBranch._domElem = $(tpl(html.branch,{summary:newBranch.cfg('name')})).get(0)
       $(newBranch._parent._domElem).children('ul').append(newBranch._domElem)
     }
+    tree._announcer.changeBranch = function() {
+      if (tree._done) {
+        
+      } else if (tree._timedOut) {
+        
+      } else if (tree._run) {
+        
+      }
+    }
+    //tree._announcer.assert = function(obj) {
+    //  $(tree._domElem).children('ul').append('<li>'-JSON.stringify(obj)+'</li>')
+    //}
     tree._initDom = function(id) {
       var cssFilePath = 'looks2.css'
       var html = tree._htmlTpl
@@ -213,7 +225,13 @@ define(['./lib/jquery/dist/jquery.min'], function() {
       if ($('link[href$="'+cssFilePath+'"]').length == 0) {
         $('<link rel="stylesheet" type="text/css" href="'+cssFilePath+'"></link>').appendTo('head')
       }
-      var $treeTop = $(tpl(html.init, {id:id})).get(0)
+      var summary = 'summary'
+      var $treeTop = 
+        $(tpl(html.init, {id:id,gut:
+          tpl(html.branch, {gut:
+            tpl(html.branchGut, {summary:summary})
+          })
+        })).get(0)
       tree._global.$treeTop = $treeTop
       tree._domElem = $treeTop
       $('body').append($treeTop)
@@ -222,30 +240,35 @@ define(['./lib/jquery/dist/jquery.min'], function() {
     //  this._note = str
     //}
     tree._htmlTpl = {
-      init: 
-        '<div id="{{ id }}" class="tree-top waiting collapsed">'
-        + '  <span class="handle"></span>'
-        + '  <span class="stamp">....</span>'
-        + '  <span class="summary"></span>'
-        + '  <ul>'
-        + '  </ul>'
-        + '  <a class="tree-home" href="https://github.com/Wizek/Tree">'
-        + '    <div class="tree-logo">'
-        + '      <span class="t">'
-        + '        <span class="m">Tree</span>'
-        + '        <span class="e">js</span>'
-        + '      </span>'
-        + '    </div>'
-        + '  </a>'
-        + '</div>'
-      , branch:
-        '<li class="branch done failed expanded">'
-        + '  <span class="handle"></span>'
-        + '  <span class="stamp">....</span>'
-        + '  <span class="summary">{{summary}}</span>'
-        + '  <ul>'
-        + '  </ul>'
-        + '</li>'
+      init: ''
+        + '\n<div id="{{ id }}" class="tree-top">'
+        + '\n  {{ gut }}'
+        + '\n  <a class="tree-home" href="https://github.com/Wizek/Tree"\
+          title="Homepage of Tree.js">'
+        + '\n    <div class="tree-logo">'
+        + '\n      <span class="t">'
+        + '\n        <span class="m">Tree</span><span class="e">js</span>'
+        + '\n      </span>'
+        + '\n    </div>'
+        + '\n  </a>'
+        + '\n</div>'
+      , branch: ''
+        + '\n<li class="branch collapsed">'
+        + '\n  {{ gut }}'
+        + '\n</li>'
+      , branchGut: ''
+        + '\n<span class="handle plus">+</span>'
+        + '\n<span class="handle minus">-</span>'
+        + '\n<span class="handle dot">&middot;</spa+>'
+        + '\n'
+        + '\n<span class="stamp await">....</span>'
+        + '\n<span class="stamp failed">fail</span>'
+        + '\n<span class="stamp passed">pass</span>'
+        + '\n<span class="stamp comment">&nbsp;//&nbsp;</span>'
+        + '\n'
+        + '\n<span class="summary">{{summary}}</span>'
+        + '\n<ul>'
+        + '\n</ul>'
     }
     tree._assertTpl = {
       ok: '{{actS}} {{#not}}not {{/not}}ok'

@@ -210,10 +210,111 @@ table {
 }
 div.tree-top {
   background: #eee;
-  color: #111;
-  font: 11pt "Consolas";
-  padding: 10px;
+  color: #201f1d;
+  font: 12pt "Consolas";
+  padding: 10px 10px 40px;
+  box-shadow: 0px 2px 10px 0px rgba(0,0,0,0.50);
+}
+div.tree-top > li > .summary {
+  font-weight: bold;
+}
+div.tree-top .stamp {
+  border: 3px solid #008000;
+  border-radius: 5px;
+  padding: 0px 2px;
+}
+div.tree-top .stamp.await {
+  border-color: #afdbf0;
+}
+div.tree-top .stamp.failed {
+  border-color: #ff483c;
+}
+div.tree-top .stamp.passed {
+  border-color: #9dde8a;
+}
+div.tree-top .stamp.comment {
+  border-color: #ddd;
+}
+div.tree-top ul {
+  margin-top: 0;
 }
 div.tree-top li {
-  display: block;
+  list-style-type: none;
+  margin-top: 8px;
+}
+div.tree-top li span {
+  cursor: pointer;
+}
+div.tree-top li.branch.commented {
+  color: #808080;
+}
+div.tree-top li.branch.commented > .stamp {
+  border-color: #ddd;
+}
+div.tree-top li.assert .stamp.failed {
+  background: #ff483c;
+}
+div.tree-top li.assert .stamp.passed {
+  background: #9dde8a;
+}
+div.tree-top li.assert.failed table {
+  border-left: 4px #ff483c solid;
+}
+div.tree-top li.assert.passed table {
+  border-left: 4px #9dde8a solid;
+}
+div.tree-top li.assert table {
+  font-size: 80%;
+  margin: 6px 0px 12px 40px;
+  border-collapse: separate;
+  border-spacing: 5px;
+}
+div.tree-top li.assert table th {
+  border-right: 2px rgba(0,0,0,0.12) solid;
+  vertical-align: top;
+  font-weight: 400;
+  text-align: right;
+  padding-right: 5px;
+}
+div.tree-top li.assert table td li {
+  white-space: pre;
+}
+div.tree-top .collapsed > ul,
+div.tree-top .collapsed > table,
+div.tree-top .collapsed > .handle:not(.plus),
+div.tree-top .expanded > .handle:not(.minus),
+div.tree-top .no-children > .handle:not(.dot),
+div.tree-top .await > .stamp:not(.await),
+div.tree-top .failed > .stamp:not(.failed),
+div.tree-top .passed > .stamp:not(.passed),
+div.tree-top .commented > .stamp:not(.comment) {
+  display: none;
+}
+div.tree-top a.tree-homepage:link,
+div.tree-top a.tree-homepage:visited {
+  text-decoration: none;
+}
+div.tree-top a.tree-homepage:link .tree-logo,
+div.tree-top a.tree-homepage:visited .tree-logo {
+  border-radius: 9px;
+  float: right;
+  margin-right: 10px;
+  color: #fff;
+  width: 60px;
+  height: 30px;
+  background: #555;
+  text-align: center;
+}
+div.tree-top a.tree-homepage:link .tree-logo .t,
+div.tree-top a.tree-homepage:visited .tree-logo .t {
+  position: relative;
+  top: 8px;
+}
+div.tree-top a.tree-homepage:link .tree-logo .t .e,
+div.tree-top a.tree-homepage:visited .tree-logo .t .e {
+  font-size: 66%;
+}
+div.tree-top .handle {
+  color: #808080;
+  font: bold 120% "Lucidia Console", monospace;
 }

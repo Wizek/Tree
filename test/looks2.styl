@@ -1,14 +1,106 @@
 @import "normalize"
 
-body
-  //background black
+$cl_red = #ff483c
+$cl_green = #9dde8a
+$cl_black = #201F1D
+$panel_fg = $cl_black
+$stamp_bg_fail = $cl_red
+$stamp_bg_pass = $cl_green
+$type_str = #667BEF
+$type_num = $type_str
+
 div.tree-top
   background #EEE
-  color #111
-  font 11pt 'Consolas'
-  padding 10px
+  color $cl_black
+  font 12pt 'Consolas'
+  padding 10px 10px 40px // bottom 40px in order to contain logo
+  box-shadow: 0px 2px 10px 0px rgba(0, 0, 0, 0.5)
+
+  & > li > .summary
+    font-weight bold
+    
+  .stamp
+    border 3px solid green //#CFC438//#DDD
+    border-radius 5px
+    padding 0px 2px
+    &.await
+      border-color lighten(#37A4DA, 60%)
+    &.failed
+      border-color $stamp_bg_fail
+    &.passed
+      border-color $stamp_bg_pass
+    &.comment
+      border-color #DDD
   
-  *
-    //border red 1px solid
+  ul
+    margin-top 0
   li
-    display block
+    list-style-type: none;
+    margin-top 8px
+    span
+      cursor pointer
+    &.branch
+      &.commented
+        color grey
+        & > .stamp
+          border-color #DDD
+    &.assert
+      .stamp.failed
+        background $stamp_bg_fail
+      .stamp.passed
+        background $stamp_bg_pass
+      &.failed table
+        border-left 4px $stamp_bg_fail solid
+      &.passed table
+        border-left 4px $stamp_bg_pass solid
+      
+      table
+        font-size 80%
+        margin 6px 0px 12px 40px
+        border-collapse separate
+        border-spacing 5px
+
+        th
+          border-right 2px rgba(0,0,0,0.12) solid
+          vertical-align: top
+          font-weight 400
+          text-align right
+          padding-right 5px
+        td li
+          white-space:pre
+
+  // hidden stuff
+  .collapsed > ul
+  .collapsed > table
+
+  .collapsed > .handle:not(.plus)
+  .expanded > .handle:not(.minus)
+  .no-children > .handle:not(.dot)
+
+  .await > .stamp:not(.await)
+  .failed > .stamp:not(.failed)
+  .passed > .stamp:not(.passed)
+  .commented > .stamp:not(.comment)
+    display none
+    
+  // Tree.js logo
+  a.tree-homepage:link,
+  a.tree-homepage:visited
+    text-decoration none
+    .tree-logo
+      border-radius 9px
+      float right
+      margin-right 10px
+      color #FFF
+      width 60px
+      height 30px
+      background #555
+      text-align center
+      .t
+        position relative
+        top 8px
+        .e
+          font-size 66%
+  .handle
+    color grey
+    font bold 120% 'Lucidia Console', monospace
