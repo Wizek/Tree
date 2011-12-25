@@ -201,9 +201,19 @@ define(['./lib/jquery/dist/jquery.min'], function() {
       }
     }
     tree._announcer.registerBranch = function(newBranch) {
+      if (!tree._global.inited) {
+        tree._initDom()
+      }
       var html = tree._htmlTpl
-      newBranch._domElem = $(tpl(html.branch,{summary:newBranch.cfg('name')})).get(0)
-      $(newBranch._parent._domElem).children('ul').append(newBranch._domElem)
+      newBranch._domElem = $(
+        tpl(html.branch,{gut:
+          tpl(html.branchGut,{summary:newBranch.cfg('name')})
+        })
+      ).get(0)
+      $(newBranch._parent._domElem)
+        .removeClass('no-children').addClass('collapsed')
+        .children('ul').append(newBranch._domElem)
+        
     }
     tree._announcer.changeBranch = function() {
       if (tree._done) {
@@ -214,34 +224,68 @@ define(['./lib/jquery/dist/jquery.min'], function() {
         
       }
     }
+    tree._announcer.branchDone = function() {
+      var $el = $(tree._domElem)
+      //console.warn($el.children('ul li:not(.passed):not(commented)').length)
+      if ($el.children('ul li:not(.passed):not(commented)').length == 0) {
+        $el.addClass('passed').removeClass('await')
+        if (tree._parent) {
+          tree._parent._announcer.branchDone()
+        }
+      }
+    }
+    tree._announcer.assert = function() {
+      // kiben van?
+      // Expected?
+      // Result?
+      //
+    }
     //tree._announcer.assert = function(obj) {
     //  $(tree._domElem).children('ul').append('<li>'-JSON.stringify(obj)+'</li>')
     //}
     tree._initDom = function(id) {
+      tree._global.inited = true
       var cssFilePath = 'looks2.css'
       var html = tree._htmlTpl
       var tpl = tree._helpers._templater
-      id = id || 'tree-top'
-      if ($('link[href$="'+cssFilePath+'"]').length == 0) {
-        $('<link rel="stylesheet" type="text/css" href="'+cssFilePath+'"></link>').appendTo('head')
+      if (isDomElem(id)) {
+        var $domParent = $(id)
+        id = undefined
+      } else {
+        var $domParent = $(document)
       }
-      var summary = 'summary'
-      var $treeTop = 
+      if ($domParent.find('link[href$="'+cssFilePath+'"]').length == 0) {
+        $('<link rel="stylesheet" type="text/css" href="'+cssFilePath+'"></link>')
+          .appendTo($domParent.find('head'))
+        $domParent.find('.collapsed>span, .expanded>span').live('click', function() {
+          $(this).siblings('ul').toggle().parent('li.branch').toggleClass('collapsed expanded')
+        })
+      }
+      var summary = 'Empty.'
+      var $init = 
         $(tpl(html.init, {id:id,gut:
           tpl(html.branch, {gut:
             tpl(html.branchGut, {summary:summary})
           })
-        })).get(0)
+        }))
+      var $treeTop = $init.children('li.branch').get(0)
       tree._global.$treeTop = $treeTop
       tree._domElem = $treeTop
-      $('body').append($treeTop)
+      $domParent.find('body').append($init)
+      //Returns true if it is a DOM element    
+      function isDomElem(o) {
+        return (
+          typeof HTMLElement === "object" ? o instanceof HTMLElement : // DOM2
+          typeof o === "object" && o.nodeType === 1 && typeof o.nodeName==="string"
+        )
+      }
     }
     //tree.note = function(str) {
     //  this._note = str
     //}
     tree._htmlTpl = {
       init: ''
-        + '\n<div id="{{ id }}" class="tree-top">'
+        + '\n<div {{#id}}id="{{ id }}"{{/id}} class="tree-top">'
         + '\n  {{ gut }}'
         + '\n  <a class="tree-home" href="https://github.com/Wizek/Tree"\
           title="Homepage of Tree.js">'
@@ -253,13 +297,13 @@ define(['./lib/jquery/dist/jquery.min'], function() {
         + '\n  </a>'
         + '\n</div>'
       , branch: ''
-        + '\n<li class="branch collapsed">'
+        + '\n<li class="branch await no-children">'
         + '\n  {{ gut }}'
         + '\n</li>'
       , branchGut: ''
         + '\n<span class="handle plus">+</span>'
         + '\n<span class="handle minus">-</span>'
-        + '\n<span class="handle dot">&middot;</spa+>'
+        + '\n<span class="handle dot">&middot;</span>'
         + '\n'
         + '\n<span class="stamp await">....</span>'
         + '\n<span class="stamp failed">fail</span>'
@@ -420,6 +464,16 @@ define(['./lib/jquery/dist/jquery.min'], function() {
     tree.branch = function(name, newBranchCode) {
       if (typeof name == 'function') newBranchCode = name
       if (typeof name != 'string') name = ''
+      if (name[0] == '/' && name[1] == '/') {
+        return console.warn(name)
+      //  var newBranchTree = new _virgoTreeInstance()
+      //  //newBranchTree._name = name // deprecated line
+      //  newBranchTree.oneLevel.config({
+      //    name:name
+      //    commented:true
+      //  })
+      //  return tree._announcer.registerBranch(newBranchTree)
+      }
       if (tree._done) {
         return console.error('"'+name+'" wanted to get registered after'
           +' it\'s would be parent: "'+tree._name+'"\'s .done()!')
@@ -606,6 +660,10 @@ define(['./lib/jquery/dist/jquery.min'], function() {
         tree.cfg('parallel',false)
       }
       tree._done = true
+      if (typeof tree._announcer.branchDone == 'function') {
+        // TODO remove this typecheck
+        tree._announcer.branchDone()
+      }
       if (tree._timedOut) {
         // sth, I guess nothing
       } else {
