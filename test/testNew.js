@@ -7,14 +7,12 @@ require([
   // For debug purposes y'know
   window.stree = stree
   window.tree = tree
-  tree._initDom(
-    $('<iframe style="width:100%;margin-left:-4px">')
-      .appendTo('body').contents().find('html')
-  )
+  //var $frame = $('<iframe>').appendTo('body').contents().find('body').get(0)
+  tree._initDom(/*$frame*/)
   // We want this to avoid double-shaw effect conflicting tree and stree libs
   stree.heritable.cfg('parallel', true)
 
-  stree.branch('trunk specific', function(stree) {
+  stree.branch('// trunk specific', function(stree) {
     stree(tree).type('function')
     stree(tree.config).type('function')
     stree(tree.branch).type('function')
@@ -24,11 +22,13 @@ require([
     stree.done(5)
   })
 
-  stree.branch('virgo', function(stree) {
+  stree.branch('// virgo', function(stree) {
     tree.branch('empty', function(tree) {tree.done(0)})
     stree(tree._children.length).not.eql(0)
     var tree2 = tree._virgoTreeInstance()
     var tree3 = tree._virgoTreeInstance()
+    //tree2._initDom($frame)
+    //tree3._initDom($frame)
     stree(tree3._children.length).eql(0)
     tree3.branch('empty', function(tree) {tree.done(0)})
     stree(tree._children.length).not.eql(0)
@@ -37,7 +37,7 @@ require([
     stree.done(5)
   })
 
-  stree.branch('helpers', function(stree) {
+  stree.branch('// helpers', function(stree) {
     stree.branch('templater', function(stree) {
       var tpl = tree._helpers._templater
       stree(tpl).type('function')
@@ -220,7 +220,7 @@ require([
     stree.done(0)
   })
   
-  stree.branch('asserts', function(stree) {
+  stree.branch('// asserts', function(stree) {
     stree.branch('ok', function(stree) {
       stree(tree._asserts.ok).type('function')
       stree(tree.ok).type('function')
@@ -349,19 +349,19 @@ require([
     stree.branch('not', function(stree) {
       tree.branch('closure', function(tree) {
         stree(tree.not).type('object')
-        var stash = tree._announcer
-        tree._announcer = function(obj) {
+        var stash = tree._announcer.registerAssert
+        tree._announcer.registerAssert = function(obj) {
           stree(obj.pass).eql(true)
         }
         tree(1).not.eql(2)
         tree(1).not.eql('1')
-        tree._announcer = function(obj) {
+        tree._announcer.registerAssert = function(obj) {
           console.log(obj)
           stree(obj.pass).eql(false)
         }
         tree(1).not.eql(1)
         tree(1).not.equal('1')
-        tree._announcer = stash
+        tree._announcer.registerAssert = stash
         stree.done(5)
         tree.done(4)
       })
@@ -369,7 +369,7 @@ require([
     stree.done(0)
   })
 
-  stree.branch('branches', function(stree) {
+  stree.branch('// branches', function(stree) {
     //debugger
     stree.branch('branching', function(stree) {
       stree.timeout(2000)
@@ -437,20 +437,20 @@ require([
         stree.done()  
       })
       tree.branch('fulfill', function(tree) {
-        var stash = tree._announcer
+        var stash = tree._announcer.registerAssert
         tree.expect(1)
         tree('a').eql('a')
-        tree._announcer = function(obj) {
+        tree._announcer.registerAssert = function(obj) {
           stree(obj.pass).eql(true)
           stree(obj.msg).eql('done.')
         }
         tree.done()
-        tree._announcer = function(obj) {
+        tree._announcer.registerAssert = function(obj) {
           stree(obj.pass).eql(false)
           stree(obj.msg).eql('done called twice!')
         }
         tree.done()
-        tree._announcer = stash
+        tree._announcer.registerAssert = stash
       })
     })
     stree.branch('async handling', function(stree) {
@@ -931,14 +931,14 @@ require([
   })
 
   stree.branch('announcers', function(stree) {
-    stree.branch('linear console', function(stree) {
+    stree.branch('// linear console', function(stree) {
       stree.branch('announcer interception', function(stree) {
-        var stash = tree._announcer
+        var stash = tree._announcer.registerAssert
         var name = 'announce!'
         tree.branch(name, function(tree) {
           tree.expect(3)
-          stree(tree._announcer).type('function')
-          tree._announcer = function(obj) {
+          stree(tree._announcer.registerAssert).type('function')
+          tree._announcer.registerAssert = function(obj) {
             stree(obj).type('object')
             stree(obj.pass).eql(true)
             stree(obj.msg).eql('1 eql 1')
@@ -946,7 +946,7 @@ require([
             //stree(obj.not).falsy()
           }
           tree(1).eql(1)
-          tree._announcer = function(obj) {
+          tree._announcer.registerAssert = function(obj) {
             stree(obj).type('object')
             stree(obj.pass).eql(false)
             stree(obj.msg).eql("1 eql '1'")
@@ -954,7 +954,7 @@ require([
             //stree(obj.not).falsy()
           }
           tree(1).eql('1')
-          tree._announcer = function(obj) {
+          tree._announcer.registerAssert = function(obj) {
             stree(obj).type('object')
             stree(obj.pass).eql(true)
             stree(obj.msg).eql("1 not eql '1'")
@@ -962,10 +962,10 @@ require([
             //stree(obj.not).truthy()
           }
           tree(1).not.eql('1')
-          tree._announcer = stash
+          tree._announcer.registerAssert = stash
           tree.done()
         })
-        tree._announcer = stash
+        tree._announcer.registerAssert = stash
         stree.done(0)
       })
       stree.done(0)
@@ -975,20 +975,23 @@ require([
         //$('link[href$="looks2.css"]').remove()
         var tree2 = tree._virgoTreeInstance()
         var tree3 = tree._virgoTreeInstance()
-        stree($('link[href$="looks2.css"]').length).eql(0)
-        tree2._initDom('foobar123')
-        stree($('link[href$="looks2.css"]').length).eql(1)
-        tree3._initDom('foobar321')
-        stree($('link[href$="looks2.css"]').length).eql(1)
-        $('.tree-top').hide()
+        var $frame = $('<iframe>').appendTo('body').contents().find('body')
+        var $head = $frame.parent('html').children('head')
+        var frame = $frame.get(0)
+        stree($head.find('link[href$="looks2.css"]').length).eql(0)
+        tree2._initDom(frame)
+        stree($head.find('link[href$="looks2.css"]').length).eql(1)
+        tree3._initDom(frame)
+        stree($head.find('link[href$="looks2.css"]').length).eql(1)
+        //$('.tree-top').hide()
         stree.done(3)
       })
       stree.branch('initing', function(stree) {
         stree(tree._initDom).type('function')
         stree($('#tree-top').length).eql(0)
         var tree1 = tree._virgoTreeInstance()
-        tree1._initDom()
-        var t = 'body > div.tree-top > li.branch > '
+        tree1._initDom('tree2521')
+        var t = 'body > div#tree2521.tree-top > li.branch > '
         stree($(t+'span.handle.dot').length).eql(1)
         stree($(t+'span.handle.plus').length).eql(1)
         stree($(t+'span.handle.minus').length).eql(1)
@@ -1012,64 +1015,43 @@ require([
         tree3._initDom('foobar22223')
         stree(tree3._global.$treeTop).eql($('#foobar22223>li.branch').get(0))
 
-        $('.tree-top').hide()
+        //$('.tree-top').hide()
         stree.done(17)
       })
-      stree.branch('initing by dom element', function(stree) {
-        var $frame = $('<iframe style="width:100%;margin-left:-4px">')
-          .appendTo('body').contents().find('html')
+      stree.branch('initing beneath dom element', function(stree) {
         var tree1 = tree._virgoTreeInstance()
-        tree1._initDom($frame)
-        var t = 'body > div#tree-top.tree-top > li.branch > '
+        var $frame = $('<iframe>').appendTo('body').contents().find('body')
+        var frame = $frame.get(0)
+        tree1._initDom($frame.get(0))
+        var t = 'div.tree-top > li.branch > '
         stree($frame.find(t+' span.handle').length).eql(3)
         stree($frame.find(t+' span.stamp').length).eql(4)
         stree($frame.find(t+' span.summary').length).eql(1)
         stree.done(3)
       })
-      // stree.branch('implicit init', function(stree) {
-      //   $('body > div.tree-top').remove()
-      //   stree($('body > div.tree-top').length).eql(0)
-      //   var tree1 = tree._virgoTreeInstance()
-      //   stree($('body > div.tree-top').length).eql(0)
-      //   tree1('a').eql('b')
-      //   stree($('body > div.tree-top').length).eql(1)
 
-      //   $('body > div.tree-top').remove()
-      //   stree($('body > div.tree-top').length).eql(0)
-      //   var tree2 = tree._virgoTreeInstance()
-      //   stree($('body > div.tree-top').length).eql(0)
-      //   tree2.branch('a', function() {
-      //   })
-      //   stree($('body > div.tree-top').length).eql(1)
+      stree.branch('branching', function(stree) {
+        var tree2 = tree._virgoTreeInstance()
 
-      //   stree.done(6)
-      // })
-
-      //stree.branch('branching', function(stree) {
-      //  var tree2 = tree._virgoTreeInstance()
-
-      //  tree2._initDom('asdbar')
-      //  var spec = 'body > div.tree-top#asdbar'
-      //  stree($('#asdbar li.branch').length).eql(0)
-      //  tree2.branch('abc', function(tree2) {
-      //    tree2(1).eql(1)
-      //    tree2.done(0)
-      //  })
-      //  stree($(spec+' ul li.branch').length).eql(1)
-      //  stree.done(2)
-      //})
+        tree2._initDom('asdbar')
+        var spec = 'body > div.tree-top#asdbar'
+        stree($(spec+' ul li.branch').length).eql(0)
+        tree2.branch('abc', function(tree2) {})
+        stree($(spec+' ul li.branch').length).eql(1)
+        stree.done(2)
+      })
       stree.branch('branching 101', function(stree) {
         var tree2 = tree._virgoTreeInstance()
-        tree2._initDom('asdbar')
+        tree2._initDom('tree5270')
         var spec = 'body > div.tree-top#asdbar > li'
         stree(tree2._announcer.registerBranch).type('function')
         console.dir(tree2._domElem)
         stree(tree2._domElem.toString()).eql('[object HTMLLIElement]')
- 
+
         var tree3 = tree._virgoTreeInstance()
         tree3.cfg('name', 'trololololooo')
         tree3._parent = tree2
-        stree($('#asdbar li.branch').length).eql(1)
+        stree($('#tree5270 li.branch').length).eql(1)
         tree2._announcer.registerBranch(tree3)
         stree($(spec+' ul li.branch').length).eql(1)
         stree($(spec+' ul li.branch > span.handle').length).eql(3)
@@ -1082,96 +1064,243 @@ require([
         //stree($(spec+' ul li.branch li.branch').length).eql(0)
         //tree3._announcer.registerBranch(tree4)
         //stree($(spec+' ul li.branch li.branch').length).eql(1)
-        $('.tree-top').hide()
+        // $('.tree-top').hide()
         stree.done(8)
       })
-      //stree.branch('branching 202', function(stree) {
-      //  var tree2 = tree._virgoTreeInstance()
-      //  var randName = 'test8956'
-      //  tree2._initDom(randName)
-      //  stree($('#'+randName+' li.branch li').length).eql(0)
-      //  tree2.branch('name 1', function(tree2) {
-      //    stree(t.hasClass('await')).ok()
-      //    stree(t.hasClass('collapsed')).not.ok()
-      //    stree(t.hasClass('no-children')).ok()
-      //    stree(t.hasClass('expanded')).not.ok()
-      //    stree(t.hasClass('failed')).not.ok()
-      //    stree(t.hasClass('passed')).not.ok()
-      //    stree($('#'+randName+' li.branch li.branch li.branch').length).eql(0)
-      //    tree2.branch('name 1.1', function(tree2) {
-      //      tree2.done(0)
-      //      stree(t.hasClass('await')).ok()
-      //      stree(t.hasClass('no-children')).not.ok()
-      //      stree(t.hasClass('collapsed')).ok()
-      //      stree(t.hasClass('expanded')).not.ok()
-      //      stree(t.hasClass('failed')).not.ok()
-      //      stree(t.hasClass('passed')).not.ok()
-      //    })
-      //    stree($('#'+randName+' li.branch li.branch').length).eql(3)
-      //    tree2.branch('naase 1.2', function(tree2) {
-      //      tree2.done(0)
-      //      stree(t.hasClass('await')).not.ok()
-      //      stree(t.hasClass('collapsed')).ok()
-      //      stree(t.hasClass('expanded')).not.ok()
-      //      stree(t.hasClass('failed')).not.ok()
-      //      stree(t.hasClass('passed')).ok()
-      //    })
-      //    stree($('#'+randName+' li.branch li.branch li.branch').length).eql(2)
-      //    tree2.done(0)
-      //    stree(t.hasClass('await')).ok()
-      //    stree(t.hasClass('collapsed')).ok()
-      //    stree(t.hasClass('expanded')).not.ok()
-      //    stree(t.hasClass('failed')).not.ok()
-      //    stree(t.hasClass('passed')).not.ok()
-      //    stree(t.hasClass('commented')).not.ok()
-      //  })
-      //  var t = $('#'+randName+' li.branch li.branch')
-      //  stree(t.length).eql(1)
-      //  stree(t.hasClass('await')).ok()
-      //  stree(t.hasClass('no-children')).ok()
-      //  stree(t.hasClass('collapsed')).not.ok()
-      //  stree(t.hasClass('expanded')).not.ok()
-      //  stree(t.hasClass('failed')).not.ok()
-      //  stree(t.hasClass('passed')).not.ok()
-      //  stree(t.hasClass('commented')).not.ok()
-      //  tree2.branch('name 2', function(tree2) {
-      //    stree($('#'+randName+' li.branch li.branch').length).eql(4)
-      //    tree2.branch('name 2.1', function(tree2) {
-      //      tree2.done(0)
-      //    })
-      //    stree($('#'+randName+' li.branch li.branch').length).eql(5)
-      //    tree2.branch('name 2.2', function(tree2) {
-      //      tree2.done(0)
-      //    })
-      //    stree($('#'+randName+' li.branch li.branch').length).eql(6)
-      //    tree2.done(0)
-      //    stree.done(22)
-      //  })
-      //  stree($('#'+randName+' li.branch').length).eql(3)
-      //  //console.error('t._domElem')
-      //  //console.dir(t._domElem)
-      //  //stree(t._domElem.toString()).type()
-      //  tree2.done(0)
-      //})
+      stree.branch('branching 202 (passing propagation)', function(stree) {
+        var tree2 = tree._virgoTreeInstance()
+        var randName = 'test8956'
+        tree2._initDom(randName)
+        stree($('#'+randName+' li.branch li').length).eql(0)
+        tree2.branch('name 1', function(tree2) {
+          stree(t.hasClass('await')).ok()
+          stree(t.hasClass('no-children')).ok()
+          stree(t.hasClass('collapsed')).not.ok()
+          stree(t.hasClass('expanded')).not.ok()
+          stree(t.hasClass('failed')).not.ok()
+          stree(t.hasClass('passed')).not.ok()
+          stree(t.hasClass('commented')).not.ok()
+          stree($('#'+randName+' li.branch li.branch li.branch').length).eql(0)
+          tree2.branch('name 1.1', function(tree2) {
+            stree(t.hasClass('await')).ok()
+            stree(t.hasClass('no-children')).not.ok()
+            stree(t.hasClass('collapsed')).ok()
+            stree(t.hasClass('expanded')).not.ok()
+            stree(t.hasClass('failed')).not.ok()
+            stree(t.hasClass('passed')).not.ok()
+            stree(t.hasClass('commented')).not.ok()
+            tree2.done(0)
+            // console.warn(t)
+            stree(t.hasClass('await')).not.ok()
+            stree(t.hasClass('no-children')).not.ok()
+            stree(t.hasClass('collapsed')).ok()
+            stree(t.hasClass('expanded')).not.ok()
+            stree(t.hasClass('failed')).not.ok()
+            stree(t.hasClass('passed')).ok()
+            stree(t.hasClass('commented')).not.ok()
+          })
+          stree($('#'+randName+' li.branch li.branch').length).eql(3)
+          tree2.branch('naase 1.2', function(tree2) {
+            tree2.done(0)
+            stree(t.hasClass('await')).not.ok()
+            stree(t.hasClass('no-children')).not.ok()
+            stree(t.hasClass('collapsed')).ok()
+            stree(t.hasClass('expanded')).not.ok()
+            stree(t.hasClass('failed')).not.ok()
+            stree(t.hasClass('passed')).ok()
+            stree(t.hasClass('commented')).not.ok()
+          })
+          stree($('#'+randName+' li.branch li.branch li.branch').length).eql(2)
+          stree(t.hasClass('await')).ok()
+          stree(t.hasClass('no-children')).not.ok()
+          stree(t.hasClass('collapsed')).ok()
+          stree(t.hasClass('expanded')).not.ok()
+          stree(t.hasClass('failed')).not.ok()
+          stree(t.hasClass('passed')).not.ok()
+          stree(t.hasClass('commented')).not.ok()
+          tree2.done(0)
+          stree(t.hasClass('await')).not.ok()
+          stree(t.hasClass('no-children')).not.ok()
+          stree(t.hasClass('collapsed')).ok()
+          stree(t.hasClass('expanded')).not.ok()
+          stree(t.hasClass('failed')).not.ok()
+          stree(t.hasClass('passed')).ok()
+          stree(t.hasClass('commented')).not.ok()
+        })
+        var t = $('#'+randName+' li.branch li.branch')
+        stree(t.length).eql(1)
+        stree(t.hasClass('await')).ok()
+        stree(t.hasClass('no-children')).ok()
+        stree(t.hasClass('collapsed')).not.ok()
+        stree(t.hasClass('expanded')).not.ok()
+        stree(t.hasClass('failed')).not.ok()
+        stree(t.hasClass('passed')).not.ok()
+        stree(t.hasClass('commented')).not.ok()
+        tree2.branch('name 2', function(tree2) {
+          stree($('#'+randName+' li.branch li.branch').length).eql(4)
+          tree2.branch('name 2.1', function(tree2) {
+            tree2.done(0)
+          })
+          stree($('#'+randName+' li.branch li.branch').length).eql(5)
+          tree2.branch('name 2.2', function(tree2) {
+            tree2.done(0)
+          })
+          stree($('#'+randName+' li.branch li.branch').length).eql(6)
+          tree2.done(0)
+          stree.done(37)
+        })
+        stree($('#'+randName+' li.branch').length).eql(3)
+        //console.error('t._domElem')
+        //console.dir(t._domElem)
+        //stree(t._domElem.toString()).type()
+        tree2.done(0)
+      })
       stree.branch('imlicit init on branch register', function(stree) {
         var tree2 = tree._virgoTreeInstance()
-        $('.tree-top').remove()
-        stree($('.tree-top').length).eql(0)
-        tree2.branch('asd',function() {})
-        stree($('.tree-top').length).eql(1)
-        stree($('.tree-top li.branch ul').length).eql(1)
+        stree(tree2._global.inited).not.ok()
+        var cntr = 0
+        tree2._initDom = function() {
+          cntr++
+        }
+        tree2.branch('8633', function() {})
+        tree2.branch('8634', function() {})
+        stree(cntr).eql(1)
+        stree(tree2._global.inited).ok()
         stree.done(3)
       })
+      stree.branch('imlicit init on assert register', function(stree) {
+        var tree2 = tree._virgoTreeInstance()
+        stree(tree2._global.inited).not.ok()
+        var cntr = 0
+        tree2._initDom = function() {
+          cntr++
+        }
+        tree2(1).eql(1)
+        tree2(1).eql(1)
+        stree(cntr).eql(1)
+        stree(tree2._global.inited).ok()
+        stree.done(3)
+      })
+      stree.branch('registerAssert existance', function(stree) {
+        var tree2 = tree._virgoTreeInstance()
+        stree(tree2._announcer.registerAssert).type('function')
+        tree2._announcer.registerAssert = function(object) {
+          stree(object).type('object')
+        }
+        tree2(1).eql(1)
+        stree.done(2)
+      })
+      stree.branch('registerAssert basic', function(stree) {
+        var tree2 = tree._virgoTreeInstance()
+        tree2._initDom()
+        var t = $(tree2._domElem)
+        stree(t.has('ul li.assert').length).eql(0)
+        tree2(1).eql(1)
+        stree(t.has('ul li.assert').length).eql(1)
+        stree.done(2)
+      })
+      stree.branch('registerAssert classes', function(stree) {
+        var tree2 = tree._virgoTreeInstance()
+        tree2._initDom()
+        var t = $(tree2._domElem)
+        stree(t.find('ul li.assert').length).eql(0)
+        tree2(1).eql(1)
+        stree(t.find('ul li.assert').length).eql(1)
+        var a = t.find('ul li.assert').eq(0)
+        stree(a.hasClass('passed'))           .ok()
+        stree(a.hasClass('failed'))       .not.ok()
+        stree(a.hasClass('collapsed'))        .ok()
+        stree(a.hasClass('expanded'))     .not.ok()
+        tree2(1).eql('1')
+        stree(t.find('ul li.assert').length).eql(2)
+        var a = t.find('ul li.assert').eq(1)
+        stree(a.hasClass('passed'))       .not.ok()
+        stree(a.hasClass('failed'))           .ok()
+        stree(a.hasClass('collapsed'))    .not.ok()
+        stree(a.hasClass('expanded'))         .ok()
+        stree.done(11)
+      })
+      stree.branch('registerAssert fail', function(stree) {
+        var tree2 = tree._virgoTreeInstance()
+        tree2._initDom()
+        var t = $(tree2._domElem)
+        stree(t.hasClass('await'))            .ok()
+        stree(t.hasClass('no-children'))      .ok()
+        stree(t.hasClass('collapsed'))    .not.ok()
+        stree(t.hasClass('expanded'))     .not.ok()
+        stree(t.hasClass('failed'))       .not.ok()
+        stree(t.hasClass('passed'))       .not.ok()
+        stree(t.hasClass('commented'))    .not.ok()
+        tree2(2).not.eql(2)
+        stree(t.hasClass('await'))        .not.ok()
+        stree(t.hasClass('no-children'))  .not.ok()
+        stree(t.hasClass('collapsed'))    .not.ok()
+        stree(t.hasClass('expanded'))         .ok()
+        stree(t.hasClass('failed'))           .ok()
+        stree(t.hasClass('passed'))       .not.ok()
+        stree(t.hasClass('commented'))    .not.ok()
+        stree.done(14)
+      })
+      stree.branch('treetop text changing', function(stree) {
+        var tree2 = tree._virgoTreeInstance()
+        tree2._initDom()
+        var t = $(tree2._domElem).children('span.summary')
+        stree(t.text()).eql( 'Empty' )
+        tree2._announcer.updateTreeTop('Random text')
+        stree(t.text()).eql( 'Random text' )
+        tree2._announcer.updateTreeTop('Some other giberish')
+        stree(t.text()).eql( 'Some other giberish' )
+        stree.done(3)
+      })
+      stree.branch('intgr treetop text changing', function(stree) {
+        var tree2 = tree._virgoTreeInstance()
+        tree2._initDom()
+        var t = $(tree2._domElem).children('span.summary')
+        stree(t.text()).eql( 'Empty' )
+        tree2.branch('1', function(tree2) {
+          tree2.done(0)
+        })
+        stree(t.text()).eql( 'Running' )
+        tree2.done(0)
+        stree(t.text().match(/Done, took \d+ms/)).ok()
+        stree.done(3)
+      })
+      stree.branch('timeout', function(stree) {
+        var tree2 = tree._virgoTreeInstance()
+        tree2._initDom()
+        var t = $(tree2._domElem)
+        stree(t.find('li.assert.failed').length).eql(0)
+        tree2.branch('times out', function(tree2) {
+          tree2.cfg('timeout', 1)
+        })
+        setTimeout(function() {
+          stree(t.find('li.assert.failed').length).eql(1)
+          stree.done(3)  
+        }, 10)
+        stree(t.find('li.assert.failed').length).eql(0)
+        tree2.done(0)
+      })
+      stree.branch('expect mismatch', function(stree) {
+        var tree2 = tree._virgoTreeInstance()
+        tree2._initDom()
+        var t = $(tree2._domElem)
+        stree(t.find('li.assert.failed').length).eql(0)
+        tree2.expect(2)
+        tree2.done()
+        stree(t.find('li.assert.failed').length).eql(1)
+        stree.done(2)
+      })
+      stree.branch('registerBranch commented', function(stree) {
+        var tree2 = tree._virgoTreeInstance()
+        tree2._initDom()
+        var t = $(tree2._domElem)
+        stree(t.find('ul li.commented').length).eql(0)
+        tree2.branch('// whatever', function() {})
+        stree(t.find('ul li.commented').length).eql(1)
+        tree2.done(0)
+        stree.done(2)
+      })
 
-      //stree.branch('imlicit init on assert register', function(stree) {
-      //  var tree2 = tree._virgoTreeInstance()
-      //  $('.tree-top').remove()
-      //  stree($('.tree-top').length).eql(0)
-      //  tree2(1).eql(1)
-      //  stree($('.tree-top').length).eql(1)
-      //  stree($('.tree-top li.assert ul').length).eql(1)
-      //  stree.done(3)
-      //})
       stree.done(0)
     })
     stree.done(0)

@@ -212,7 +212,7 @@ div.tree-top {
   background: #eee;
   color: #201f1d;
   font: 12pt "Consolas";
-  padding: 10px 10px 40px;
+  padding: 10px 10px 0;
   box-shadow: 0px 2px 10px 0px rgba(0,0,0,0.50);
 }
 div.tree-top > li > .summary {
@@ -242,7 +242,7 @@ div.tree-top li {
   list-style-type: none;
   margin-top: 8px;
 }
-div.tree-top li span {
+div.tree-top li:not(.no-children) > span {
   cursor: pointer;
 }
 div.tree-top li.branch.commented {
@@ -290,31 +290,32 @@ div.tree-top .passed > .stamp:not(.passed),
 div.tree-top .commented > .stamp:not(.comment) {
   display: none;
 }
-div.tree-top a.tree-homepage:link,
-div.tree-top a.tree-homepage:visited {
-  text-decoration: none;
-}
-div.tree-top a.tree-homepage:link .tree-logo,
-div.tree-top a.tree-homepage:visited .tree-logo {
-  border-radius: 9px;
-  float: right;
-  margin-right: 10px;
-  color: #fff;
-  width: 60px;
-  height: 30px;
-  background: #555;
-  text-align: center;
-}
-div.tree-top a.tree-homepage:link .tree-logo .t,
-div.tree-top a.tree-homepage:visited .tree-logo .t {
-  position: relative;
-  top: 8px;
-}
-div.tree-top a.tree-homepage:link .tree-logo .t .e,
-div.tree-top a.tree-homepage:visited .tree-logo .t .e {
-  font-size: 66%;
-}
 div.tree-top .handle {
   color: #808080;
   font: bold 120% "Lucidia Console", monospace;
+}
+div.tree-top * {
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+div.tree-top .summary,
+div.tree-top th,
+div.tree-top td {
+  -webkit-user-select: initial;
+  -khtml-user-select: initial;
+  -o-user-select: initial;
+  user-select: initial;
+}
+div.tree-top div.logo,
+div.tree-top div.logo img {
+  height: 52.5px;
+  width: 60px;
+  -ms-zoom: 1;
+}
+div.tree-top div.logo img {
+  opacity: 0.4;
+  position: absolute;
+  right: 10px;
 }

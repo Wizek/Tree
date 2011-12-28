@@ -9,13 +9,27 @@ $stamp_bg_pass = $cl_green
 $type_str = #667BEF
 $type_num = $type_str
 
+user-select(val)
+  -webkit-user-select val
+  -khtml-user-select val
+  //-moz-user-select val
+  -o-user-select val
+  user-select val
+
+//zoom(val)
+//  //background-size ((val)*100)%
+//  zoom val
+//  -webkit-transform scale(val)
+//  -moz-transform scale(val)
+
 div.tree-top
   background #EEE
   color $cl_black
   font 12pt 'Consolas'
-  padding 10px 10px 40px // bottom 40px in order to contain logo
+  padding 10px 10px 0
   box-shadow: 0px 2px 10px 0px rgba(0, 0, 0, 0.5)
-
+  
+  // Summary stands out
   & > li > .summary
     font-weight bold
     
@@ -35,9 +49,9 @@ div.tree-top
   ul
     margin-top 0
   li
-    list-style-type: none;
+    list-style-type none
     margin-top 8px
-    span
+    &:not(.no-children) > span
       cursor pointer
     &.branch
       &.commented
@@ -69,7 +83,7 @@ div.tree-top
         td li
           white-space:pre
 
-  // hidden stuff
+  // Hide stuff deending on the classes of the li elements
   .collapsed > ul
   .collapsed > table
 
@@ -82,25 +96,45 @@ div.tree-top
   .passed > .stamp:not(.passed)
   .commented > .stamp:not(.comment)
     display none
-    
-  // Tree.js logo
-  a.tree-homepage:link,
-  a.tree-homepage:visited
-    text-decoration none
-    .tree-logo
-      border-radius 9px
-      float right
-      margin-right 10px
-      color #FFF
-      width 60px
-      height 30px
-      background #555
-      text-align center
-      .t
-        position relative
-        top 8px
-        .e
-          font-size 66%
+  
+  // Handle signs (+, -, .)
   .handle
     color grey
     font bold 120% 'Lucidia Console', monospace
+
+  // Only select relevant content
+  *
+    user-select none
+  .summary, th, td
+    user-select initial
+
+  // Tree.js logo at the bottom right
+  div.logo
+    w = 80px
+    h = 70px
+    z = 0.75
+    o = 0.40
+    &, & img
+      height h*z
+      width w*z
+      -ms-zoom 1
+    img
+      opacity o
+      position absolute
+      right 10px
+  //div.logo
+  // w = 80px
+  // h = 70px
+  // z = 0.75
+  // o = 0.40
+  // zoom z
+  // opacity o
+  // &, & .inner
+  //   display block
+  //   width w
+  //   height h
+  // .inner
+  //   right 10px
+  //   //background-image url('../tree optimized.svg')
+  //   //text-indent -99999px
+  //   position absolute

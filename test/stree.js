@@ -356,6 +356,16 @@ define(function() {
         return console.error('"'+name+'" wanted to get registered after'
           +' it\'s would be parent: "'+tree._name+'"\'s .done()!')
       }
+      if (name[0] == '/' && name[1] == '/') {
+        return console.warn(name)
+        //  var newBranchTree = new _virgoTreeInstance()
+        //  //newBranchTree._name = name // deprecated line
+        //  newBranchTree.oneLevel.config({
+        //    name:name
+        //    commented:true
+        //  })
+        //  return tree._announcer.registerBranch(newBranchTree)
+      }
       var currentTree = tree
       var newBranchTree = new _treeInstance()
       newBranchTree._doneCounter = tree._doneCounter
