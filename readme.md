@@ -41,9 +41,9 @@ We are building the best JS unit testing framework. Wanna join? Or, you can just
 Are you as excited as I am? Unfortunately, it's not fully done yet. But do not despair as you can speed up that process if you contribute in some way! See Help down below.
 
 ### Now
-Latest stable version is v0.2.1 as of 2011.12.09.
-I consider this to be a complete end-to-end version with a console announcer, so the only major thing it misses is the nice DOM structure yet.
-This version has all the core functionality, and is stable at performing those in the browser with AMD loading (tested with RequireJS) as you can see as the included test coverage passes. And yep, it's true: we have almost double the lines of code for thesting the test framework than the framework itself. This way we can be sure everything is fully functional, and you can rely on the tool to always assist you well.
+Latest stable version is v0.4.0 as of 2011.12.28.
+I consider this to be a complete end-to-end version with a DOM announcer.
+This version has all the core functionality, and is stable at performing those in the browser with AMD loading (tested with RequireJS) as you can see as the included test coverage passes. And yep, it's true: we have almost double the lines of code for the testing the test framework than for the framework itself. This way we can be sure everything is fully functional, and you can rely on the tool to always assist you well.
 #### highlights for what is included
 
 - Organise asserts into nested branches
@@ -53,18 +53,25 @@ This version has all the core functionality, and is stable at performing those i
 	- 1000ms default timeout for each, continues with next in case of timeout
 	- .cfg() function helps you set different timeout value
 	- Parallel and Serial execution of branches fully supported
-- linear output to console
+- Magnificent DOM output
 
 #### yet to be included
 
-- See visionary feature list above (*titled: "That's a little too much text for me"*)
+- Minor, lesser used and oldschool mirror assert functions.
+- Node.js support
+- Browser <script> tag support
+- .note() on asserts
+- Multi-file test suit, like: `tree.branch('path/to/source.js')`
+- **Also, see visionary feature list above for to get a complete picure of what you can expect (*titled: "That's a little too much text for me"*)**
 
 ## Help
 Do you mean that you help me, or that I help you? (Whatever those pronouns may refer to.)
-It's pretty much both! You help me building this framework that will help you greatly with your own projects in return! So, how can you contribute? It's quite early you got here, so you have the privilige to take part even in the designing phase. What's done is the vision. I've done some work with the potential browser UI and the syntax, and also started the core of the framework itself! So, if you are in the mood, get in tuch with me!
+It's pretty much both! You help me building this framework that will help you greatly with your own projects in return! So, how can you contribute? Let's find out.
+So, if you are in the mood, get in tuch with me!
+Or alternatively you can also see something interesting in the issues section and set out helping with it. But if you choose this path be sure to notify others somehow (e.g. leaving a comment there) so that we avoid superfluous work.
 
 ## Enough of English already, I want you to talk JavaScript!
-Syntax is planned to be the following.
+Syntax is the following.
 ### Three (3) loading modes supported!
 #### Node.js: require
 ```js
@@ -86,11 +93,11 @@ require(['tree'], function(tree) {
 /* ... */
 </script>
 ```
-### A some assertion types
+### Some assertion types
 ```js
 // Default syntax
 tree(123).type('number')
-// Negate with .not.
+// Negate with `.not.`
 tree({"ob":"ject"}).not.type('string')
 // `===` by default
 tree(1).not.eql("1")
@@ -102,7 +109,7 @@ tree(1).equal("1")
 #### Assert count
 ```js
 tree.expect(1) // to ensure all asserts are run
-async(function(){ // async() is an arbitrary async function
+async(function(){ // async() is an arbitrary async function taking a callback
 	tree(x).eql(y)
 	tree.done() // to know when all callbacks are back
 })
@@ -138,16 +145,16 @@ tree.branch('rusher 2', function(tree) {
 #### Some organising. As much levels as you want. It'll have neat output too!
 ```js
 tree.branch('Name these', function(tree) {
-	/* ... */
 	tree.branch('whatever', function(tree) {
 		/* ... */
 	})
 	tree.branch('you', function(tree) {
-		/* ... */
 		tree.branch('want!', function(tree) {
 			/* ... */
 		})
+		/* ... */
 	})
+	/* ... */
 })
 ```
 #### Want even more control? Load test files on the go, to their appropriate location! They'll be executed as if you wrote them directly there, but this way they are more portable. (Only with AMD, or in Node)
@@ -168,7 +175,7 @@ tree(ary).deepEqual(ary);   tree.deepEqual(ary, ary)
 tree(foo).not.eql(bar);     tree.notEql(foo, bar)
 // I think you get the point.
 ```
-#### More code to come here soon!
+#### More code to come here!
 
 ## History
 How this project came to be? It will be written here.
