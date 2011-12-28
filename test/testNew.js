@@ -7,12 +7,19 @@ require([
   // For debug purposes y'know
   window.stree = stree
   window.tree = tree
-  //var $frame = $('<iframe>').appendTo('body').contents().find('body').get(0)
+  stree._initDom(
+    $('<div>').appendTo('body')
+    .css('margin-bottom',10)
+    .get(0)
+  )
+  $('body')
+    .append('<h1>Tested instances below:</h1>'
+      + '<p>(no problem if they fail, some are designed to do so)</p>')
   tree._initDom(/*$frame*/)
   // We want this to avoid double-shaw effect conflicting tree and stree libs
   stree.heritable.cfg('parallel', true)
 
-  stree.branch('// trunk specific', function(stree) {
+  stree.branch('trunk specific', function(stree) {
     stree(tree).type('function')
     stree(tree.config).type('function')
     stree(tree.branch).type('function')
@@ -22,7 +29,7 @@ require([
     stree.done(5)
   })
 
-  stree.branch('// virgo', function(stree) {
+  stree.branch('virgo', function(stree) {
     tree.branch('empty', function(tree) {tree.done(0)})
     stree(tree._children.length).not.eql(0)
     var tree2 = tree._virgoTreeInstance()
@@ -37,7 +44,7 @@ require([
     stree.done(5)
   })
 
-  stree.branch('// helpers', function(stree) {
+  stree.branch('helpers', function(stree) {
     stree.branch('templater', function(stree) {
       var tpl = tree._helpers._templater
       stree(tpl).type('function')
@@ -135,8 +142,7 @@ require([
         stree.done()
       })
       stree.branch('config engine', function(stree) {
-        //debugger
-        /*tree.branch('config container', function(tree) {
+        tree.branch('config container', function(tree) {
           // engine
           stree(tree.config).type('function')
           stree(tree.heritable.config).type('function')
@@ -196,9 +202,7 @@ require([
             tree.done(0)
           })
           tree.done(0)
-        })*/
-        stree.done(0)
-        //tree.done(0)
+        })
       })
       stree.branch('trunk config', function(stree) {
         console.log(tree.config())
@@ -220,7 +224,7 @@ require([
     stree.done(0)
   })
   
-  stree.branch('// asserts', function(stree) {
+  stree.branch('asserts', function(stree) {
     stree.branch('ok', function(stree) {
       stree(tree._asserts.ok).type('function')
       stree(tree.ok).type('function')
@@ -369,7 +373,7 @@ require([
     stree.done(0)
   })
 
-  stree.branch('// branches', function(stree) {
+  stree.branch('branches', function(stree) {
     //debugger
     stree.branch('branching', function(stree) {
       stree.timeout(2000)
@@ -442,12 +446,12 @@ require([
         tree('a').eql('a')
         tree._announcer.registerAssert = function(obj) {
           stree(obj.pass).eql(true)
-          stree(obj.msg).eql('done.')
+          stree(obj.msg).eql('Done.')
         }
         tree.done()
         tree._announcer.registerAssert = function(obj) {
           stree(obj.pass).eql(false)
-          stree(obj.msg).eql('done called twice!')
+          stree(obj.msg).eql('.done() called more than once!')
         }
         tree.done()
         tree._announcer.registerAssert = stash
@@ -820,7 +824,6 @@ require([
         })
       })
       stree.branch('timeout', function(stree) {
-        // stree.cfg('timeout', 5000)
         stree.branch('timing out', function(stree) {
           stree.cfg('timeout', 5000)
           tree.branch('closure', function(tree) {
@@ -849,7 +852,6 @@ require([
               stree(tree._children[1]._timedOut).eql(true)
               stree.done(12)
             }, 1400)
-            //stree.done(3)
             tree.done(0)
           })
         })
@@ -879,7 +881,6 @@ require([
               stree(tree._children[0]._timedOut).eql(false)
             }, ms/2+ms/5)
             tree.branch('<OK if times out>', function(tree) {
-              //console.dir(tree)
               tree.timeout(ms)
             })
             setTimeout(function() {
@@ -911,7 +912,6 @@ require([
               stree(tree._children[0]._timedOut).eql(false)
             }, ms/2+ms/4)
             tree.branch('<OK if times out>', function(tree) {
-              //tree.timeout(ms)
             })
             setTimeout(function() {
               stree(tree._children[1]._run).eql(true)
@@ -931,7 +931,7 @@ require([
   })
 
   stree.branch('announcers', function(stree) {
-    stree.branch('// linear console', function(stree) {
+    stree.branch('linear console', function(stree) {
       stree.branch('announcer interception', function(stree) {
         var stash = tree._announcer.registerAssert
         var name = 'announce!'
@@ -972,7 +972,6 @@ require([
     })
     stree.branch('DOM', function(stree) {
       stree.branch('css inject', function(stree) {
-        //$('link[href$="looks2.css"]').remove()
         var tree2 = tree._virgoTreeInstance()
         var tree3 = tree._virgoTreeInstance()
         var $frame = $('<iframe>').appendTo('body').contents().find('body')
@@ -983,7 +982,6 @@ require([
         stree($head.find('link[href$="looks2.css"]').length).eql(1)
         tree3._initDom(frame)
         stree($head.find('link[href$="looks2.css"]').length).eql(1)
-        //$('.tree-top').hide()
         stree.done(3)
       })
       stree.branch('initing', function(stree) {
@@ -1015,7 +1013,6 @@ require([
         tree3._initDom('foobar22223')
         stree(tree3._global.$treeTop).eql($('#foobar22223>li.branch').get(0))
 
-        //$('.tree-top').hide()
         stree.done(17)
       })
       stree.branch('initing beneath dom element', function(stree) {
@@ -1058,13 +1055,6 @@ require([
         stree($(spec+' ul li.branch > span.stamp').length).eql(4)
         stree($(spec+' ul li.branch > span.summary').length).eql(1)
         stree($(spec+' ul li.branch > ul').length).eql(1)
-        //var tree4 = tree._virgoTreeInstance()
-        //tree4.cfg('name', 'trololololooo 2')
-        //tree4._parent = tree3
-        //stree($(spec+' ul li.branch li.branch').length).eql(0)
-        //tree3._announcer.registerBranch(tree4)
-        //stree($(spec+' ul li.branch li.branch').length).eql(1)
-        // $('.tree-top').hide()
         stree.done(8)
       })
       stree.branch('branching 202 (passing propagation)', function(stree) {
@@ -1090,7 +1080,6 @@ require([
             stree(t.hasClass('passed')).not.ok()
             stree(t.hasClass('commented')).not.ok()
             tree2.done(0)
-            // console.warn(t)
             stree(t.hasClass('await')).not.ok()
             stree(t.hasClass('no-children')).not.ok()
             stree(t.hasClass('collapsed')).ok()
@@ -1150,9 +1139,6 @@ require([
           stree.done(37)
         })
         stree($('#'+randName+' li.branch').length).eql(3)
-        //console.error('t._domElem')
-        //console.dir(t._domElem)
-        //stree(t._domElem.toString()).type()
         tree2.done(0)
       })
       stree.branch('imlicit init on branch register', function(stree) {
@@ -1260,7 +1246,7 @@ require([
         tree2.branch('1', function(tree2) {
           tree2.done(0)
         })
-        stree(t.text()).eql( 'Running' )
+        stree(t.text().match(/Running, took \d+ms/)).ok()
         tree2.done(0)
         stree(t.text().match(/Done, took \d+ms/)).ok()
         stree.done(3)

@@ -1,13 +1,16 @@
-define(function() {
-  var TREE_START = Date.now()
-  function _treeInstance() {
+define(['../lib/jquery/dist/jquery.min'], function() {
+  function _virgoTreeInstance() {
 
-    // Hart of the framework
-    var tree = function(act) {
-      tree._assertCount++
+    // Heart of the framework
+    var tree = function(act, forgot) {
       tree._act = act
+      if (forgot && typeof forgot == 'functon') {
+        console.warn('Didn\'t you forget about the .branch() part somewhere?')
+      }
       return tree
     }
+
+    tree._virgoTreeInstance = oneTimeSetUp
 
     // Host objects
     tree.not = {_not:true}
@@ -115,7 +118,7 @@ define(function() {
       , config: tree.cfg
     }
 
-    tree._helpers._templater = function(tplstr, vars) {
+    var tpl = tree._helpers._templater = function(tplstr, vars) {
       if (typeof vars != 'object') var vars = {}
       if (typeof tplstr != 'string')
         throw new Error('Template string is not a string!')
@@ -191,17 +194,204 @@ define(function() {
       }
       return output
     }
-    tree._announcer = function(obj) {
-      var str = obj.name+': '+obj.msg
-      if (obj.pass) {
-        console.log(str)
+    tree._announcer = {}
+    tree._announcer.registerBranch = function(newBranch) {
+      var $pe = $(tree._domElem)
+      var html = tree._htmlTpl
+      if (newBranch.commented) {
+        var name = newBranch.name.match('(// *)(.*)')[2]
+        $pe.children('ul').append(
+          tpl(html.branch,{comm:true,gut:
+            tpl(html.branchGut,{  
+              summary:name+' ('+getCallerLine()+')'
+            })
+          })
+        )
       } else {
-        console.error(str+' ('+getCallerLine()+')')
+        if (!tree._global.inited) {
+          tree._initDom()
+          tree._global.inited = true
+        }
+        this.updateTreeTop(this.getStatusString('running'))
+        newBranch._domElem = $(
+          tpl(html.branch,{gut:
+            tpl(html.branchGut,{
+              summary:newBranch.cfg('name')
+            })
+          })
+        ).get(0)
+        $(tree._domElem).children('ul').append(newBranch._domElem)
       }
+      if ($pe.hasClass('no-children')) {
+        $pe.removeClass('no-children').addClass('collapsed')
+      }
+    }
+    tree._announcer.branchDone = function(obj) {
+      var $el = $(tree._domElem)
+      if ($el.has('ul li:not(.passed):not(.commented)').length == 0) {
+        $el.removeClass('await').addClass('passed')
+        if (tree._parent) {
+          tree._parent._announcer.branchDone()
+        }
+      }
+    }
+    tree._announcer.branchFail = function() {
+      var $el = $(tree._domElem)
+      $el
+        .removeClass('await')
+        //.removeClass('no-children')
+        .removeClass('collapsed')
+        .removeClass('passed') // needed because of double .done()
+        .addClass('failed')
+        .addClass('expanded')
+      if (tree._parent) {
+        tree._parent._announcer.branchFail()
+      }
+    }
+    tree._announcer.updateTreeTop = function(txt) {
+      $(tree._global.$treeTop).children('.summary').text(txt)
+    }
+    tree._announcer.registerAssert = function(obj) {
+      if (!tree._global.inited) {
+        tree._initDom()
+        tree._global.inited = true
+      }
+      this.updateTreeTop(this.getStatusString('running'))
+      var $el = $(tree._domElem)
+      if ($el.hasClass('no-children')) {
+        $el.removeClass('no-children').addClass('collapsed')
+      }
+      if (!obj.pass) {
+        tree._announcer.branchFail()
+      }
+      obj.path = obj.path || getCallerLine()
+      $el.children('ul').append(
+        $(tpl(tree._htmlTpl.assert, obj))
+      )
+    }
+    tree._initDom = function($elem) {
+      if (tree._global.inited) {
+        return 'inited already'
+      } else {
+        tree._global.inited = true
+      }
+      var cssFilePath = 'looks2.css'
+      var html = tree._htmlTpl
+      var tpl = tree._helpers._templater
+      if (isDomElem($elem)) {
+        var $elem = $($elem)
+        var $head = $elem.parents('html').children('head')
+      } else {
+        if (typeof $elem == 'string') {
+          var id = $elem
+        }
+        var $elem = $('body')
+        var $head = $('head')
+      }
+      if ($head.find('link[href$="'+cssFilePath+'"]').length == 0) {
+        $('<link rel="stylesheet" type="text/css" href="'+cssFilePath+'"></link>')
+          .appendTo($head)
+        $elem.find('.collapsed>span, .expanded>span').live('click', function() {
+          $(this).siblings('ul, table').toggle().parent('li')
+            .toggleClass('collapsed expanded')
+        })
+      }
+      var summary = 'Empty'
+      var $init = 
+        $(tpl(html.init, {id:id, gut:
+          tpl(html.branch, {gut:
+            tpl(html.branchGut, {summary:summary})
+          })
+        }))
+      var $treeTop = $init.children('li.branch').get(0)
+      tree._global.$treeTop = $treeTop
+      tree._domElem = $treeTop
+      $elem.append($init)
+      //Returns true if it is a DOM element    
+      function isDomElem(o) {
+        return (
+          typeof HTMLElement === "object" ? o instanceof HTMLElement : // DOM2
+          typeof o === "object" && o.nodeType === 1 && typeof o.nodeName==="string"
+        )
+      }
+    }
+    tree._announcer.EFD = function() {
+      tree._announcer.updateTreeTop(this.getStatusString('done'))
+    }
+    tree._announcer.getStatusString = function(type) {
+      var g = tree._global
+      g.time = Date.now()-g.tree_start
+      var tpl = tree._helpers._templater
+      return tpl(tree._htmlTpl['status_'+type], g)
     }
     //tree.note = function(str) {
     //  this._note = str
     //}
+    tree._htmlTpl = {
+      init: ''
+        + '\n<div {{#id}}id="{{ id }}"{{/id}} class="tree-top">'
+        + '\n  {{ gut }}'
+        + '\n  <div class="logo">'
+        + '\n    <a class="inner" href="https://github.com/Wizek/Tree"'
+        + '\n      title="Homepage of Tree.js">'
+        + '\n      <img src="../tree_logo.svg" alt="Tree.js">'
+        + '\n    </a>'
+        + '\n  </div>'
+        + '\n</div>'
+      , branch: ''
+        + '\n<li class="branch '
+          + '{{#comm}}commented{{/comm}}'
+          + '{{^comm}}await{{/comm}}'
+        + ' no-children">'
+        + '\n  {{ gut }}'
+        + '\n</li>'
+      , branchGut: ''
+        + '\n<span class="handle plus">+</span>'
+        + '\n<span class="handle minus">-</span>'
+        + '\n<span class="handle dot">&middot;</span>'
+        + '\n'
+        + '\n<span class="stamp await">....</span>'
+        + '\n<span class="stamp failed">fail</span>'
+        + '\n<span class="stamp passed">pass</span>'
+        + '\n<span class="stamp comment">&nbsp;//&nbsp;</span>'
+        + '\n'
+        + '\n<span class="summary">{{summary}}'
+          +'{{^summary}}<i title="No name specified">Anonymuos</i>{{/summary}}'
+        +'</span>'
+        + '\n<ul>'
+        + '\n</ul>'
+      , assert: ''
+        + '\n<li class="assert '
+          + '{{#pass}}passed collapsed{{/pass}}'
+          + '{{^pass}}failed expanded{{/pass}}'
+        + '">'
+        + '\n  <span class="handle plus">+</span>'
+        + '\n  <span class="handle minus">-</span>'
+        + '\n  <span class="stamp failed">fail</span>'
+        + '\n  <span class="stamp passed">pass</span>'
+        + '\n  '
+        + '\n  <span class="summary">{{msg}}'
+          //+ '{{^pass}}({{path}}){{/pass}}'
+        + '</span>'
+        + '\n  <span class="note"></span>'
+        + '\n  <table class="content">'
+        //+ '\n    <tr> <th>Note</th> <td>This assert passes</td> </tr>'
+        + '\n    {{#actS}}<tr> <th>Result</th> <td>{{actS}}</td> </tr>{{/actS}}'
+        + '\n    {{#expS}}<tr> <th>Expected</th> <td>{{expS}}</td> </tr>{{/expS}}'
+        + '\n    {{#path}}<tr> <th>Path</th> <td>{{path}}</td> </tr>{{/path}}'
+        + '\n  </table>'
+        + '\n</li>'
+      , status_running: ''
+        + 'Running, '
+        + 'took {{time}}ms to run '
+        + '{{passedAssertCount}}/{{assertCount}} asserts '
+        + 'across {{branchCount}} branches registered so far...'
+      , status_done: ''
+        + 'Done, '
+        + 'took {{time}}ms to run '
+        + '{{passedAssertCount}}/{{assertCount}} asserts '
+        + 'across {{branchCount}} branches.'
+    }
     tree._assertTpl = {
       ok: '{{actS}} {{#not}}not {{/not}}ok'
       , pass: 'pass'
@@ -348,16 +538,15 @@ define(function() {
       }
     }
 
-    tree.sync = {_sync:true}
     tree.branch = function(name, newBranchCode) {
       if (typeof name == 'function') newBranchCode = name
       if (typeof name != 'string') name = ''
-      if (tree._done) {
-        return console.error('"'+name+'" wanted to get registered after'
-          +' it\'s would be parent: "'+tree._name+'"\'s .done()!')
-      }
       if (name[0] == '/' && name[1] == '/') {
-        return console.warn(name)
+        var obj = {
+          name: name
+          , commented: true
+        }
+        return tree._announcer.registerBranch(obj)
         //  var newBranchTree = new _virgoTreeInstance()
         //  //newBranchTree._name = name // deprecated line
         //  newBranchTree.oneLevel.config({
@@ -366,10 +555,18 @@ define(function() {
         //  })
         //  return tree._announcer.registerBranch(newBranchTree)
       }
+      if (tree._done) {
+        tree._announcer.registerAssert({
+          pass: false
+          , msg: name+' wanted to get registered after'
+          +' the .done() of it\'s parent.'
+        })
+        return
+      }
       var currentTree = tree
-      var newBranchTree = new _treeInstance()
-      newBranchTree._doneCounter = tree._doneCounter
-      tree._doneCounter.branchCount++
+      var newBranchTree = new _virgoTreeInstance()
+      newBranchTree._global = tree._global
+      tree._global.branchCount++
       newBranchTree._code = newBranchCode   
       newBranchTree._name = name // deprecated line
       newBranchTree._parent = currentTree
@@ -378,27 +575,10 @@ define(function() {
       newBranchTree.oneLevel.config({
         name:name
       })
-      if (this._sync) {
-        newBranchTree.oneLevel.cfg('sync',true)
-        newBranchCode(newBranchTree)
-        if (!newBranchTree._done) {
-          newBranchTree._timedOut = true
-          console.error(newBranchTree._name+' didn\'t call done(). Carrying on.')
-          tree._next()
-        }
-        //if (newBranchTree) {}
-      } else {
-        currentTree._children.push(newBranchTree)
-      }
-      //newBranchCode(newBranchTree)
-      // if (!newBranchTree._done) {
-      //   newBranchTree._timerId = setTimeout(function() {
-      //     console.error(name, 'timed out!')
-      //   }, 1000)
-      // }
+      currentTree._children.push(newBranchTree)
+      tree._announcer.registerBranch(newBranchTree)
       return newBranchTree
     }
-    tree.sync.branch = tree.branch
     tree._next = function() {
       var whatDo = tree._next._pick(tree._children)
 
@@ -406,13 +586,21 @@ define(function() {
         var c = tree._children[whatDo]
         c._run = true
         c._code(c)
-        // debugger
         if (!c._done) {
+          var path = getCallerLine() + ' (approximately)'
           setTimeout(function() {
-            //console.log('TIMEOUT BACK')
             if (!c._done) {
               c._timedOut = true
-              console.warn(c._name+' timed out. Carrying on.')
+              var t = c.cfg('timeout')
+              c._announcer.registerAssert({
+                msg:'Timed out ('+t+'ms)'
+                , pass: false
+                , path: path
+                , expS: t+' ms'
+              })
+              // TODO decide on wheter this increment should happen
+              tree._global.doneCount++
+              tree._EFDcheck()
               tree._next()
             }
           }, c.config('timeout'))
@@ -524,6 +712,13 @@ define(function() {
       }
     }
     tree.done = function(n) {
+      if (tree._timedOut) {
+        tree._announcer.registerAssert({
+          pass: false
+          , msg: 'done after timeout (consider extending timeout)'
+        })
+        return
+      }
       if (typeof n == 'number') {
         tree.cfg('expect',n)
       }
@@ -531,41 +726,50 @@ define(function() {
       var exp = tree.cfg('expect')
       clearTimeout(tree._timerId)
       if (tree._done) {
-        tree._announcer({
-          pass: false,
-          name: tree._name,
-          msg: 'done called twice!'
+        tree._announcer.registerAssert({
+          pass: false
+          , name: tree._name
+          , msg: '.done() called more than once!'
+          , actS: 'more than once'
+          , expS: 'only once'
         })
         return
       }
       if (exp === run) {
-        tree._announcer({
-          pass: true,
-          name: tree._name,
-          msg: 'done.'
+        tree._announcer.registerAssert({
+          pass: true
+          , name: tree._name
+          , msg: 'Done.'
+          , actS: run+(run==1?' assertion':' assertions')
+          , expS: exp+(exp==1?' assertion':' assertions')
         })
       } else {
-        tree._announcer({
-          pass: false,
-          name: tree._name,
-          msg: exp === -1?
-              'expect() not called properly! '+run+' assertion(s) run.'
-            : 'expected '+exp+' asserton(s), but '+run+' run.'
+        tree._announcer.registerAssert({
+          pass: false
+          , name: tree._name
+          , msg: exp === -1?
+                '.expect() not called properly!'
+              : 'Expected '+exp+' asserton(s), but '+run+' run.'
+          , actS: run+(run==1?' assertion':' assertions')
+          , expS: exp+(exp==1?' assertion':' assertions')
         })
       }
       if (!tree.cfg('parallel')) {
         tree.cfg('parallel',false)
       }
       tree._done = true
+      tree._announcer.branchDone()
       if (tree._timedOut) {
         // sth, I guess nothing
       } else {
         tree._next()
-        tree._doneCounter.doneCount++
-        //console.warn(tree._doneCounter.doneCount, tree._doneCounter.branchCount)
-        if (tree._doneCounter.doneCount == tree._doneCounter.branchCount) {
-          console.warn('Everything fully done! (took '+(Date.now()-TREE_START)+'ms)')
-        }
+        tree._global.doneCount++
+        tree._EFDcheck()
+      }
+    }
+    tree._EFDcheck = function() {
+      if (tree._global.doneCount == tree._global.branchCount) {
+        tree._announcer.EFD()
       }
     }
 
@@ -606,8 +810,13 @@ define(function() {
           } else {
             obj.not = false
           }
+          tree._assertCount++
+          tree._global.assertCount++
+          if (obj.pass) {
+            tree._global.passedAssertCount++
+          }
           obj.msg = tree._helpers._templater(tree._assertTpl[key], obj)
-          tree._announcer(obj)
+          tree._announcer.registerAssert(obj)
           return obj
         }
       })(key)
@@ -615,10 +824,25 @@ define(function() {
 
     return tree
   }
-  document.title = "Tree.js"
-  var initialTree = new _treeInstance()
-  initialTree._doneCounter = {doneCount:0, branchCount:1}
-  return initialTree
+  function oneTimeSetUp () {
+    var initialTree = new _virgoTreeInstance()
+
+    // Global properties that should be accessible down the hierarchy too
+    initialTree._global = {
+      doneCount: 0
+      , branchCount: 1
+      , assertCount: 0
+      , passedAssertCount: 0
+      , tree_start: Date.now()
+    }
+
+    // Set browser title
+    document.title = "Tree.js"
+    
+    // Return brand new instance
+    return initialTree
+  }
+  return oneTimeSetUp()
 })
 
 function getCallerLine(moduleName, cCons) {
