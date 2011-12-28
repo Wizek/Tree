@@ -1,41 +1,43 @@
 # Tree.js
-![Tree.js logo](http://i.imm.io/9RKM.png)
+![Tree.js logo](http://i.imm.io/dG0a.png)
 # Hey, you!
 Yes, *you*! Nice to meet you! Wonderful things are in the works here. Don't go just yet! Because I mean it when I say truly wonderful. Make yourself comfortable, I'll take care of the rest.
 
-Have you thought about what the bestest JavaScript unit testing framework should be like? I have, and I came up with tons of ideas in the process. For example it should look at least as [**pleasant**](http://content.screencast.com/users/W1z3k/folders/Jing/media/d4729fb0-bbcd-4e85-bf14-75ea12f5861c/2011-10-04_1159.png) as QUnit, or better.
+Have you thought about what the best JavaScript unit testing framework should be like? I have, and I came up with tons of ideas in the process. For example it should look at least as **pleasant** ([image of prototype concept](http://content.screencast.com/users/W1z3k/folders/Jing/media/d4729fb0-bbcd-4e85-bf14-75ea12f5861c/2011-10-04_1159.png)) as QUnit, or better.
 It should **handle async code** as good as NodeUnit, or even one bit better-- *Wait a minute! I know those two, but the first is built for testing client side JS, and the latter is for the server side Node.js code!*
 --That's exactly my third point my good Sir! How about **unified syntax for both sides**, or even (partially) shared testing suits for all your JS source code? Did I mention it's going to be wonderful?
 
-It's almost as **expressive** as Shouldjs, but doesn't extend the Object object, hence one tiny bit safer, and for those of you who like to be not that much expressive, there are mirror functions. But more importantly it's the whole framework that's built this way.
+It's almost as **expressive** as Shouldjs, but doesn't extend the Object object, hence one tiny bit safer, and for those of you who like to be not that much expressive, there are oldschool mirror functions. But more importantly it's the whole framework that's built this way.
 
-**It's easy to get into,** whether you come from another framework or you just start with some flavor of TDD. Tree.js works with even just assertions, written sequentially. Tree doesn't force any kind of preset structure on you, but you'll want some organization sooner or later I'm sure. As your app gets more and more complex, you will want to organize your assertions into tests, and make some tests branch out of other tests, branching out of other tests! There you have it: orgainse your asserts/tests into a nice Tree!
+**It's easy to get into,** whether you come from another framework or you just start with some flavor of TDD. Tree.js works with even just assertions, written sequentially. Tree doesn't force any kind of preset structure on you, but you'll want some organization sooner or later I'm sure. As your app gets more and more complex, you will want to organize your assertions into tests, and make some tests branch out of other tests, branching out of other tests!
 
-To be continued...
+There you have it: orgainse your asserts/tests into a nice Tree!
 
 ## That's a little too much text for me
-Okay then, here are some highlights:
+Okay then, here are some highlights of the envisioned featureset:
+`✔` marks the feature ready for use,
+`•` marks the feature partially ready and/or Work In Progress.
 
 - Works with Node.js
 - Works in the browser
-  - Works in AMD environment
-	- Works with script tags too
-- Handles async code as never before
-	- Assert count
-	- Easily go back and forth between
-		- Parallel execution
-		- Serial execution
-- Expressive syntax
-- Looks wonderful in the browser
-	- Only shows you those asserts that require your attention, and doesn't bother you with the rest. But you can browse them too, if you ever wanted.
-- Looks.. Nice in the console.
+	- Works in AMD environment ✔
+	- Works with script tags too •
+- Handles async code as never before ✔
+	- Assert count ✔
+	- Easily go back and forth between ✔
+		- Parallel execution ✔
+		- Serial execution ✔
+- Expressive syntax ✔
+- Looks wonderful in the browser ✔
+	- Only shows you those asserts that require your attention, and doesn't bother you with the rest. But you can browse them too, if you ever wanted. ✔
+- Looks.. Nice in the console. •
 	- You can choose how verbose you want it to be
-- Write as little as you want with the least effort
-- Organize as much as you want into a tree, e.g. for following the structure of your app
-- Many more!
+- Write as little as you want with the least effort ✔
+- Organize as much as you want into a tree, e.g. for following the structure of your app ✔
+- Many more! •
 
 ## tl;dr
-We are building the best JS unit testing framework. Wanna join? Or, you can just use it too.
+We are building the best JS unit testing framework. Wanna join? Or, you can just use it too...
 
 ## When?
 Are you as excited as I am? Unfortunately, it's not fully done yet. But do not despair as you can speed up that process if you contribute in some way! See Help down below.
@@ -59,7 +61,7 @@ This version has all the core functionality, and is stable at performing those i
 
 - Minor, lesser used and oldschool mirror assert functions.
 - Node.js support
-- Browser <script> tag support
+- Browser `<script>` tag support
 - .note() on asserts
 - Multi-file test suit, like: `tree.branch('path/to/source.js')`
 - **Also, see visionary feature list above for to get a complete picure of what you can expect (*titled: "That's a little too much text for me"*)**
