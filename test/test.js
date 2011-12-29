@@ -1,8 +1,19 @@
+var debug = true
+
+require.config({
+  baseUrl:'/src/',
+  paths: {
+    'jquery.min':'../lib/jquery/dist/jquery.min'
+    , 'tree': '../src/tree'
+  }
+})
+
 require([
-  '../tree' // In development, latest warmest and crispiest version
-  , 'stree' // More stable one, proven to be working correctly
-  , '../lib/jquery/dist/jquery.min'
-], function(tree, stree) {
+  'tree'
+  , 'jquery.min'
+], function(tree) {
+
+  var stree = tree._virgoTreeInstance()
 
   // For debug purposes y'know
   window.stree = stree

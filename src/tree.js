@@ -1,6 +1,5 @@
-define(['./lib/jquery/dist/jquery.min'], function() {
+define(['jquery.min'], function() {
   function _virgoTreeInstance() {
-
     var tree = function(act, forgot) {
       // Heart of the framework
       tree._act = act
@@ -293,7 +292,7 @@ define(['./lib/jquery/dist/jquery.min'], function() {
       } else {
         tree._global.inited = true
       }
-      var cssFilePath = 'looks2.css'
+      var cssFilePath = (debug?'/dist/':'')+'tree_style.css'
       var html = tree._htmlTpl
       var tpl = tree._helpers._templater
       if (isDomElem($elem)) {
@@ -317,7 +316,7 @@ define(['./lib/jquery/dist/jquery.min'], function() {
       }
       var summary = 'Empty'
       var $init = 
-        $(tpl(html.init, {id:id, gut:
+        $(tpl(html.init, {id:id, path:html.logo, gut:
           tpl(html.branch, {gut:
             tpl(html.branchGut, {summary:summary})
           })
@@ -353,7 +352,7 @@ define(['./lib/jquery/dist/jquery.min'], function() {
         + '\n  <div class="logo">'
         + '\n    <a class="inner" href="https://github.com/Wizek/Tree"'
         + '\n      title="Homepage of Tree.js">'
-        + '\n      <img src="../tree_logo.svg" alt="Tree.js">'
+        + '\n      <img src="{{path}}" alt="Tree.js">'
         + '\n    </a>'
         + '\n  </div>'
         + '\n</div>'
@@ -416,6 +415,21 @@ define(['./lib/jquery/dist/jquery.min'], function() {
         + ' <em>{{passedAssertCount}}</em>/<em>{{assertCount}}</em> asserts'
         + ' across <em>{{branchCount}}</em> branches.'
         + ' {{#commented}}(+<em>{{commented}}</em> commented out){{/commented}}'
+      , logo: '\
+        data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmc\
+        vMjAwMC9zdmciIGhlaWdodD0iNzAiIHdpZHRoPSI4MCI+PGcgdHJhbnNmb3JtPSJ0\
+        cmFuc2xhdGUoMCwtOTgyKSI+PHJlY3Qgcnk9IjEwIiBoZWlnaHQ9IjM1IiB3aWR0a\
+        D0iNzAiIHN0cm9rZT0iIzAwMCIgeT0iOTkwIiB4PSI1Ii8+PHRleHQgeT0iMTAyMC\
+        IgeD0iOCIgZm9udC1mYW1pbHk9IlRyZWJ1Y2hldCBNUyIgZmlsbD0iI2ZmZiI+PHR\
+        zcGFuIGZvbnQtc2l6ZT0iMjhweCI+dHJlZTwvdHNwYW4+PHRzcGFuIGZvbnQtc2l6\
+        ZT0iMTRweCI+anM8L3RzcGFuPjwvdGV4dD4KPHBhdGggZD0ibTQ1LjksMTA1MS45c\
+        y0xLjItMi4zLTAuMS04LjRjNS4zLTIuMiwxNC40LTcuOSwxNC45LTE1LjVoLTQuMW\
+        MwLjQsMC45LTAuOSwzLjgtMy40LDUuOS0wLjItMS43LTAuNy00LjQtMC44LTUuOWg\
+        tMy4yYzAuMywyLjUsMC43LDUuMiwxLjYsOC4wLTEuNCwxLjQtNS44LDMuNS02Ljcs\
+        My4yLTAuNS0yLjAtMC42LTYuNC0wLjUtMTEuM2gtNC4xYzAuMCwyLjksMC4wLDUuO\
+        C0wLjMsNy44LTQuMi0xLjctNy40LTMuMi0xMC4xLTcuOGgtNy4xYzQuMCwzLjQsMy\
+        41LDQuNSwxNS4yLDEyLjAsMC40LDQuMi0wLjUsOC4zLTEuNCwxMi4xeiIgc3Ryb2t\
+        lPSIjMDAwIi8+PC9nPjwvc3ZnPg=='
     }
     tree._assertTpl = {
       ok: '{{actS}} {{#not}}not {{/not}}ok'
