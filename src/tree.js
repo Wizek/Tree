@@ -1,3 +1,4 @@
+var debug=debug||false
 define(['jquery.min'], function() {
   function _virgoTreeInstance() {
     var tree = function(act, forgot) {
@@ -627,16 +628,17 @@ define(['jquery.min'], function() {
         c._run = true
         c._code(c)
         if (!c._done) {
+          c._returnedAt = Date.now()
           var path = getCallerLine() + ' (approximately)'
           setTimeout(function() {
             if (!c._done) {
               c._timedOut = true
               var t = c.cfg('timeout')
               c._announcer.registerAssert({
-                msg:'Timed out ('+t+'ms)'
+                msg:'Timed out (> '+t+'ms)'
                 , pass: false
                 , path: path
-                , expS: t+' ms'
+                , expS: '< '+t+'ms'
               })
               // TODO decide on wheter this increment should happen
               tree._global.doneCount++
@@ -745,17 +747,25 @@ define(['jquery.min'], function() {
     }
     tree.fireNextToo = function(a) {
       if (tree._parent) {
-        tree.cfg('parallel', a === undefined? true : !!a)
+        tree.cfg('parallel', arguments.length === 0? true : !!a)
         tree._parent._next()
       } else {
         console.warn('.fireNextToo() is invalid at top level!')
+      }
+    }
+    tree.waitForNext = function(a) {
+      if (tree._parent) {
+        tree.cfg('parallel', arguments.length === 0? false : !!a)
+      } else {
+        console.warn('.waitForNext() is invalid at top level!')
       }
     }
     tree.done = function(n) {
       if (tree._timedOut) {
         tree._announcer.registerAssert({
           pass: false
-          , msg: 'done after timeout (consider extending timeout)'
+          , msg: '.done() after timeout, execution took '
+            +(Date.now()-tree._returnedAt)+'ms'
         })
         return
       }

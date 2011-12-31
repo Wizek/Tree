@@ -20,12 +20,14 @@ require([
   window.tree = tree
   stree._initDom(
     $('<div>').appendTo('body')
-    .css('margin-bottom',10)
+    //.css('margin-bottom','40%')
     .get(0)
   )
-  $('body')
-    .append('<h1>Tested instances below:</h1>'
-      + '<p>(no problem if they fail, some are designed to do so)</p>')
+   $('<div><h1>Tested instances below:</h1>'
+      + '<p>(no problem if they fail, some are designed to do so)</p></div>')
+    .css('margin-top','10%')
+    .css('margin-bottom','30%')
+    .appendTo('body')
   tree._initDom(/*$frame*/)
   // We want this to avoid double-shaw effect conflicting tree and stree libs
   stree.heritable.cfg('parallel', true)
@@ -246,10 +248,7 @@ require([
       // default trunk
       stree.done()
     })
-    stree.branch('// deep extend', function(stree) {
-      
-      stree.done(0)
-    })
+    stree.branch('// deep extend')
     stree.done(0)
   })
   
@@ -1005,11 +1004,11 @@ require([
         var $frame = $('<iframe>').appendTo('body').contents().find('body')
         var $head = $frame.parent('html').children('head')
         var frame = $frame.get(0)
-        stree($head.find('link[href$="looks2.css"]').length).eql(0)
+        stree($head.find('link[href$="style.css"]').length).eql(0)
         tree2._initDom(frame)
-        stree($head.find('link[href$="looks2.css"]').length).eql(1)
+        stree($head.find('link[href$="style.css"]').length).eql(1)
         tree3._initDom(frame)
-        stree($head.find('link[href$="looks2.css"]').length).eql(1)
+        stree($head.find('link[href$="style.css"]').length).eql(1)
         stree.done(3)
       })
       stree.branch('initing', function(stree) {

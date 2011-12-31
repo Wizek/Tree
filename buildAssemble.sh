@@ -27,7 +27,6 @@ cp "$JQUERY"/dist/jquery.min.js "$DIST"
 echo "### Assembling styles"
 "$BUILDCSS"
 mv "$SRC"/style.css "$DIST"/tree_style.css
-rm "$SRC"/normalize.styl
 
 echo "### Assembling JavaScript"
 echo "$HEADER"|cat - "$SRC"/tree.js > /tmp/out && mv /tmp/out "$DIST"/tree.js
