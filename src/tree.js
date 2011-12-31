@@ -896,16 +896,6 @@ define(['jquery.min'], function() {
   return oneTimeSetUp()
 })
 
-function getCallerLine(moduleName, cCons) {
-  // Make an error to get the line number
-  var e = new Error()
-  //  in case of custum console, the stack trace is one item longer
-  var splitNum = 4
-  var line = e.stack.split('\n')[splitNum]
-  var parts = line.split('/')
-  var last_part = parts[parts.length -1]
-  var file_name = last_part.substring(0,last_part.length-1)
-  if (moduleName)
-    return moduleName + ' ('+file_name+')'
-  return file_name
+function getCallerLine() {
+  return new Error().stack.split('\n')[4].match(/\(?(\S+\w)\)?$/)[1];
 }
