@@ -751,8 +751,8 @@ require([
       })
       stree.branch('varsity order', function(stree) {
         var counter = 0
-        var asyncWaitTime = 60
-        stree.cfg('timeout',3000)
+        var asyncWaitTime = 2
+        //stree.cfg('timeout',3000)
         tree.branch('order test capsule', function(tree) {
           tree.expect(0)
           stree(++counter).eql(1)
@@ -851,106 +851,42 @@ require([
         })
       })
       stree.branch('timeout', function(stree) {
-        stree.branch('timing out', function(stree) {
-          stree.cfg('timeout', 5000)
-          tree.branch('closure', function(tree) {
-            tree.branch('I time in (0)', function(tree) {
-              setTimeout(function() {
-                tree.done(0)
-              }, 100)
-            })
-            stree(tree._children[0]._run).eql(false)
+        //stree.cfg('timeout',1)
+        stree(tree.timeout).type('function')
+        tree.branch('closure', function(tree) {
+          var ms = 100
+          tree.branch('I time in', function(tree) {
+            tree.timeout(ms)
+            stree(tree.config('timeout')).eql(ms)
+            setTimeout(function() {
+              tree.done(0)
+            }, ms/2)
+          })
+          tree.branch('<OK if times out>', function(tree) {
+            tree.timeout(ms)
+          })
+          
+          stree(tree._children[0]._run).eql(false)
+          stree(tree._children[0]._done).eql(false)
+          stree(tree._children[0]._timedOut).eql(false)
+          tree.done(0)
+          setTimeout(function() {
+            stree(tree._children[0]._run).eql(true)
             stree(tree._children[0]._done).eql(false)
             stree(tree._children[0]._timedOut).eql(false)
-            setTimeout(function() {
-              stree(tree._children[0]._run).eql(true)
-              stree(tree._children[0]._done).eql(false)
-              stree(tree._children[0]._timedOut).eql(false)
-            }, 10)
-            setTimeout(function() {
-              stree(tree._children[0]._run).eql(true)
-              stree(tree._children[0]._done).eql(true)
-              stree(tree._children[0]._timedOut).eql(false)
-            }, 150)
-            tree.branch('<OK if times out>', function(tree) {})
-            setTimeout(function() {
-              stree(tree._children[1]._run).eql(true)
-              stree(tree._children[1]._done).eql(false)
-              stree(tree._children[1]._timedOut).eql(true)
-              stree.done(12)
-            }, 1400)
-            tree.done(0)
-          })
+          }, ms/2-ms/5)
+          setTimeout(function() {
+            stree(tree._children[0]._run).eql(true)
+            stree(tree._children[0]._done).eql(true)
+            stree(tree._children[0]._timedOut).eql(false)
+          }, ms/2+ms/5)
+          setTimeout(function() {
+            stree(tree._children[1]._run).eql(true)
+            stree(tree._children[1]._done).eql(false)
+            stree(tree._children[1]._timedOut).eql(true)
+            stree.done(14)
+          }, ms*4)
         })
-        stree.branch('STREE variable timeout', function(stree) {
-          stree.cfg('timeout',10000)
-          stree(tree.timeout).type('function')
-          tree.branch('mark one', function(tree) {
-            var ms = 100
-            tree.branch('I time in', function(tree) {
-              tree.timeout(ms)
-              stree(tree.config('timeout')).eql(ms)
-              setTimeout(function() {
-                tree.done(0)
-              }, ms/2)
-            })
-            stree(tree._children[0]._run).eql(false)
-            stree(tree._children[0]._done).eql(false)
-            stree(tree._children[0]._timedOut).eql(false)
-            setTimeout(function() {
-              stree(tree._children[0]._run).eql(true)
-              stree(tree._children[0]._done).eql(false)
-              stree(tree._children[0]._timedOut).eql(false)
-            }, ms/2-ms/5)
-            setTimeout(function() {
-              stree(tree._children[0]._run).eql(true)
-              stree(tree._children[0]._done).eql(true)
-              stree(tree._children[0]._timedOut).eql(false)
-            }, ms/2+ms/5)
-            tree.branch('<OK if times out>', function(tree) {
-              tree.timeout(ms)
-            })
-            setTimeout(function() {
-              stree(tree._children[1]._run).eql(true)
-              stree(tree._children[1]._done).eql(false)
-              stree(tree._children[1]._timedOut).eql(true)
-            }, ms+1000)
-            tree.done(0)
-          })
-          tree.branch('mark two', function(tree) {
-            var ms = 2500
-            tree.branch('I time in', function(tree) {
-              tree.timeout(ms)
-              setTimeout(function() {
-                tree.done(0)
-              }, ms/2)
-            })
-            stree(tree._children[0]._run).eql(false)
-            stree(tree._children[0]._done).eql(false)
-            stree(tree._children[0]._timedOut).eql(false)
-            setTimeout(function() {
-              stree(tree._children[0]._run).eql(true)
-              stree(tree._children[0]._done).eql(false)
-              stree(tree._children[0]._timedOut).eql(false)
-            }, ms/2-ms/4)
-            setTimeout(function() {
-              stree(tree._children[0]._run).eql(true)
-              stree(tree._children[0]._done).eql(true)
-              stree(tree._children[0]._timedOut).eql(false)
-            }, ms/2+ms/4)
-            tree.branch('<OK if times out>', function(tree) {
-            })
-            setTimeout(function() {
-              stree(tree._children[1]._run).eql(true)
-              stree(tree._children[1]._done).eql(false)
-              stree(tree._children[1]._timedOut).eql(true)
-              console.timeEnd('FullMinden')
-              stree.done(26)
-            }, ms+100)
-            tree.done(0)
-          })
-        })
-        stree.done(0)
       })
       stree.done(0)
     })
