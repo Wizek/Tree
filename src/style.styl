@@ -42,10 +42,14 @@ div.tree-top
     padding 0px 2px
     &.await
       border-color lighten(#37A4DA, 60%)
+      color $stamp_bg_pass
+      color darken(lighten(#37A4DA, 60%), 80%)
     &.failed
       border-color $stamp_bg_fail
+      color darken($stamp_bg_fail, 80%)
     &.passed
       border-color $stamp_bg_pass
+      color darken($stamp_bg_pass, 80%)
     &.comment
       border-color #DDD
   
@@ -123,7 +127,7 @@ div.tree-top
     &, & img
       height h*z
       width w*z
-      -ms-zoom 1
+      *zoom 1
     img
       opacity o
       position absolute
