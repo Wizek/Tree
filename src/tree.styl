@@ -1,4 +1,4 @@
-@import "normalize"
+@import "lib/normalize/normalize.css"
 
 $cl_red = #ff483c
 $cl_green = #9dde8a
@@ -115,7 +115,8 @@ div.tree-top
   // Only select relevant content
   *
     user-select none
-  .summary, th, td
+  .summary, table
+  .summary *, table *
     user-select initial
 
   // Tree.js logo at the bottom right
