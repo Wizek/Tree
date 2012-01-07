@@ -1,7 +1,7 @@
-var debug = true
+var baseUrl = '/src/'
 
 require.config({
-  baseUrl:'/src/',
+  baseUrl:baseUrl,
   paths: {
     'jquery.min':'../lib/jquery/dist/jquery.min'
     , 'tree': '../src/tree'
@@ -9,11 +9,13 @@ require.config({
 })
 
 require([
-  'tree'
-  , 'jquery.min'
-], function(tree) {
+  'jquery.min'
+  , 'tree'
+  , './stree.js'
+], function(bar, tree, stree) {
+  // var stree = tree._virgoTreeInstance()
 
-  var stree = tree._virgoTreeInstance()
+  tree._global.baseUrl = stree._global.baseUrl = baseUrl
 
   // For debug purposes y'know
   window.stree = stree
@@ -28,7 +30,7 @@ require([
     .css('margin-top','10%')
     .css('margin-bottom','30%')
     .appendTo('body')
-  tree._initDom(/*$frame*/)
+  tree._initDom()
   // We want this to avoid double-shaw effect conflicting tree and stree libs
   stree.heritable.cfg('parallel', true)
 
@@ -43,18 +45,31 @@ require([
   })
 
   stree.branch('virgo', function(stree) {
-    tree.branch('empty', function(tree) {tree.done(0)})
-    stree(tree._children.length).not.eql(0)
-    var tree2 = tree._virgoTreeInstance()
-    var tree3 = tree._virgoTreeInstance()
-    //tree2._initDom($frame)
-    //tree3._initDom($frame)
-    stree(tree3._children.length).eql(0)
-    tree3.branch('empty', function(tree) {tree.done(0)})
-    stree(tree._children.length).not.eql(0)
-    stree(tree3._children.length).eql(1)
-    stree(tree2._children.length).eql(0)
-    stree.done(5)
+    stree.branch('simple', function(stree) {
+      tree.branch('empty', function(tree) {tree.done(0)})
+      stree(tree._children.length).not.eql(0)
+      var tree2 = tree._virgoTreeInstance()
+      var tree3 = tree._virgoTreeInstance()
+      //tree2._initDom($frame)
+      //tree3._initDom($frame)
+      stree(tree3._children.length).eql(0)
+      tree3.branch('empty', function(tree) {tree.done(0)})
+      stree(tree._children.length).not.eql(0)
+      stree(tree3._children.length).eql(1)
+      stree(tree2._children.length).eql(0)
+      stree.done(5)
+    })
+    stree.branch('// script tag loading', function(stree) {
+      // Code below is broken. TODO find an elegant way to test script loading 
+      var frame = $('<iframe id="a123">').appendTo('body').contents()
+      stree(frame.tree).type('undefined')
+      $(frame).ready(function() {
+        frame.find('head').html('<script src="/src/tree.js?salt=iframe1"></script>')
+        stree(frame.tree).type('function')
+        stree.done(2)
+      })
+    })
+    stree.done(0)
   })
 
   stree.branch('helpers', function(stree) {
@@ -851,7 +866,7 @@ require([
         })
       })
       stree.branch('timeout', function(stree) {
-        //stree.cfg('timeout',1)
+        //stree.timeout(10)
         stree(tree.timeout).type('function')
         tree.branch('closure', function(tree) {
           var ms = 100
@@ -885,7 +900,7 @@ require([
             stree(tree._children[1]._done).eql(false)
             stree(tree._children[1]._timedOut).eql(true)
             stree.done(14)
-          }, ms*4)
+          }, ms*3)
         })
       })
       stree.done(0)
@@ -940,11 +955,11 @@ require([
         var $frame = $('<iframe>').appendTo('body').contents().find('body')
         var $head = $frame.parent('html').children('head')
         var frame = $frame.get(0)
-        stree($head.find('link[href$="style.css"]').length).eql(0)
+        stree($head.find('link#tree').length).eql(0)
         tree2._initDom(frame)
-        stree($head.find('link[href$="style.css"]').length).eql(1)
+        stree($head.find('link#tree').length).eql(1)
         tree3._initDom(frame)
-        stree($head.find('link[href$="style.css"]').length).eql(1)
+        stree($head.find('link#tree').length).eql(1)
         stree.done(3)
       })
       stree.branch('initing', function(stree) {

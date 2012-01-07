@@ -1,5 +1,4 @@
-var debug=debug||false
-define(['jquery.min'], function() {
+;(function() {
   function _virgoTreeInstance() {
     var tree = function(act, forgot) {
       // Heart of the framework
@@ -117,13 +116,15 @@ define(['jquery.min'], function() {
       , cfg: tree.cfg
       , config: tree.cfg
     }
-
+    tree._helpers.getCallerLine = function(l) {
+      return new Error().stack.split('\n')[l?l:4].match(/\(?(\S+\w)\)?$/)[1];
+    }
     var tpl = tree._helpers._templater = function(tplstr, vars) {
       if (typeof vars != 'object') var vars = {}
       if (typeof tplstr != 'string')
         throw new Error('Template string is not a string!')
-      var RE_ifTruthy = /{{\s*#\s*(.*?)\s*}}(.*?){{\s*\/\s*\1\s*}}/g
-      var RE_ifFalsy = /{{\s*\^\s*(.*?)\s*}}(.*?){{\s*\/\s*\1\s*}}/g
+      var RE_ifTruthy = /\{{\s*#\s*(.*?)\s*}}(.*?){{\s*\/\s*\1\s*}}/g
+      var RE_ifFalsy = /\{{\s*\^\s*(.*?)\s*}}(.*?){{\s*\/\s*\1\s*}}/g
       while (tplstr.match(RE_ifTruthy)) {
         tplstr = tplstr.replace(RE_ifTruthy
         , function(full, varName, content, pos, oStr) {
@@ -144,7 +145,7 @@ define(['jquery.min'], function() {
           }
         })
       }
-      return tplstr.replace(/{{\s*([^}]*?)\s*}}/g
+      return tplstr.replace(/\{{\s*([^}]*?)\s*}}/g
       , function(match, group, pos, oStr) {
         if (group in vars) {
           return vars[group]
@@ -215,7 +216,7 @@ define(['jquery.min'], function() {
         $pe.children('ul').append(
           tpl(html.branch,{comm:true,gut:
             tpl(html.branchGut,{  
-              summary:name+' ('+getCallerLine()+')'
+              summary:htmlEncode(name+' ('+tree._helpers.getCallerLine()+')')
             })
           })
         )
@@ -227,7 +228,7 @@ define(['jquery.min'], function() {
         newBranch._domElem = $(
           tpl(html.branch,{gut:
             tpl(html.branchGut,{
-              summary:newBranch.cfg('name')
+              summary:htmlEncode(newBranch.cfg('name'))
             })
           })
         ).get(0)
@@ -236,6 +237,9 @@ define(['jquery.min'], function() {
       this.updateTreeTop(this.getStatusString('running'))
       if ($pe.hasClass('no-children')) {
         $pe.removeClass('no-children').addClass('collapsed')
+      }
+      function htmlEncode (value) {
+        return $('<div>').text(value).html();
       }
     }
     tree._announcer.branchDone = function(obj) {
@@ -276,7 +280,7 @@ define(['jquery.min'], function() {
       if (!obj.pass) {
         tree._announcer.branchFail()
       }
-      obj.path = obj.path || getCallerLine()
+      obj.path = obj.path || tree._helpers.getCallerLine()
       if (obj.act) {
         obj.actType = typeof obj.act
       }
@@ -288,12 +292,16 @@ define(['jquery.min'], function() {
       )
     }
     tree._initDom = function($elem) {
+      if (typeof jQuery === 'undefined' || !jQuery ) {
+        throw new Error('jQuery dependency not found')
+      }
       if (tree._global.inited) {
         return 'inited already'
       } else {
         tree._global.inited = true
       }
-      var cssFilePath = (debug?'/dist/':'')+'tree_style.css'
+      var bp = tree._global.baseUrl ? tree._global.baseUrl : ''
+      var cssFilePath = bp+'tree.css'
       var html = tree._htmlTpl
       var tpl = tree._helpers._templater
       if (isDomElem($elem)) {
@@ -306,9 +314,15 @@ define(['jquery.min'], function() {
         var $elem = $('body')
         var $head = $('head')
       }
-      if ($head.find('link[href$="'+cssFilePath+'"]').length == 0) {
-        $('<link rel="stylesheet" type="text/css" href="'+cssFilePath+'"></link>')
-          .appendTo($head)
+      var cssAsString = ''
+      var cssWrapperA = '<style id="tree">'
+      var cssWrapperB = '</style>'
+      if ($head.find('link#tree, style#tree').length == 0) {
+        (cssAsString ? 
+          $(cssWrapperA+cssAsString+cssWrapperB)
+          : $('<link id="tree" rel="stylesheet" type="text/css" href="'
+            +cssFilePath+'"></link>')
+        ).appendTo($head)
         $('.tree-top').find('.collapsed>span, .expanded>span')
           .live('click', function() {
             $(this).siblings('ul, table').toggle().parent('li')
@@ -629,7 +643,7 @@ define(['jquery.min'], function() {
         c._code(c)
         if (!c._done) {
           c._returnedAt = Date.now()
-          var path = getCallerLine() + ' (approximately)'
+          var path = tree._helpers.getCallerLine() + ' (approximately)'
           setTimeout(function() {
             if (!c._done) {
               c._timedOut = true
@@ -885,6 +899,7 @@ define(['jquery.min'], function() {
       , passedAssertCount: 0
       , tree_start: Date.now()
       , commented: 0
+      , baseUrl: ''
     }
 
     // Set browser title
@@ -893,9 +908,12 @@ define(['jquery.min'], function() {
     // Return brand new instance
     return initialTree
   }
-  return oneTimeSetUp()
-})
 
-function getCallerLine() {
-  return new Error().stack.split('\n')[4].match(/\(?(\S+\w)\)?$/)[1];
-}
+  // Do we have AMD environemnt? Setup accordingly.
+  // TODO Node.js support
+  if (typeof define == 'function') {
+    define(['jquery.min'], oneTimeSetUp)
+  } else {
+    window.tree = oneTimeSetUp()
+  }
+})()
