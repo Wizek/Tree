@@ -14,6 +14,8 @@ I didn't want to do it first, but I liked the vision so much on how it all will 
 - Functionality: See highlights below.
 - Look & Feel: ![See it for yourself](http://content.screencast.com/users/W1z3k/folders/Jing/media/b8c92611-2bbd-4f9a-b38a-e01c3c8ef68c/2012-01-08_1306.png)
 
+*See **Try it out!** below!*
+
 # Current highlights
 > `✓` (cross) marks completed feature.<br>
 > `•` (dot) means work in progress/partially done.<br>
@@ -36,6 +38,8 @@ I didn't want to do it first, but I liked the vision so much on how it all will 
  - `✓` Write as little as you want with the least effort
  - `✓` Organize as much as you want into a tree, e.g., for following the structure of your app
  - `•` Many more!
+
+# [Try it out!](http://jsfiddle.net/KeREY/)
 
 # Quick Start Guide
 Download the latest release from [here](https://github.com/Wizek/Tree/downloads).
