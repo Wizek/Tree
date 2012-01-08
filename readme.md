@@ -12,7 +12,8 @@ I didn't want to do it first, but I liked the vision so much on how it all will 
 
 - Trust: It's an unit-tested Unit Testing framework. You can check out the tests in the test folder, and run them if you will. If you still manage to find a bug in spite all this effort, I'd love to pull your proposed test cases/asserts maybe along with the fixed code itself.
 - Functionality: See highlights below.
-- Look & Feel: ![See it for yourself](http://content.screencast.com/users/W1z3k/folders/Jing/media/b8c92611-2bbd-4f9a-b38a-e01c3c8ef68c/2012-01-08_1306.png)
+- Look & Feel:
+[![See it for yourself](http://content.screencast.com/users/W1z3k/folders/Jing/media/19155ed0-0b1a-4589-83cf-30202fb3b159/2012-01-08_1448.png)](http://jsfiddle.net/KeREY/)
 
 *See **Try it out!** below!*
 
