@@ -12,9 +12,8 @@ I didn't want to do it first, but I liked the vision so much on how it all will 
 
 - Trust: It's an unit-tested Unit Testing framework. You can check out the tests in the test folder, and run them if you will. If you still manage to find a bug in spite all this effort, I'd love to pull your proposed test cases/asserts maybe along with the fixed code itself.
 - Functionality: See highlights below.
-- Look & Feel: [See it for yourself](http://content.screencast.com/users/W1z3k/folders/Jing/media/d4729fb0-bbcd-4e85-bf14-75ea12f5861c/2011-10-04_1159.png).
+- Look & Feel: ![See it for yourself](http://content.screencast.com/users/W1z3k/folders/Jing/media/b8c92611-2bbd-4f9a-b38a-e01c3c8ef68c/2012-01-08_1306.png)
 
-![Tree.js logo](http://i.imm.io/dG0a.png)
 # Current highlights
 > `✓` (cross) marks completed feature.<br>
 > `•` (dot) means work in progress/partially done.<br>
