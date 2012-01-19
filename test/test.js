@@ -252,6 +252,7 @@ require([
         })
       })
       stree.branch('trunk config', function(stree) {
+        tree.expect(-1)
         stree(tree.config()).deepEql({
           name:'trunk'
           , expect:-1
@@ -302,31 +303,33 @@ require([
       stree(tree._asserts.type({act:{},exp:'array'}).pass).eql(false)
       stree.done(8)
     })
-    stree.branch('eql', function(stree) {
-      stree(tree._asserts.eql).type('function')
-      stree(tree.eql).type('function')
+    stree.branch('strict_equal', function(stree) {
+      console.warn('asdasd')
+      stree(tree._asserts.strict_equal).type('function')
+      stree(tree.strict_equal).type('function')
       // standard
       // passes
-      stree(tree._asserts.eql({act:1,exp:1}).pass).eql(true)
+      stree(tree._asserts.strict_equal({act:1,exp:1}).pass).eql(true)
       // fails
-      stree(tree._asserts.eql({act:1,exp:'1'}).pass).eql(false)
-      stree(tree._asserts.eql({act:1,exp:2}).pass).eql(false)
+      stree(tree._asserts.strict_equal({act:1,exp:'1'}).pass).eql(false)
+      stree(tree._asserts.strict_equal({act:1,exp:2}).pass).eql(false)
       // extended
-      stree(tree._asserts.eql({act:NaN,exp:NaN}).pass).eql(true)
-      stree(tree._asserts.eql({act:NaN,exp:1}).pass).eql(false)
-      stree(tree._asserts.eql({act:NaN,exp:'NaN'}).pass).eql(false)
-      stree(tree._asserts.eql({act:1,exp:NaN}).pass).eql(false)
-      stree(tree._asserts.eql({act:'NaN',exp:NaN}).pass).eql(false)
+      stree(tree._asserts.strict_equal({act:NaN,exp:NaN}).pass).eql(true)
+      stree(tree._asserts.strict_equal({act:NaN,exp:1}).pass).eql(false)
+      stree(tree._asserts.strict_equal({act:NaN,exp:'NaN'}).pass).eql(false)
+      stree(tree._asserts.strict_equal({act:1,exp:NaN}).pass).eql(false)
+      stree(tree._asserts.strict_equal({act:'NaN',exp:NaN}).pass).eql(false)
+      // mirrors:
       stree.done(10)
     })
     stree.branch('equal', function(stree) {
-      stree(tree._asserts.equal).type('function')
-      stree(tree.equal).type('function')
+      stree(tree._asserts.loose_equal).type('function')
+      stree(tree.loose_equal).type('function')
       // passes
-      stree(tree._asserts.equal({act:1,exp:1}).pass).eql(true)
-      stree(tree._asserts.equal({act:1,exp:'1'}).pass).eql(true)
+      stree(tree._asserts.loose_equal({act:1,exp:1}).pass).eql(true)
+      stree(tree._asserts.loose_equal({act:1,exp:'1'}).pass).eql(true)
       // fails
-      stree(tree._asserts.equal({act:1,exp:2}).pass).eql(false)
+      stree(tree._asserts.loose_equal({act:1,exp:2}).pass).eql(false)
       stree.done(5)
     })
     stree.branch('throws', function(stree) {
@@ -380,18 +383,18 @@ require([
       stree(tree._asserts.deepEql({act:x1,exp:x2}).pass).eql(false)
       stree.done()
     })
-    //stree.branch('STREE 1.6.6 instance', function(stree) {})
-      //stree.branch('STREE 1.6.8 exists', function(stree) {})
-      //stree.branch('STREE 1.6.9 truthy', function(stree) {})
-      //stree.branch('STREE 1.6.10 empty', function(stree) {})
-      //stree.branch('STREE 1.6.11 above', function(stree) {})
-      //stree.branch('STREE 1.6.12 below', function(stree) {})
-      //stree.branch('STREE 1.6.13 between', function(stree) {})
+    stree.branch('// STREE 1.6.6 instance')
+    stree.branch('// STREE 1.6.8 exists')
+    stree.branch('// STREE 1.6.9 truthy')
+    stree.branch('// STREE 1.6.10 empty')
+    stree.branch('// STREE 1.6.11 above')
+    stree.branch('// STREE 1.6.12 below')
+    stree.branch('// STREE 1.6.13 between')
     stree.branch('template check', function(stree) {
-      for (key in tree._asserts) if (tree._asserts.hasOwnProperty(key)) {
+      for (key in tree._assertTpl) if (tree._assertTpl.hasOwnProperty(key)) {
         stree(tree._assertTpl[key]).type('string')
       }
-      stree.done(8)
+      stree.done(Object.keys(tree._assertTpl).length)
     })
     stree.branch('not', function(stree) {
       tree.branch('closure', function(tree) {
@@ -400,13 +403,13 @@ require([
         tree._announcer.registerAssert = function(obj) {
           stree(obj.pass).eql(true)
         }
-        tree(1).not.eql(2)
-        tree(1).not.eql('1')
+        tree(1).not.strict_equal(2)
+        tree(1).not.strict_equal('1')
         tree._announcer.registerAssert = function(obj) {
           stree(obj.pass).eql(false)
         }
-        tree(1).not.eql(1)
-        tree(1).not.equal('1')
+        tree(1).not.strict_equal(1)
+        tree(1).not.loose_equal('1')
         tree._announcer.registerAssert = stash
         stree.done(5)
         tree.done(4)
@@ -475,7 +478,7 @@ require([
         stree(tree.config('expect')).eql(2)
         tree.expect(0)
         stree(tree.config('expect')).eql(0)
-        tree(1).eql(1)
+        tree(1).strict_equal(1)
         stree(tree._done).eql(false)
         tree.done(1)
         stree(tree.config('expect')).eql(1)
@@ -485,7 +488,7 @@ require([
       tree.branch('fulfill', function(tree) {
         var stash = tree._announcer.registerAssert
         tree.expect(1)
-        tree('a').eql('a')
+        tree('a').strict_equal('a')
         tree._announcer.registerAssert = function(obj) {
           stree(obj.pass).eql(true)
           stree(obj.msg).eql('Done.')
@@ -919,27 +922,27 @@ require([
           tree._announcer.registerAssert = function(obj) {
             stree(obj).type('object')
             stree(obj.pass).eql(true)
-            stree(obj.msg).eql('1 eql 1')
+            stree(obj.msg).eql('1 strict_equal 1')
             stree(obj.name).eql(name)
             //stree(obj.not).falsy()
           }
-          tree(1).eql(1)
+          tree(1).strict_equal(1)
           tree._announcer.registerAssert = function(obj) {
             stree(obj).type('object')
             stree(obj.pass).eql(false)
-            stree(obj.msg).eql("1 eql '1'")
+            stree(obj.msg).eql("1 strict_equal '1'")
             stree(obj.name).eql(name)
             //stree(obj.not).falsy()
           }
-          tree(1).eql('1')
+          tree(1).strict_equal('1')
           tree._announcer.registerAssert = function(obj) {
             stree(obj).type('object')
             stree(obj.pass).eql(true)
-            stree(obj.msg).eql("1 not eql '1'")
+            stree(obj.msg).eql("1 not strict_equal '1'")
             stree(obj.name).eql(name)
             //stree(obj.not).truthy()
           }
-          tree(1).not.eql('1')
+          tree(1).not.strict_equal('1')
           tree._announcer.registerAssert = stash
           tree.done()
         })
@@ -1138,8 +1141,8 @@ require([
         tree2._initDom = function() {
           cntr++
         }
-        tree2(1).eql(1)
-        tree2(1).eql(1)
+        tree2(1).strict_equal(1)
+        tree2(1).strict_equal(1)
         stree(cntr).eql(1)
         stree(tree2._global.inited).ok()
         stree.done(3)
@@ -1150,7 +1153,7 @@ require([
         tree2._announcer.registerAssert = function(object) {
           stree(object).type('object')
         }
-        tree2(1).eql(1)
+        tree2(1).strict_equal(1)
         stree.done(2)
       })
       stree.branch('registerAssert basic', function(stree) {
@@ -1158,7 +1161,7 @@ require([
         tree2._initDom()
         var t = $(tree2._domElem)
         stree(t.has('ul li.assert').length).eql(0)
-        tree2(1).eql(1)
+        tree2(1).strict_equal(1)
         stree(t.has('ul li.assert').length).eql(1)
         stree.done(2)
       })
@@ -1167,14 +1170,14 @@ require([
         tree2._initDom()
         var t = $(tree2._domElem)
         stree(t.find('ul li.assert').length).eql(0)
-        tree2(1).eql(1)
+        tree2(1).strict_equal(1)
         stree(t.find('ul li.assert').length).eql(1)
         var a = t.find('ul li.assert').eq(0)
         stree(a.hasClass('passed'))           .ok()
         stree(a.hasClass('failed'))       .not.ok()
         stree(a.hasClass('collapsed'))        .ok()
         stree(a.hasClass('expanded'))     .not.ok()
-        tree2(1).eql('1')
+        tree2(1).strict_equal('1')
         stree(t.find('ul li.assert').length).eql(2)
         var a = t.find('ul li.assert').eq(1)
         stree(a.hasClass('passed'))       .not.ok()
@@ -1194,7 +1197,7 @@ require([
         stree(t.hasClass('failed'))       .not.ok()
         stree(t.hasClass('passed'))       .not.ok()
         stree(t.hasClass('commented'))    .not.ok()
-        tree2(2).not.eql(2)
+        tree2(2).not.strict_equal(2)
         stree(t.hasClass('await'))        .not.ok()
         stree(t.hasClass('no-children'))  .not.ok()
         stree(t.hasClass('collapsed'))    .not.ok()

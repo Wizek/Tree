@@ -1,4 +1,4 @@
-;(function() {
+void function() {
   function _virgoTreeInstance() {
     var tree = function(act, forgot) {
       // Heart of the framework
@@ -117,7 +117,7 @@
       , config: tree.cfg
     }
     tree._helpers.getCallerLine = function(l) {
-      return new Error().stack.split('\n')[l?l:4].match(/\(?(\S+\w)\)?$/)[1];
+      return new Error().stack.split('\n')[l?l:4].match(/\(?(\S+\w)\)?$/)[1]
     }
     var tpl = tree._helpers._templater = function(tplstr, vars) {
       if (typeof vars != 'object') var vars = {}
@@ -239,7 +239,12 @@
         $pe.removeClass('no-children').addClass('collapsed')
       }
       function htmlEncode (value) {
-        return $('<div>').text(value).html();
+        return String(value)
+          .replace(/&/g, '&amp;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
       }
     }
     tree._announcer.branchDone = function(obj) {
@@ -447,15 +452,12 @@
         lPSIjMDAwIi8+PC9nPjwvc3ZnPg=='
     }
     tree._assertTpl = {
-      ok: '{{actS}} {{#not}}not {{/not}}ok'
+      _general: '{{actS}} {{#not}}not {{/not}}{{key}} {{expS}}'
+      , ok: '{{actS}} {{#not}}not {{/not}}ok'
       , pass: 'pass'
       , fail: 'fail'
       , truthy: '{{actS}} {{#not}}not {{/not}}truthy'
       , falsy: '{{actS}} {{#not}}not {{/not}}falsy'
-      , eql: '{{actS}} {{#not}}not {{/not}}eql {{expS}}'
-      , equal: '{{actS}} {{#not}}not {{/not}}equal {{expS}}'
-      , deepEql: '{{actS}} {{#not}}not {{/not}}deepEql {{expS}}'
-      , type: '{{actS}} {{#not}}not {{/not}}type {{expS}}'
       , throws: '{{actS}} {{#not}}not {{/not}}throws'
     }
     tree._asserts.ok = function(obj) {
@@ -494,7 +496,11 @@
       }
       return obj
     }
-    tree._asserts.eql = function(obj) {
+    tree._asserts['==='] = 'strict_equal'
+    tree._asserts.is = 'strict_equal'
+    tree._asserts.isnt = '!strict_equal'
+    tree._asserts.isnot = '!strict_equal'
+    tree._asserts.strict_equal = function(obj) {
       if (obj.exp === obj.exp) {
         obj.pass = (obj.act === obj.exp)
       } else {
@@ -503,7 +509,10 @@
       }
       return obj
     }
-    tree._asserts.equal = function(obj) {
+    tree._asserts['=='] = 'loose_equal'
+    tree._asserts.like = 'loose_equal'
+    tree._asserts.unlike = '!loose_equal'
+    tree._asserts.loose_equal = function(obj) {
       obj.pass = (obj.act == obj.exp)
       return obj
     }
@@ -854,11 +863,12 @@
     tree._run = false
     tree._done = false
     tree._timedOut = false
-
-    for (key in tree._asserts) if (tree._asserts.hasOwnProperty(key)) {
-      if (!tree._assertTpl[key])
-        throw new Error('Missing template string for assert: '+key)
-      ;(function(key) {
+    var asserts = tree._asserts
+    for (key in asserts) if (asserts.hasOwnProperty(key)) {
+      // if (!tree._assertTpl[key]) {
+      //   throw new Error('Missing template string for assert: '+key)
+      // }
+      void function(key) {
         tree[key] = tree.not[key] = function(exp) {
           var obj = {
             name: tree._name
@@ -867,7 +877,21 @@
             , expS: tree._helpers._formateer(exp)
             , actS: tree._helpers._formateer(tree._act)
           }
-          obj = tree._asserts[key](obj)
+          if (typeof asserts[key] == 'string') {
+            // mirror
+            var str = tree._asserts[key]
+            // negate mirror
+            if (str[0] == '!') {
+              str = str.slice(1)
+              obj = tree._asserts[str](obj)
+              obj.pass = !obj.pass
+            } else {
+              obj = tree._asserts[str](obj)
+            }
+          } else {
+            // regular
+            obj = tree._asserts[key](obj)
+          }
           if (this._not === true) {
             obj.pass = !obj.pass
             obj.not = true
@@ -879,11 +903,14 @@
           if (obj.pass) {
             tree._global.passedAssertCount++
           }
-          obj.msg = tree._helpers._templater(tree._assertTpl[key], obj)
+          obj.key = key
+          obj.msg = tree._helpers._templater(
+            tree._assertTpl[key] || tree._assertTpl._general, obj
+          )
           tree._announcer.registerAssert(obj)
           return obj
         }
-      })(key)
+      }(key)
     }
 
     return tree
@@ -916,4 +943,4 @@
   } else {
     window.tree = oneTimeSetUp()
   }
-})()
+}()
