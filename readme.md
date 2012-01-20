@@ -14,9 +14,10 @@ I didn't want to do it first, but I liked the vision so much on how it all will 
 - Functionality: See highlights below.
 - Look & Feel:
 
-[See it for yourself](http://content.screencast.com/users/W1z3k/folders/Jing/media/d4729fb0-bbcd-4e85-bf14-75ea12f5861c/2011-10-04_1159.png).
+[![See it for yourself](http://content.screencast.com/users/W1z3k/folders/Jing/media/19155ed0-0b1a-4589-83cf-30202fb3b159/2012-01-08_1448.png)](http://jsfiddle.net/KeREY/)
 
-![Tree.js logo](http://i.imm.io/dG0a.png)
+# [Try it out online now!](http://jsfiddle.net/KeREY/)
+
 # Current highlights
 > `✓` (cross) marks completed feature.<br>
 > `•` (dot) means work in progress/partially done.<br>
