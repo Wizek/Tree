@@ -498,6 +498,7 @@ void function() {
     }
     tree._asserts['==='] = 'strict_equal'
     tree._asserts.is = 'strict_equal'
+    tree._asserts.eql = 'strict_equal' // deprecated
     tree._asserts.isnt = '!strict_equal'
     tree._asserts.isnot = '!strict_equal'
     tree._asserts.strict_equal = function(obj) {
@@ -511,6 +512,7 @@ void function() {
     }
     tree._asserts['=='] = 'loose_equal'
     tree._asserts.like = 'loose_equal'
+    tree._asserts.equal = 'loose_equal' // deprecated
     tree._asserts.unlike = '!loose_equal'
     tree._asserts.loose_equal = function(obj) {
       obj.pass = (obj.act == obj.exp)
