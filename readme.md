@@ -1,3 +1,5 @@
+[![See it for yourself](http://content.screencast.com/users/W1z3k/folders/Jing/media/af054bca-bbbb-4634-8431-eab8a1a04607/2012-01-29_2222.png)](http://jsfiddle.net/KeREY/3/)
+
 # Introduction
 ## Why?
 I got fed up with QUnit which I was using to test the client side of one of my projects. It proved to be very unreliable when it came to async handling. I looked around for alternatives and to my surprise, I couldn't find anything more satisfying than what I was already using. Then came the idea: What if I'd write my own Unit Testing framework for JavaScript?
@@ -7,16 +9,16 @@ I got fed up with QUnit which I was using to test the client side of one of my p
 - It should have all the benefits of the frameworks I've already tried, with some addition I've always missed.
 - It should look gorgeous, as I'll be looking at it a whole lot of times.
 
-## What?
-I didn't want to do it first, but I liked the vision so much on how it all will come together that after a while I've been dragged in and built **Tree.js**.
+I didn't want to do it first, but I liked the vision so much on how it all will come together that after a while I've been dragged in.
 
-- Trust: It's an unit-tested Unit Testing framework. You can check out the tests in the test folder, and run them if you will. If you still manage to find a bug in spite all this effort, I'd love to pull your proposed test cases/asserts maybe along with the fixed code itself.
+## What?
+**Tree.js**, the Javascript Unit testing framework. (Some say it's the best one around.)
+
+- Trust: It's an unittested unit testing framework. You can check out the tests in the test folder, and run them if you will. If you still manage to find a bug in spite all this effort, I'd love to pull your proposed test cases/asserts maybe along with the fixed code itself.
 - Functionality: See highlights below.
 - Look & Feel:
 
-[![See it for yourself](http://content.screencast.com/users/W1z3k/folders/Jing/media/af054bca-bbbb-4634-8431-eab8a1a04607/2012-01-29_2222.png)](http://jsfiddle.net/KeREY/2/)
-
-# [Try it out online now!](http://jsfiddle.net/KeREY/2/)
+# [Try it out online now!](http://jsfiddle.net/KeREY/3/)
 
 # Current highlights
 > `✓` (cross) marks completed feature.<br>
