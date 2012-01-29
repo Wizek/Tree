@@ -14,9 +14,9 @@ I didn't want to do it first, but I liked the vision so much on how it all will 
 - Functionality: See highlights below.
 - Look & Feel:
 
-[![See it for yourself](http://content.screencast.com/users/W1z3k/folders/Jing/media/af054bca-bbbb-4634-8431-eab8a1a04607/2012-01-29_2222.png)](http://jsfiddle.net/KeREY/)
+[![See it for yourself](http://content.screencast.com/users/W1z3k/folders/Jing/media/af054bca-bbbb-4634-8431-eab8a1a04607/2012-01-29_2222.png)](http://jsfiddle.net/KeREY/2/)
 
-# [Try it out online now!](http://jsfiddle.net/KeREY/)
+# [Try it out online now!](http://jsfiddle.net/KeREY/2/)
 
 # Current highlights
 > `✓` (cross) marks completed feature.<br>
