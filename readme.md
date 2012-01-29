@@ -14,7 +14,7 @@ I didn't want to do it first, but I liked the vision so much on how it all will 
 - Functionality: See highlights below.
 - Look & Feel:
 
-[![See it for yourself](http://content.screencast.com/users/W1z3k/folders/Jing/media/19155ed0-0b1a-4589-83cf-30202fb3b159/2012-01-08_1448.png)](http://jsfiddle.net/KeREY/)
+[![See it for yourself](http://content.screencast.com/users/W1z3k/folders/Jing/media/af054bca-bbbb-4634-8431-eab8a1a04607/2012-01-29_2222.png)](http://jsfiddle.net/KeREY/)
 
 # [Try it out online now!](http://jsfiddle.net/KeREY/)
 
@@ -52,7 +52,7 @@ This is all the markup you are going to need (if you use good old script tags):
 <script src="/path/to/tree.js"></script>
 <body></body>
 <script type="text/javascript">
-	tree(1).eql(2)
+	tree(1).is(2)
 	tree.done(1)
 </script>
 ```
@@ -62,7 +62,7 @@ Let's grow a branch! (html markup is the same, only writing js part)
 
 ```javascript
 tree.branch('Name of the branch', function(tree) {
-	tree(1).eql(2)
+	tree(1).is(2)
 	tree.done(1)
 })
 tree.done(0)
@@ -79,7 +79,7 @@ tree.branch('Name of the first outer branch', function(tree) {
 	tree.done(0)
 })
 tree.branch('Name of the second outer one', function(tree) {
-	tree(1).not.eql(2)
+	tree(1).not.is(2)
 	tree.done(1)
 })
 tree.done(0)
@@ -116,15 +116,15 @@ var tree = require('path/to/tree.js')
 ## Asserts
 ### Strict (triple) equal `a === b`
 ```javascript
-tree('foo').eql('foo') // passes
-tree(1).eql('1') // fails
-tree(1).eql(2) // fails
+tree('foo').is('foo') // passes
+tree(1).is('1') // fails
+tree(1).is(2) // fails
 ```
 ### Loose (double) equal `a == b`
 ```javascript
-tree('foo').eql('foo') // passes
-tree(1).eql('1') // passes
-tree(1).eql(2) // fails
+tree('foo').is('foo') // passes
+tree(1).is('1') // passes
+tree(1).is(2) // fails
 ```
 ### Truthy `!! a`
 ```javascript
@@ -164,9 +164,9 @@ tree({a:1,b:[22,33]}).deepEql({a:1,b:[22,34]}) // fails
 You can use `.not.` on any assert to negate their result.
 
 ```javascript
-tree('123').not.eql(123) // passes
+tree('123').not.is(123) // passes
 tree(function(){}).not.throws() // passes
-tree('123').not.equal(123) // fails
+tree('123').not.like(123) // fails
 ```
 ## Branching
 Organize your asserts into a nice tree
