@@ -1,11 +1,9 @@
 void function() {
   function _virgoTreeInstance() {
+    // Heart of the framework
     var tree = function(act, forgot) {
-      // Heart of the framework
       tree._act = act
-      if (forgot && typeof forgot == 'functon') {
-        console.warn('Didn\'t you forget about the .branch() part somewhere?')
-      }
+      typeof forgot=='function'&&console.warn("Didn't you forget about .branch() somewhere?")
       return tree
     }
 
@@ -180,13 +178,13 @@ void function() {
         if (long) {
           output = input.toString()
         } else {
-          output = 'fn(){…}'
+          output = 'fn(){...}'
         }
       } else if (Array.isArray(input)) {
         if (long) {
           output = JSON.stringify(input, null, 2)
         } else {
-          output = '[…]'
+          output = '[...]'
         }
       } else if (type == 'object' &&
           input &&
@@ -194,7 +192,7 @@ void function() {
         if (long) {
           output = JSON.stringify(input, null, 2)
         } else {
-          output = '{…}'
+          output = '{...}'
         }
       } else if (type == 'boolean') {
         output = input.toString()
