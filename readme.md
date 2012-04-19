@@ -43,6 +43,14 @@ I didn't want to do it first, but I liked the vision so much on how it all will 
  - `✓` Organize as much as you want into a tree, e.g., for following the structure of your app
  - `•` Many more!
 
+# Get in touch
+For questions, bug reports, feature requests and love letters choose an option most suitable for your liking:
+
+- [Google Group / Maining list](https://groups.google.com/forum/#!forum/treejs)
+- GitHub: @Wizek
+- IRC: on [Freenode](http://webchat.freenode.net/?channels=##javascript) usually in ##javascript and #Node.js under the handle `Wizek`
+- Email: <123.wizek@gmail.com>
+
 # Quick Start Guide
 Download the latest release from [here](https://github.com/Wizek/Tree/downloads).
 This is all the markup you are going to need (if you use good old script tags):
@@ -93,7 +101,7 @@ That should be enough to get you started. For more see "*Reference guide*" below
 Should you ever need more help, see "*Get in touch*" section below.
 
 
-# Reference guide (WIP)
+# Reference guide
 ## Three (3) loading modes supported!
 ### Browser: Traditional
 ```html
@@ -306,13 +314,6 @@ tree.branch("I take very long to run but it's normal.", function(tree) {
 // executes 1st
 tree.done(0)
 ```
-
-# Get in touch
-For bug reports, feature requests and love letters choose an option most suitable for your liking:
-
-- IRC: on Freenode usually in ##javascript and #Node.js under the handle `Wizek`
-- GitHub: @Wizek
-- Email: <123.wizek@gmail.com>
 
 # tl;dr
 We are building the best JavaScript unit testing framework. Wanna join? Or, you can just use it too...
