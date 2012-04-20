@@ -1,21 +1,21 @@
-var baseUrl = '/src/'
+// var baseUrl = '/src/'
 
-require.config({
-  baseUrl:baseUrl,
-  paths: {
-    'jquery.min':'../lib/jquery/dist/jquery.min'
-    , 'tree': '../src/tree'
-  }
-})
+// require.config({
+//   baseUrl:baseUrl,
+//   paths: {
+//     'jquery.min':'../lib/jquery/dist/jquery.min'
+//     , 'tree': '../src/tree'
+//   }
+// })
 
-require([
-  'jquery.min'
-  , 'tree'
-  , './stree.js'
-], function(bar, tree, stree) {
+// require([
+//   'jquery.min'
+//   , 'tree'
+//   , './stree.js'
+// ], function(bar, tree, stree) {
   // var stree = tree._virgoTreeInstance()
 
-  tree._global.baseUrl = stree._global.baseUrl = baseUrl
+  // tree._global.baseUrl = stree._global.baseUrl = baseUrl
 
   // For debug purposes y'know
   window.stree = stree
@@ -60,7 +60,7 @@ require([
       stree.done(5)
     })
     stree.branch('// script tag loading', function(stree) {
-      // Code below is broken. TODO find an elegant way to test script loading 
+      // Code below is broken. TODO find an elegant way to test script loading
       var frame = $('<iframe id="a123">').appendTo('body').contents()
       stree(frame.tree).type('undefined')
       $(frame).ready(function() {
@@ -134,7 +134,7 @@ require([
         stree( frm(null) ).eql('null')
         stree( frm(undefined) ).eql('undefined')
         stree.done(19)
-        
+
       })
       stree.branch('long', function(stree) {
         /*\
@@ -158,14 +158,14 @@ require([
       stree.done(1)
     })
     stree.branch('config', function(stree) {
-      
+
       stree.expect(0)
       /*\
        *  Usecases:
        *         _heritable___oneLevel___!spec_
        *  read  |___________|__________|_______|
        *  write |___________|__________|_______|
-       *  
+       *
        *  tree.config('prop')
        *  tree.config({prop:'value'})
        *  tree.config('prop','value')
@@ -206,7 +206,7 @@ require([
           stree(tree.config().b).eql(35)
           stree(tree.config({z:1}).z).eql(1)
           stree(tree.config('z')).eql(1)
-          
+
           stree(tree.config({z:0}).z).eql(0)
           stree(tree.config('z')).eql(0)
           stree(tree.config({z:null}).z).eql(null)
@@ -215,7 +215,7 @@ require([
           stree(tree.config('z')).eql(undefined)
           stree(tree.config({z:NaN}).z).eql(NaN)
           stree(tree.config('z')).eql(NaN)
-          
+
           tree.oneLevel.config({c:'only this'})
           tree.heritable.config({c:'inherited'})
           stree(tree.config('c')).eql('only this')
@@ -267,7 +267,7 @@ require([
     stree.branch('// deep extend')
     stree.done(0)
   })
-  
+
   stree.branch('asserts', function(stree) {
     stree.branch('ok', function(stree) {
       stree(tree._asserts.ok).type('function')
@@ -414,7 +414,7 @@ require([
         stree.done(5)
         tree.done(4)
       })
-    })  
+    })
     stree.done(0)
   })
 
@@ -483,7 +483,7 @@ require([
         tree.done(1)
         stree(tree.config('expect')).eql(1)
         stree(tree._done).eql(true)
-        stree.done()  
+        stree.done()
       })
       tree.branch('fulfill', function(tree) {
         var stash = tree._announcer.registerAssert
@@ -515,7 +515,7 @@ require([
             tree.branch('b2', function(tree) {
             })
             tree.branch('b3', function(tree) {
-            })  
+            })
             stree(tree._children[0]._run).eql(false)
             stree(tree._children[0]._done).eql(false)
             stree(tree._children[1]._run).eql(false)
@@ -883,7 +883,7 @@ require([
           tree.branch('<OK if times out>', function(tree) {
             tree.timeout(ms)
           })
-          
+
           stree(tree._children[0]._run).eql(false)
           stree(tree._children[0]._done).eql(false)
           stree(tree._children[0]._timedOut).eql(false)
@@ -1241,7 +1241,7 @@ require([
         })
         setTimeout(function() {
           stree(t.find('li.assert.failed').length).eql(1)
-          stree.done(3)  
+          stree.done(3)
         }, 10)
         stree(t.find('li.assert.failed').length).eql(0)
         tree2.done(0)
@@ -1273,4 +1273,4 @@ require([
   })
   stree.done(0)
   tree.done(0)
-})
+// })

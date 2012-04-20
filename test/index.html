@@ -1,5 +1,6 @@
 <!doctype html>
-<script src="../lib/requirejs/require.js"></script>
+<!-- <script src="../lib/requirejs/require.js"></script> -->
+<link id="tree" rel="stylesheet" type="text/css" href="/src/tree.css">
 <style type="text/css">
 iframe {
   width: 100%
@@ -8,5 +9,17 @@ iframe {
   ; border-bottom: 1px #000 solid
 }
 </style>
+<!--
 <script>require(['test.js'])</script>
-<span style="position:fixed;bottom:0">/test/index.html</span>
+ -->
+<body>
+  <script type="text/javascript" src="../lib/jquery/dist/jquery.min.js"></script>
+  <script type="text/javascript" src="stree.js"></script>
+  <script type="text/javascript">
+  window.stree = tree
+  tree = undefined
+  </script>
+  <script type="text/javascript" src="../src/tree.js"></script>
+  <script type="text/javascript" src="test.js"></script>
+  <span style="position:fixed;bottom:0">/test/index.html</span>
+</body>

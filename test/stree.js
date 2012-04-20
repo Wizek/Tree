@@ -37,7 +37,7 @@
           for (key in obj) if (obj.hasOwnProperty(key)) {
             tree.config.heritable[key] = obj[key]
           }
-        } else {    
+        } else {
           for (key in obj) if (obj.hasOwnProperty(key)) {
             tree.config.oneLevel[key] = obj[key]
           }
@@ -90,7 +90,7 @@
       } else if (typeof obj == 'string') {
         // we can either have a read request
         if (typeof val == 'undefined') {
-          // all exact read calls are in string form 
+          // all exact read calls are in string form
           return obj
         } else { // or a write request
           // all write calls are in object form
@@ -118,7 +118,10 @@
       , config: tree.cfg
     }
     tree._helpers.getCallerLine = function(l) {
-      return new Error().stack.split('\n')[l?l:4].match(/\(?(\S+\w)\)?$/)[1];
+      var t = new Error().stack
+      return t?
+        t.split('\n')[l||4].match(/\(?(\S+\w)\)?$/)[1]
+        : '(unknown)'
     }
     var tpl = tree._helpers._templater = function(tplstr, vars) {
       if (typeof vars != 'object') var vars = {}
@@ -151,7 +154,7 @@
         if (group in vars) {
           return vars[group]
         }else{
-          return '' 
+          return ''
         }
       })
     }
@@ -216,7 +219,7 @@
         var name = newBranch.name.match('(// *)(.*)')[2]
         $pe.children('ul').append(
           tpl(html.branch,{comm:true,gut:
-            tpl(html.branchGut,{  
+            tpl(html.branchGut,{
               summary:htmlEncode(name+' ('+tree._helpers.getCallerLine()+')')
             })
           })
@@ -319,19 +322,19 @@
       var cssWrapperA = '<style id="tree">'
       var cssWrapperB = '</style>'
       if ($head.find('link#tree, style#tree').length == 0) {
-        (cssAsString ? 
+        (cssAsString ?
           $(cssWrapperA+cssAsString+cssWrapperB)
           : $('<link id="tree" rel="stylesheet" type="text/css" href="'
             +cssFilePath+'"></link>')
         ).appendTo($head)
-        $('.tree-top').find('.collapsed>span, .expanded>span')
+        $('.tree-top'). find('.collapsed>span, .expanded>span')
           .live('click', function() {
             $(this).siblings('ul, table').toggle().parent('li')
               .toggleClass('collapsed expanded')
           })
       }
       var summary = 'Empty'
-      var $init = 
+      var $init =
         $(tpl(html.init, {id:id, path:html.logo, gut:
           tpl(html.branch, {gut:
             tpl(html.branchGut, {summary:summary})
@@ -341,7 +344,7 @@
       tree._global.$treeTop = $treeTop
       tree._domElem = $treeTop
       $elem.append($init)
-      //Returns true if it is a DOM element    
+      //Returns true if it is a DOM element
       function isDomElem(o) {
         return (
           typeof HTMLElement === "object" ? o instanceof HTMLElement : // DOM2
@@ -623,7 +626,7 @@
       var newBranchTree = new _virgoTreeInstance()
       newBranchTree._global = tree._global
       tree._global.branchCount++
-      newBranchTree._code = newBranchCode   
+      newBranchTree._code = newBranchCode
       newBranchTree._name = name // deprecated line
       newBranchTree._parent = currentTree
       newBranchTree._debugMode = currentTree._debugMode
@@ -747,8 +750,8 @@
             console.group(stree._name)
             obj[stree._name] = disp(stree._children)
             console.groupEnd()
-          } else {    
-            console.log(stree._name)        
+          } else {
+            console.log(stree._name)
           }
           return obj
         }
@@ -905,7 +908,7 @@
 
     // Set browser title
     document.title = "Tree.js"
-    
+
     // Return brand new instance
     return initialTree
   }
