@@ -1,9 +1,9 @@
 void function() {
   function _virgoTreeInstance() {
     // Heart of the framework
-    var tree = function(act, forgot) {
+    var tree = function(act) {
       tree._act = act
-      typeof forgot=='function'&&console.warn("Didn't you forget about .branch() somewhere?")
+      if (arguments.length > 1) { console.warn("Didn't you forget about .branch() somewhere?") }
       return tree
     }
 
