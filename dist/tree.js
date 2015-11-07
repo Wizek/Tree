@@ -397,7 +397,7 @@ void function() {
         + '\n<span class="stamp comment">&nbsp;//&nbsp;</span>'
         + '\n'
         + '\n<span class="summary">{{summary}}'
-          +'{{^summary}}<i title="No name specified">Anonymuos</i>{{/summary}}'
+          +'{{^summary}}<i title="No name specified">Anonymous</i>{{/summary}}'
         +'</span>'
         + '\n<ul>'
         + '\n</ul>'
